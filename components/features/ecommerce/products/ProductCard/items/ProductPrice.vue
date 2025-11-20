@@ -107,19 +107,21 @@
             <!-- ENHANCED PROGRESS BAR WITH STEP INDICATORS -->
             <div v-if="displayQuantity > 0 && hasVolumeDiscount" class="discount-progress-section">
                 <!-- SAVINGS TEXT ABOVE PROGRESS BAR WITH MAX BADGE -->
-                <div class="savings-header">
-                    <div
-                        v-if="totalSavings > 0"
-                        class="savings-text-above"
-                        :class="{ 'savings-text-glow': isMaxDiscountReached }"
-                    >
-                        {{ t('product.youSaved') }}: <strong>{{ formatPrice(totalSavings) }}</strong>
-                    </div>
-                    <Transition name="badge-pop">
-                        <div v-if="isMaxDiscountReached" class="max-savings-badge">
-                            🎉 {{ t('product.maxSavings') || 'MAX SAVINGS!' }}
+                <div class="savings-header-container">
+                    <div class="savings-header">
+                        <div
+                            v-if="totalSavings > 0"
+                            class="savings-text-above"
+                            :class="{ 'savings-text-glow': isMaxDiscountReached }"
+                        >
+                            {{ t('product.youSaved') }}: <strong>{{ formatPrice(totalSavings) }}</strong>
                         </div>
-                    </Transition>
+                        <Transition name="badge-pop">
+                            <div v-if="isMaxDiscountReached" class="max-savings-badge">
+                                🎉 {{ t('product.maxSavings') || 'MAX SAVINGS!' }}
+                            </div>
+                        </Transition>
+                    </div>
                 </div>
 
                 <!-- PROGRESS BAR WITH FIXED STEPS -->
@@ -1084,12 +1086,17 @@
         @apply space-y-1;
     }
 
+    .savings-header-container {
+        @apply relative;
+        min-height: 20px;
+    }
+
     .savings-header {
         @apply flex items-center justify-between gap-2;
     }
 
     .savings-text-above {
-        @apply text-gray-800 text-subtitle4 font-normal transition-all duration-300;
+        @apply text-gray-800 text-subtitle4 font-normal transition-all duration-300 flex-shrink-0;
     }
 
     .savings-text-glow {
@@ -1108,7 +1115,7 @@
     }
 
     .max-savings-badge {
-        @apply px-2 py-0.5 bg-green-600 text-white text-subtitle4 font-bold rounded-full whitespace-nowrap;
+        @apply px-2 py-0.5 bg-green-600 text-white text-subtitle4 font-bold rounded-full whitespace-nowrap flex-shrink-0;
         box-shadow: 0 0 12px rgba(50, 175, 127, 0.6);
         animation: badge-pulse 2s ease-in-out infinite;
     }
@@ -1169,10 +1176,15 @@
 
     .progress-bar-wrapper {
         @apply relative;
+        min-height: 8px;
     }
 
     .celebration-container {
-        @apply absolute inset-0 pointer-events-none z-20;
+        @apply absolute pointer-events-none z-20;
+        left: 0;
+        right: 0;
+        top: -20px;
+        bottom: -20px;
     }
 
     .celebration-particle {
@@ -1213,7 +1225,8 @@
     }
 
     .progress-bar-track {
-        @apply w-full h-2 bg-gray-300 rounded-full overflow-visible relative transition-all duration-300;
+        @apply w-full bg-gray-300 rounded-full overflow-visible relative transition-all duration-300;
+        height: 8px;
     }
 
     .progress-bar-track.progress-complete {
