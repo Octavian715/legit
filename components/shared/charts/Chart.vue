@@ -702,6 +702,18 @@
             }
         }
     )
+
+    // Watch hasValidData to create chart when data becomes available
+    watch(
+        hasValidData,
+        (newHasData, oldHasData) => {
+            // Only trigger when data goes from invalid to valid (data just arrived)
+            if (newHasData && !oldHasData && isComponentReady.value) {
+                setTimeout(createChart, 150)
+            }
+        }
+    )
+
     const forceUpdate = async () => {
         await nextTick()
         if (hasValidData.value && isComponentReady.value) {
