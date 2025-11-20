@@ -2209,6 +2209,7 @@
         "enterQuantity": "Enter quantity",
         "bulkSavings": "Bulk savings",
         "youSaved": "You saved",
+        "maxSavings": "MAX SAVINGS!",
         "quantityAlreadyExists": "This quantity tier already exists",
         "volumeDiscountHintPart1": "Each quality range has",
         "volumeDiscountHintPart2": "has its own price:",
