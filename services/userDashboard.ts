@@ -36,10 +36,18 @@ export class UserDashboardService {
         }
     }
 
+    // Helper to convert camelCase period to snake_case for API
+    private convertPeriodToSnakeCase(period: string): string {
+        return period.replace(/([A-Z])/g, '_$1').toLowerCase()
+    }
+
     private buildChartQueryParams(filters: DashboardChartFilters = {}): string {
         const queryParams = new URLSearchParams()
 
-        if (filters.period) queryParams.append('period', filters.period)
+        // Convert camelCase period to snake_case for API
+        if (filters.period) {
+            queryParams.append('period', this.convertPeriodToSnakeCase(filters.period))
+        }
         if (filters.start_date) queryParams.append('start_date', filters.start_date)
         if (filters.end_date) queryParams.append('end_date', filters.end_date)
 
@@ -54,7 +62,7 @@ export class UserDashboardService {
         const queryParams = new URLSearchParams()
 
         if (filters.search?.trim()) queryParams.append('search', filters.search.trim())
-        if (filters.period) queryParams.append('period', filters.period)
+        if (filters.period) queryParams.append('period', this.convertPeriodToSnakeCase(filters.period))
         if (filters.start_date) queryParams.append('start_date', filters.start_date)
         if (filters.end_date) queryParams.append('end_date', filters.end_date)
 
@@ -97,7 +105,7 @@ export class UserDashboardService {
     async fetchBuyersByBusinessType(filters: DashboardFilters = {}): Promise<DashboardChartData> {
         const queryParams = new URLSearchParams()
 
-        if (filters.period) queryParams.append('period', filters.period)
+        if (filters.period) queryParams.append('period', this.convertPeriodToSnakeCase(filters.period))
         if (filters.start_date) queryParams.append('start_date', filters.start_date)
         if (filters.end_date) queryParams.append('end_date', filters.end_date)
 
@@ -110,7 +118,7 @@ export class UserDashboardService {
     async fetchBuyersByCountry(filters: DashboardFilters = {}): Promise<DashboardChartData> {
         const queryParams = new URLSearchParams()
 
-        if (filters.period) queryParams.append('period', filters.period)
+        if (filters.period) queryParams.append('period', this.convertPeriodToSnakeCase(filters.period))
         if (filters.start_date) queryParams.append('start_date', filters.start_date)
         if (filters.end_date) queryParams.append('end_date', filters.end_date)
 
@@ -126,7 +134,7 @@ export class UserDashboardService {
         const queryParams = new URLSearchParams()
 
         if (filters.search?.trim()) queryParams.append('search', filters.search.trim())
-        if (filters.period) queryParams.append('period', filters.period)
+        if (filters.period) queryParams.append('period', this.convertPeriodToSnakeCase(filters.period))
         if (filters.start_date) queryParams.append('start_date', filters.start_date)
         if (filters.end_date) queryParams.append('end_date', filters.end_date)
 
@@ -165,7 +173,7 @@ export class UserDashboardService {
         const queryParams = new URLSearchParams()
 
         if (filters.search?.trim()) queryParams.append('search', filters.search.trim())
-        if (filters.period) queryParams.append('period', filters.period)
+        if (filters.period) queryParams.append('period', this.convertPeriodToSnakeCase(filters.period))
         if (filters.start_date) queryParams.append('start_date', filters.start_date)
         if (filters.end_date) queryParams.append('end_date', filters.end_date)
 
@@ -199,7 +207,7 @@ export class UserDashboardService {
         const queryParams = new URLSearchParams()
 
         if (filters.search?.trim()) queryParams.append('search', filters.search.trim())
-        if (filters.period) queryParams.append('period', filters.period)
+        if (filters.period) queryParams.append('period', this.convertPeriodToSnakeCase(filters.period))
         if (filters.start_date) queryParams.append('start_date', filters.start_date)
         if (filters.end_date) queryParams.append('end_date', filters.end_date)
 
