@@ -290,8 +290,8 @@
             isLoading.value = true
             isInitializing.value = true // Block watch
 
-            // Get bank_accounts from user store
-            const accounts = userStore.user?.company_details?.bank_accounts || []
+            // ✅ FIX: Get bank_accounts directly from user, NOT from company_details
+            const accounts = userStore.user?.bank_accounts || []
 
             // Transform backend data to frontend format
             bankAccounts.value = accounts.map((account: any) => ({
@@ -302,7 +302,7 @@
                 swiftCode: account.swift_code,
                 currencyId: account.currency?.id || null,
                 countryId: account.country?.id || null,
-                stateName: account.state_name || '',
+                stateName: account.state?.name || account.state_name || '',
                 cityName: account.city_name,
                 streetName: account.street_name,
                 streetNumber: account.street_number,
