@@ -591,11 +591,6 @@
         const margin = 10 // Same margin as step positions
         const usableWidth = 100 - 2 * margin
 
-        // CRITICAL: If at or beyond last tier, go to 100% IMMEDIATELY
-        if (currentTierIndex >= tiers.length - 1) {
-            return 100
-        }
-
         // If before first tier (quantity < first tier)
         if (currentTierIndex === -1) {
             const nextTier = tiers[0]
@@ -603,6 +598,14 @@
 
             // Progress from 0% to first step position (10%)
             return progressRatio * margin
+        }
+
+        // Calculate step position for current tier
+        const currentStepPos = margin + (currentTierIndex / (tiers.length - 1)) * usableWidth
+
+        // If we're at or beyond the last tier, return 100%
+        if (currentTierIndex >= tiers.length - 1) {
+            return 100
         }
 
         // Between two tiers
@@ -615,7 +618,6 @@
             (nextTier.quantity_from - currentTier.quantity_from)
 
         // Calculate step positions for current and next tier
-        const currentStepPos = margin + (currentTierIndex / (tiers.length - 1)) * usableWidth
         const nextStepPos = margin + ((currentTierIndex + 1) / (tiers.length - 1)) * usableWidth
 
         // Interpolate progress between current step position and next step position
