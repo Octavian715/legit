@@ -121,6 +121,45 @@
     // Access user role
     const isSupplier = computed(() => userStore.isSupplier)
 
+    // Base tab configuration - all tabs (must be defined before getInitialTabIndex)
+    const baseTabConfig = [
+        { key: 'company-profile', labelKey: t('company.profile'), requiresSupplier: false },
+        {
+            key: 'company-details',
+            labelKey: t('settings.companyDetails', 'Company Details'),
+            requiresSupplier: false,
+        },
+        { key: 'account-settings', labelKey: t('settings.account.title'), requiresSupplier: false },
+        { key: 'delivery-address', labelKey: t('product.delivery'), requiresSupplier: false },
+        {
+            key: 'bank-accounts',
+            labelKey: t('bank.bankAccounts', 'Bank Accounts'),
+            requiresSupplier: false,
+        },
+        {
+            key: 'certificates',
+            labelKey: t('certificates.certificates', 'Certificates'),
+            requiresSupplier: false,
+        },
+        { key: 'currencies', labelKey: t('currency', 0), requiresSupplier: true },
+        {
+            key: 'production',
+            labelKey: t('register.production', 'Production'),
+            requiresSupplier: true,
+        },
+        { key: 'export', labelKey: t('company.exportDetails', 'Export'), requiresSupplier: true },
+        {
+            key: 'notification-settings',
+            labelKey: t('notifications.settings', 'Notification Settings'),
+            requiresSupplier: false,
+        },
+        {
+            key: 'subscription',
+            labelKey: `${t('subscription.title')} ${t('settings')}`,
+            requiresSupplier: false,
+        },
+    ]
+
     const isLoading = ref(false)
     const isSaving = ref(false)
     const isSavingBeforeSwitch = ref(false)
@@ -206,45 +245,6 @@
     const notificationSettingsTabRef = ref()
     const companyDetailsTabRef = ref()
     const accountSettingsTabRef = ref()
-
-    // Base tab configuration - all tabs
-    const baseTabConfig = [
-        { key: 'company-profile', labelKey: t('company.profile'), requiresSupplier: false },
-        {
-            key: 'company-details',
-            labelKey: t('settings.companyDetails', 'Company Details'),
-            requiresSupplier: false,
-        },
-        { key: 'account-settings', labelKey: t('settings.account.title'), requiresSupplier: false },
-        { key: 'delivery-address', labelKey: t('product.delivery'), requiresSupplier: false },
-        {
-            key: 'bank-accounts',
-            labelKey: t('bank.bankAccounts', 'Bank Accounts'),
-            requiresSupplier: false,
-        },
-        {
-            key: 'certificates',
-            labelKey: t('certificates.certificates', 'Certificates'),
-            requiresSupplier: false,
-        },
-        { key: 'currencies', labelKey: t('currency', 0), requiresSupplier: true },
-        {
-            key: 'production',
-            labelKey: t('register.production', 'Production'),
-            requiresSupplier: true,
-        },
-        { key: 'export', labelKey: t('company.exportDetails', 'Export'), requiresSupplier: true },
-        {
-            key: 'notification-settings',
-            labelKey: t('notifications.settings', 'Notification Settings'),
-            requiresSupplier: false,
-        },
-        {
-            key: 'subscription',
-            labelKey: `${t('subscription.title')} ${t('settings')}`,
-            requiresSupplier: false,
-        },
-    ]
 
     // Filtered tab configuration based on user role
     const tabConfig = computed(() => {
