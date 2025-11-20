@@ -161,7 +161,7 @@
 </template>
 
 <script setup lang="ts">
-    import { ref, computed, watch, nextTick, onMounted } from 'vue'
+    import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
     import { useI18n } from 'vue-i18n'
     import { useUserStore } from '~/stores/user'
     import { useToastNotification } from '~/composables/useToastNotification'
@@ -509,7 +509,15 @@
     // Watch user changes to reload bank accounts when user becomes available
     watch(
         () => userStore.user?.bank_accounts,
-        (newBankAccounts) => {
+        (newBankAccounts, oldBankAccounts) => {
+            // Clean session storage when user logs out (user becomes null)
+            if (oldBankAccounts && !newBankAccounts) {
+                clearBankAccountsFromSession()
+                bankAccounts.value = []
+                originalData.value = []
+                return
+            }
+
             // Only reload if user has bank accounts and we haven't loaded from session
             if (newBankAccounts && newBankAccounts.length > 0 && bankAccounts.value.length === 0) {
                 loadBankAccounts()
@@ -521,6 +529,14 @@
     // Load bank accounts on mount
     onMounted(() => {
         loadBankAccounts()
+    })
+
+    // Clean up session storage before component unmounts
+    onBeforeUnmount(() => {
+        // Only clear if there are no unsaved changes
+        if (!isDirty.value) {
+            clearBankAccountsFromSession()
+        }
     })
 
     // Expose methods to parent
