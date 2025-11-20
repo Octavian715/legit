@@ -1,0 +1,7 @@
+{
+    "recommendations": [],
+    "eslint.validate": ["javascript", "typescript", "vue"],
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    }
+}

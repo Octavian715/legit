@@ -1,0 +1,212 @@
+export default {
+    content: [
+        './components/**/*.{vue,js,ts,jsx,tsx,html}',
+        './pages/**/*.{vue,js,ts,jsx,tsx,html}',
+        './layouts/**/*.vue',
+        './plugins/**/*.{js,ts}',
+        './nuxt.config.{js,ts}',
+    ],
+    theme: {
+        fontSize: {
+            h1: ['40px', '46px'],
+            h2: ['32px', '37px'],
+            h3: ['28px', '32px'],
+            title1: ['24px', '27.6px'],
+            title2: ['20px', '23px'],
+            title3: ['18px', '20.7px'],
+            subtitle1: ['18px', '20.7px'],
+            subtitle2: ['16px', '18.4px'],
+            subtitle3: ['14px', '16.1px'],
+            subtitle4: ['12px', '13.8px'],
+            paragraph: ['16px', '18.4px'],
+            body: ['13px', '15.95px'],
+            caption1: ['11px', '12.5px'],
+            caption2: ['7px', '8.4px'],
+        },
+
+        letterSpacing: {
+            DEFAULT: '-0.25%',
+        },
+
+        borderRadius: {
+            DEFAULT: '2px',
+            sm: '4px',
+            md: '8px',
+            lg: '12px',
+            xl: '16px',
+            full: '9999px',
+        },
+        extend: {
+            backgroundImage: {
+                lemarkt: "url('/public/images/register/leBackground.svg')",
+            },
+
+            fontFamily: {
+                sans: ['Open Sans', 'sans-serif'],
+            },
+
+            colors: {
+                red: {
+                    0: '#FFFAFA',
+                    50: '#FFE1E1',
+                    100: '#FFC8C8',
+                    150: '#FFAFAF',
+                    200: '#FF9696',
+                    300: '#FF6464',
+                    400: '#FF3232',
+                    500: '#FF0000',
+                    600: '#CD0000',
+                    700: '#9B0000',
+                    800: '#690000',
+                    850: '#500000',
+                    900: '#370000',
+                    950: '#1E0000',
+                },
+                blue: {
+                    0: '#FAFCFF',
+                    50: '#E1ECFF',
+                    100: '#C8DBFF',
+                    150: '#AFCAFF',
+                    200: '#96BAFF',
+                    300: '#6499FF',
+                    400: '#3278FF',
+                    500: '#0057FF',
+                    600: '#0046CD',
+                    700: '#00359B',
+                    800: '#002469',
+                    850: '#001C50',
+                    900: '#001337',
+                    950: '#000B1E',
+                },
+                green: {
+                    0: '#F2FCF8',
+                    50: '#E0F8EE',
+                    100: '#CEF4E5',
+                    150: '#BBEFDB',
+                    200: '#A9EBD2',
+                    300: '#85E3BE',
+                    400: '#60DAAB',
+                    500: '#3CD298',
+                    600: '#32AF7F',
+                    700: '#288D66',
+                    800: '#1D6A4C',
+                    850: '#185940',
+                    900: '#134833',
+                    950: '#0E3627',
+                    chat: '#D9FDD3',
+                },
+                yellow: {
+                    0: '#FFFDF5',
+                    50: '#FFF9DD',
+                    100: '#FFF5C4',
+                    150: '#FFF1AB',
+                    200: '#FFED93',
+                    300: '#FFE462',
+                    400: '#FFDC31',
+                    500: '#FFD400',
+                    600: '#CEAB00',
+                    700: '#9D8200',
+                    800: '#6C5A00',
+                    850: '#544500',
+                    900: '#3B3100',
+                    950: '#231C00',
+                },
+                gray: {
+                    0: '#FFFFFF',
+                    50: '#FBFCFC',
+                    100: '#F8F8FA',
+                    150: '#F4F5F7',
+                    200: '#F1F2F4',
+                    300: '#E9EBEF',
+                    400: '#E2E5E9',
+                    500: '#DBDEE4',
+                    600: '#B6B9C0',
+                    700: '#91949B',
+                    800: '#6C7077',
+                    850: '#5A5D65',
+                    900: '#474B52',
+                    950: '#353840',
+                },
+                purple: {
+                    0: '#EFE2FF',
+                    50: '#E7D3FF',
+                    100: '#DCC0FF',
+                    150: '#D3B0FF',
+                    200: '#B073FF',
+                    300: '#6C28C3',
+                    400: '#6C28C3',
+                    500: '#6C28C3',
+                    600: '#621CBC',
+                    700: '#5917AE',
+                    800: '#5214A1',
+                    850: '#49138D',
+                    900: '#3F1673',
+                    950: '#37195E',
+                },
+            },
+
+            /* ---- Animations / keyframes ---------------------------------- */
+            keyframes: {
+                'fade-in': {
+                    '0%': { opacity: '0', transform: 'translateY(-10px)' },
+                    '100%': { opacity: '1', transform: 'translateY(0)' },
+                },
+                shimmer: {
+                    '0%': { backgroundPosition: '-200px 0' },
+                    '100%': { backgroundPosition: 'calc(200px + 100%) 0' },
+                },
+                'bounce-left': {
+                    '0%': {
+                        transform: 'translateX(-48px)',
+                        animationTimingFunction: 'ease-in',
+                        opacity: '1',
+                    },
+                    '24%': {
+                        opacity: '1',
+                    },
+                    '40%': {
+                        transform: 'translateX(-26px)',
+                        animationTimingFunction: 'ease-in',
+                    },
+                    '65%': {
+                        transform: 'translateX(-13px)',
+                        animationTimingFunction: 'ease-in',
+                    },
+                    '82%': {
+                        transform: 'translateX(-6.5px)',
+                        animationTimingFunction: 'ease-in',
+                    },
+                    '93%': {
+                        transform: 'translateX(-4px)',
+                        animationTimingFunction: 'ease-in',
+                    },
+                    '25%, 55%, 75%, 87%, 98%': {
+                        transform: 'translateX(0)',
+                        animationTimingFunction: 'ease-out',
+                    },
+                    '100%': {
+                        transform: 'translateX(0)',
+                        animationTimingFunction: 'ease-out',
+                        opacity: '1',
+                    },
+                },
+                'scale-up-center': {
+                    '0%': {
+                        transform: 'scale(0.5)',
+                    },
+                    '100%': {
+                        transform: 'scale(1)',
+                    },
+                },
+            },
+            animation: {
+                'fade-in': 'fade-in 0.3s ease-out',
+                'bounce-left': 'bounce-left 0.9s linear both',
+                'scale-up-center':
+                    'scale-up-center 0.4s cubic-bezier(0.390, 0.575, 0.565, 1.000) both',
+            },
+        },
+    },
+
+    plugins: [],
+}

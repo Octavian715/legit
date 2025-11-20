@@ -1,0 +1,248 @@
+fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+    transition:
+        opacity 0.3s ease,
+        transform 0.3s ease;
+}
+
+.fade-slide-enter-from {
+    opacity: 0;
+    transform: translateX(20px);
+}
+
+.fade-slide-leave-to {
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+@view-transition {
+    navigation: auto;
+}
+
+::view-transition-old(product-image-*),
+::view-transition-new(product-image-*) {
+    animation: fade 0.3s ease both;
+}
+
+@keyframes fade {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.layout-enter-active,
+.layout-leave-active {
+    transition: opacity 0.3s ease;
+}
+.layout-enter-from,
+.layout-leave-to {
+    opacity: 0;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+    transition: transform 0.5s ease;
+}
+
+.slide-enter-from {
+    transform: translateY(100%);
+}
+
+.slide-leave-to {
+    transform: translateY(-100%);
+}
+
+/* Enhanced Step-based Transitions */
+
+/* Existing transitions */
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+    transition:
+        opacity 0.3s ease,
+        transform 0.3s ease;
+}
+
+.fade-slide-enter-from {
+    opacity: 0;
+    transform: translateX(20px);
+}
+
+.fade-slide-leave-to {
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+/* NEW: Step-based directional transitions */
+
+/* Forward step transition (slide from right to left) */
+.step-forward-enter-active,
+.step-forward-leave-active {
+    transition:
+        transform 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+        opacity 0.4s ease;
+    position: relative;
+}
+
+.step-forward-enter-from {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+.step-forward-leave-to {
+    transform: translateX(-100%);
+    opacity: 0;
+}
+
+/* Backward step transition (slide from left to right) */
+.step-backward-enter-active,
+.step-backward-leave-active {
+    transition:
+        transform 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+        opacity 0.4s ease;
+    position: relative;
+}
+
+.step-backward-enter-from {
+    transform: translateX(-100%);
+    opacity: 0;
+}
+
+.step-backward-leave-to {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+/* Enhanced smooth transitions with better easing */
+.step-smooth-enter-active,
+.step-smooth-leave-active {
+    transition:
+        transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1),
+        opacity 0.3s ease;
+    position: relative;
+}
+
+.step-smooth-forward-enter-from {
+    transform: translateX(50px);
+    opacity: 0;
+}
+
+.step-smooth-forward-leave-to {
+    transform: translateX(-50px);
+    opacity: 0;
+}
+
+.step-smooth-backward-enter-from {
+    transform: translateX(-50px);
+    opacity: 0;
+}
+
+.step-smooth-backward-leave-to {
+    transform: translateX(50px);
+    opacity: 0;
+}
+
+/* Mobile-optimized transitions */
+@media (max-width: 768px) {
+    .step-forward-enter-from,
+    .step-backward-enter-from {
+        transform: translateY(20px);
+    }
+
+    .step-forward-leave-to,
+    .step-backward-leave-to {
+        transform: translateY(-20px);
+    }
+}
+
+/* View transitions for modern browsers */
+@view-transition {
+    navigation: auto;
+}
+
+::view-transition-old(step-*),
+::view-transition-new(step-*) {
+    animation: stepSlide 0.4s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+@keyframes stepSlide {
+    from {
+        opacity: 0;
+        transform: translateX(var(--slide-direction, 0));
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Layout transitions */
+.layout-enter-active,
+.layout-leave-active {
+    transition: opacity 0.3s ease;
+}
+.layout-enter-from,
+.layout-leave-to {
+    opacity: 0;
+}
+
+/* Slide transitions for modals */
+.slide-enter-active,
+.slide-leave-active {
+    transition: transform 0.5s ease;
+}
+
+.slide-enter-from {
+    transform: translateY(100%);
+}
+
+.slide-leave-to {
+    transform: translateY(-100%);
+}
+
+/* Loading state transitions */
+.loading-enter-active,
+.loading-leave-active {
+    transition: all 0.2s ease;
+}
+
+.loading-enter-from,
+.loading-leave-to {
+    opacity: 0;
+    transform: scale(0.95);
+}
+
+.skeleton-shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200px 0;
+    }
+    100% {
+        background-position: calc(200px + 100%) 0;
+    }
+}

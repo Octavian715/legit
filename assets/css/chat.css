@@ -1,0 +1,263 @@
+/* Chat specific styles */
+.chat-container {
+    height: 100vh;
+    display: flex;
+    overflow: hidden;
+}
+
+/* Message bubble animations */
+.message-item {
+    animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Message hover effects */
+.message-item:hover .message-actions {
+    opacity: 1;
+}
+
+.message-actions {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+/* Typing indicator */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+}
+
+.typing-indicator span {
+    height: 8px;
+    width: 8px;
+    background-color: #9ca3af;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 4px;
+    animation: typing 1.4s infinite;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0%,
+    60%,
+    100% {
+        transform: translateY(0);
+    }
+    30% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Message highlight animation */
+.message-item.highlight {
+    animation: highlight 2s ease-in-out;
+}
+
+@keyframes highlight {
+    0%,
+    100% {
+        background-color: transparent;
+    }
+    50% {
+        background-color: #fef3c7;
+    }
+}
+
+/* Online status indicator */
+.online-indicator {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 12px;
+    height: 12px;
+    background-color: #10b981;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
+}
+
+/* File upload preview */
+.file-preview {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    background-color: #f9fafb;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.file-preview-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #e5e7eb;
+    border-radius: 8px;
+    margin-right: 12px;
+}
+
+/* Emoji picker styles */
+.emoji-picker-trigger {
+    transition: transform 0.2s ease;
+}
+
+.emoji-picker-trigger:hover {
+    transform: scale(1.1);
+}
+
+/* Reply/Edit indicator */
+.reply-indicator,
+.edit-indicator {
+    background: linear-gradient(to right, #3b82f6, transparent);
+    padding-left: 4px;
+    border-left: 3px solid #3b82f6;
+}
+
+/* Pinned messages */
+.pinned-message {
+    background-color: #fef3c7;
+    border-left: 4px solid #f59e0b;
+}
+
+/* Deleted message */
+.message-deleted {
+    opacity: 0.6;
+    font-style: italic;
+}
+
+/* Link preview */
+.link-preview {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 8px;
+    background-color: #fff;
+}
+
+.link-preview-image {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+/* YouTube embed */
+.youtube-embed {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 8px;
+}
+
+.youtube-embed iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .chat-container {
+        flex-direction: column;
+    }
+
+    .conversation-list {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .message-panel {
+        width: 100%;
+    }
+
+    .user-profile-sidebar {
+        position: fixed;
+        right: 0;
+        top: 0;
+        height: 100%;
+        width: 80%;
+        max-width: 320px;
+        z-index: 50;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+    }
+
+    .user-profile-sidebar.open {
+        transform: translateX(0);
+    }
+
+    .profile-backdrop {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 40;
+    }
+}
+
+/* Smooth transitions */
+* {
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+/* Focus styles for accessibility */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* Screen reader only content */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
