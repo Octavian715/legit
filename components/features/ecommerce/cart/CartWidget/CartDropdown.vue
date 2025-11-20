@@ -219,9 +219,9 @@
     .cart-dropdown--auto-opened {
         animation: cart-attention 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         box-shadow:
-            0 9px 46px 8px rgba(239, 68, 68, 0.2),
-            0 24px 38px 3px rgba(239, 68, 68, 0.25),
-            0 0 0 3px rgba(239, 68, 68, 0.3);
+            0 9px 46px 8px rgba(255, 50, 50, 0.2),
+            0 24px 38px 3px rgba(255, 50, 50, 0.25),
+            0 0 0 3px rgba(255, 50, 50, 0.3);
     }
 
     @keyframes cart-attention {
