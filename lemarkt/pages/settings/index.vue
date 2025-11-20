@@ -125,8 +125,21 @@
     const isSaving = ref(false)
     const isSavingBeforeSwitch = ref(false)
     const tabsRef = ref()
-    const activeTabIndex = ref(0)
-    const previousTabIndex = ref(0) // Track previous index
+
+    // Initialize activeTabIndex and previousTabIndex based on route BEFORE rendering
+    const getInitialTabIndex = () => {
+        const tabFromQuery = route.query.tab as string
+        if (tabFromQuery) {
+            const tabIndex = baseTabConfig
+                .filter((tab) => !tab.requiresSupplier || userStore.isSupplier)
+                .findIndex((config) => config.key === tabFromQuery)
+            return tabIndex !== -1 ? tabIndex : 0
+        }
+        return 0
+    }
+
+    const activeTabIndex = ref(getInitialTabIndex())
+    const previousTabIndex = ref(getInitialTabIndex()) // Track previous index
     const dynamicTabRefs = ref<Record<string, any>>({})
 
     const componentMap: Record<string, any> = {
@@ -147,18 +160,35 @@
             dynamicTabRefs.value[key] = el
         }
     }
-    const hasTabBeenSelected = ref<Record<string, boolean>>({
-        'company-profile': false,
-        'company-details': false,
-        'delivery-address': false,
-        'bank-accounts': false,
-        certificates: false,
-        currencies: false,
-        production: false,
-        export: false,
-        'notification-settings': false,
-        subscription: false,
-    })
+
+    // Initialize hasTabBeenSelected with the initial tab already marked as selected
+    const getInitialTabSelection = () => {
+        const initialSelection: Record<string, boolean> = {
+            'company-profile': false,
+            'company-details': false,
+            'delivery-address': false,
+            'bank-accounts': false,
+            certificates: false,
+            currencies: false,
+            production: false,
+            export: false,
+            'notification-settings': false,
+            subscription: false,
+            'account-settings': false,
+        }
+
+        // Mark the initial tab as selected
+        const tabFromQuery = route.query.tab as string
+        if (tabFromQuery && tabFromQuery in initialSelection) {
+            initialSelection[tabFromQuery] = true
+        } else {
+            initialSelection['company-profile'] = true // Default first tab
+        }
+
+        return initialSelection
+    }
+
+    const hasTabBeenSelected = ref<Record<string, boolean>>(getInitialTabSelection())
     const isLoadingCounts = ref(false)
 
     // Exit modal state
@@ -648,10 +678,10 @@
 
     onMounted(async () => {
         isLoading.value = false
-        initializeFromRoute()
 
         await nextTick()
 
+        // Ensure the current tab is marked as selected (should already be done in setup)
         const currentTabKey = getTabKeyByIndex(activeTabIndex.value)
         if (currentTabKey && !hasTabBeenSelected.value[currentTabKey]) {
             hasTabBeenSelected.value[currentTabKey] = true
