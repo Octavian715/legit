@@ -15,6 +15,7 @@
                         <div v-if="isExpanded" class="w-full max-w-sm">
                             <CartDropdown
                                 :in-widget="true"
+                                :is-auto-opened="isAutoOpened"
                                 @close="closeCart"
                                 @checkout="handleCheckout"
                             />
@@ -44,6 +45,7 @@
                             :class="{
                                 'border-b border-gray-400 hover:rounded-t-md': showScrollTop,
                                 'hover:rounded-md': !showScrollTop,
+                                'cart-button-pulse': isAutoOpened,
                             }"
                             :aria-label="$t('cart.toggleCart')"
                             :aria-expanded="isExpanded"
@@ -89,7 +91,7 @@
 
 <script setup lang="ts">
     const cartStore = useCartStore()
-    const { cartBadgeCount, hasCartAccess } = useCart()
+    const { cartBadgeCount, hasCartAccess, itemJustAdded } = useCart()
     const router = useRouter()
     const route = useRoute()
 
@@ -100,6 +102,8 @@
     const showScrollTop = ref(false)
     const scrollContainer = ref<HTMLElement | null>(null)
     const isMobileView = ref(false)
+    const isAutoOpened = ref(false)
+    const previousCartCount = ref(0)
 
     const isInChatRoute = computed(() => {
         return route.path.includes('chat')
@@ -131,6 +135,7 @@
 
     const toggleCart = async () => {
         isExpanded.value = !isExpanded.value
+        isAutoOpened.value = false
 
         if (isExpanded.value) {
             try {
@@ -152,12 +157,44 @@
         }
     }
 
+    const autoExpandCart = async () => {
+        if (isExpanded.value) {
+            // If already expanded, just refresh and reset timer
+            if (autoCloseTimer.value) {
+                clearTimeout(autoCloseTimer.value)
+            }
+        } else {
+            // Open the dropdown
+            isExpanded.value = true
+            isAutoOpened.value = true
+
+            try {
+                if (!cartStore.isHydrated) {
+                    await cartStore.fetchSummary()
+                }
+                await nextTick()
+
+                if (isMobileView.value && process.client) {
+                    document.body.style.overflow = 'hidden'
+                }
+            } catch (error) {
+                console.error('Failed to fetch summary:', error)
+            }
+        }
+
+        // Set auto-close timer (3 seconds)
+        autoCloseTimer.value = setTimeout(() => {
+            closeCart()
+        }, 3000)
+    }
+
     const closeCart = () => {
         if (autoCloseTimer.value) {
             clearTimeout(autoCloseTimer.value)
             autoCloseTimer.value = null
         }
         isExpanded.value = false
+        isAutoOpened.value = false
 
         if (isMobileView.value && process.client) {
             document.body.style.overflow = ''
@@ -190,6 +227,9 @@
         isMounted.value = true
         await nextTick()
         showBadge.value = true
+
+        // Initialize previous cart count
+        previousCartCount.value = cartStore.totalItemsCount
 
         if (process.client) {
             checkMobileView()
@@ -225,6 +265,21 @@
         () => router.currentRoute.value.path,
         () => {
             closeCart()
+        }
+    )
+
+    // Watch for cart count changes to auto-expand dropdown
+    watch(
+        () => cartStore.totalItemsCount,
+        (newCount, oldCount) => {
+            // Only auto-expand if:
+            // 1. Count increased (item was added)
+            // 2. Not the initial load (oldCount is defined)
+            // 3. User has cart access
+            if (newCount > oldCount && oldCount !== undefined && hasCartAccess.value) {
+                autoExpandCart()
+            }
+            previousCartCount.value = newCount
         }
     )
 </script>
@@ -279,5 +334,24 @@
     .scroll-section-leave-from {
         max-height: 450px;
         opacity: 1;
+    }
+
+    .cart-button-pulse {
+        animation: button-pulse 0.6s cubic-bezier(0.4, 0, 0.6, 1);
+    }
+
+    @keyframes button-pulse {
+        0%,
+        100% {
+            box-shadow:
+                0 9px 46px 8px rgba(90, 93, 101, 0.12),
+                0 24px 38px 3px rgba(90, 93, 101, 0.14);
+        }
+        50% {
+            box-shadow:
+                0 9px 46px 8px rgba(239, 68, 68, 0.25),
+                0 24px 38px 3px rgba(239, 68, 68, 0.3),
+                0 0 0 4px rgba(239, 68, 68, 0.2);
+        }
     }
 </style>
