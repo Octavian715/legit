@@ -506,6 +506,18 @@
         { deep: true }
     )
 
+    // Watch user changes to reload bank accounts when user becomes available
+    watch(
+        () => userStore.user?.bank_accounts,
+        (newBankAccounts) => {
+            // Only reload if user has bank accounts and we haven't loaded from session
+            if (newBankAccounts && newBankAccounts.length > 0 && bankAccounts.value.length === 0) {
+                loadBankAccounts()
+            }
+        },
+        { immediate: true }
+    )
+
     // Load bank accounts on mount
     onMounted(() => {
         loadBankAccounts()
