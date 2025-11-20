@@ -148,11 +148,9 @@
                 loadChartData(newPeriod, newDateRange)
             }
         },
-        { immediate: false }
+        { immediate: true }
     )
 
-    // Load initial data
-    onMounted(() => {
-        loadChartData(props.period || defaultPeriod, props.dateRange)
-    })
+    // Initial data is now loaded by the watcher with immediate: true
+    // onMounted hook removed to avoid double loading
 </script>
