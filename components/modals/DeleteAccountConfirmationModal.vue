@@ -1,55 +1,43 @@
 <template>
-    <div class="delete-account-confirmation-modal">
-        <!-- Header -->
-        <div class="px-6 pt-6 pb-4 border-b border-gray-200">
-            <div class="flex justify-between items-center">
-                <h2 class="text-title3 font-semibold text-gray-900">
-                    {{ $t('deleteAccount.modalTitle') }}
-                </h2>
-                <button
-                    type="button"
-                    class="text-gray-500 hover:text-gray-700 transition-colors"
-                    :aria-label="$t('deleteAccount.closeModal')"
-                    @click="handleCancel"
-                >
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-        </div>
-
+    <Modal
+        :is-open="true"
+        :title="$t('deleteAccount.modalTitle')"
+        content-width="max-w-2xl"
+        :persistent="true"
+        :hide-footer="true"
+        @close="handleCancel"
+    >
         <!-- Body -->
-        <div class="px-6 py-6 max-h-[60vh] overflow-y-auto">
+        <div class="px-4 space-y-4">
             <!-- Primary Instruction -->
-            <p class="text-subtitle2 text-gray-700 leading-relaxed mb-4">
+            <p class="text-subtitle2 text-gray-700 leading-relaxed">
                 {{ $t('deleteAccount.confirmInstruction') }}
             </p>
 
             <!-- Deletion Timeline Warning -->
-            <p class="text-subtitle2 text-gray-700 leading-relaxed mb-4">
+            <p class="text-subtitle2 text-gray-700 leading-relaxed">
                 {{ $t('deleteAccount.deletionTimelinePrefix') }}
                 <span class="font-bold text-gray-900">{{ $t('deleteAccount.deletionTimelineBold') }}</span>
             </p>
 
             <!-- Deactivation Notice -->
-            <p class="text-subtitle2 text-gray-700 leading-relaxed mb-4">
+            <p class="text-subtitle2 text-gray-700 leading-relaxed">
                 {{ $t('deleteAccount.deactivationNotice') }}
             </p>
 
             <!-- Reactivation Information -->
-            <p class="text-subtitle2 text-gray-700 leading-relaxed mb-4">
+            <p class="text-subtitle2 text-gray-700 leading-relaxed">
                 {{ $t('deleteAccount.reactivationInfo') }}
             </p>
 
             <!-- Permanent Deletion Warning -->
-            <p class="text-subtitle2 text-gray-700 leading-relaxed mb-6">
+            <p class="text-subtitle2 text-gray-700 leading-relaxed">
                 {{ $t('deleteAccount.permanentDeletionWarningPrefix') }}
                 <span class="font-bold text-gray-900">{{ $t('deleteAccount.permanentDeletionWarningBold') }}</span>
             </p>
 
             <!-- Form Fields -->
-            <div class="space-y-4">
+            <div class="space-y-3 pt-2">
                 <!-- Company Name Input -->
                 <Input
                     v-model="form.company_name"
@@ -92,10 +80,10 @@
                         @input="clearFieldError('code')"
                     />
                     <div class="mt-2 text-caption1">
-                        <span class="text-gray-500">{{ $t('deleteAccount.didntReceiveCode') }}</span>
+                        <span class="text-gray-600">{{ $t('deleteAccount.didntReceiveCode') }}</span>
                         <button
                             type="button"
-                            class="ml-1 text-blue-500 hover:text-blue-700 transition-colors"
+                            class="ml-1 text-blue-500 hover:text-blue-600 transition-colors"
                             :disabled="resendCooldown > 0"
                             :class="{ 'opacity-50 cursor-not-allowed': resendCooldown > 0 }"
                             @click="handleResendCode"
@@ -113,25 +101,27 @@
         </div>
 
         <!-- Footer -->
-        <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-            <Button
-                color="gray"
-                variant="filled"
-                size="lg"
-                :label="$t('common.cancel')"
-                @click="handleCancel"
-            />
-            <Button
-                color="red"
-                variant="filled"
-                size="lg"
-                :label="isLoading ? $t('deleteAccount.deleteAccountButtonLoading') : $t('deleteAccount.deleteAccountButton')"
-                :disabled="!canSubmit"
-                :loading="isLoading"
-                @click="handleDelete"
-            />
-        </div>
-    </div>
+        <template #footer>
+            <div class="flex gap-2.5 justify-center w-full">
+                <Button
+                    color="gray"
+                    variant="filled"
+                    size="lg"
+                    :label="$t('common.cancel')"
+                    @click="handleCancel"
+                />
+                <Button
+                    color="red"
+                    variant="filled"
+                    size="lg"
+                    :label="isLoading ? $t('deleteAccount.deleteAccountButtonLoading') : $t('deleteAccount.deleteAccountButton')"
+                    :disabled="!canSubmit"
+                    :loading="isLoading"
+                    @click="handleDelete"
+                />
+            </div>
+        </template>
+    </Modal>
 </template>
 
 <script setup lang="ts">
@@ -250,7 +240,6 @@ const handleDelete = async () => {
         success(t('deleteAccount.successMessage'))
         emit('success', response.scheduled_at || '')
     } catch (err: any) {
-        // Handle specific error codes
         if (err.statusCode === 401) {
             errors.value.password = t('deleteAccount.validation.passwordIncorrect')
         } else if (err.statusCode === 400) {
@@ -267,7 +256,6 @@ const handleDelete = async () => {
         } else if (err.statusCode === 429) {
             showError(t('deleteAccount.errors.tooManyAttempts'))
         } else if (err.statusCode === 422 && err.data?.errors) {
-            // Handle validation errors from backend
             const backendErrors = err.data.errors
             Object.keys(backendErrors).forEach((field) => {
                 const errorMessages = backendErrors[field]
@@ -286,7 +274,6 @@ const handleDelete = async () => {
 }
 
 onMounted(() => {
-    // Start cooldown since code was just sent
     startCooldown()
 })
 
@@ -296,16 +283,3 @@ onUnmounted(() => {
     }
 })
 </script>
-
-<style scoped>
-.delete-account-confirmation-modal {
-    min-width: 400px;
-    max-width: 672px;
-}
-
-@media (max-width: 640px) {
-    .delete-account-confirmation-modal {
-        min-width: 100%;
-    }
-}
-</style>
