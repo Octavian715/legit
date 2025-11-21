@@ -1,44 +1,49 @@
 <!-- ~/components/settings/tabs/SubscriptionTab.vue -->
 <template>
-    <div class="w-full space-y-6">
+    <div class="w-full space-y-3">
         <!-- Cancelled Subscription Banner -->
         <CancelledSubscriptionBanner />
 
+        <!-- Section Title -->
+        <h2 class="text-subtitle3 text-gray-800">
+            {{ $t('settings.subscription.title', 'Subscription') }}
+        </h2>
+
         <!-- Your Subscription -->
-        <section class="bg-white rounded-md p-6">
-            <h2 class="text-subtitle1 text-gray-950 font-bold mb-4">
+        <section class="rounded border border-gray-600 p-3 space-y-3">
+            <h3 class="text-body1 font-medium text-gray-950">
                 {{ $t('settings.subscription.yourSubscription') }}
-            </h2>
+            </h3>
 
             <!-- Active Subscription -->
             <div
                 v-if="hasActiveSubscription"
-                class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+                class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
             >
                 <!-- Plan Details -->
-                <div>
-                    <h3 class="text-subtitle2 text-gray-800 mb-1">
+                <div class="space-y-1">
+                    <h4 class="text-subtitle2 text-gray-800">
                         {{ currentPlan?.name || $t('settings.subscription.noPlan') }}
-                    </h3>
+                    </h4>
                     <div class="flex items-baseline gap-1">
-                        <span class="text-title1 font-bold text-blue-500">
+                        <span class="text-title2 font-bold text-blue-500">
                             {{ formatCurrency(currentPlan?.price || 0) }}
                         </span>
-                        <span class="text-subtitle1 text-gray-800">
+                        <span class="text-subtitle3 text-gray-800">
                             / {{ billingCycleLabel }}
                         </span>
                     </div>
-                    <p class="text-subtitle3 text-gray-800 mt-1">
+                    <p class="text-subtitle3 text-gray-700">
                         {{ $t('settings.subscription.subscriptionEnds') }}: {{ formattedEndDate }}
                     </p>
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex gap-3 w-full sm:w-auto">
+                <div class="flex gap-2 w-full sm:w-auto">
                     <Button
                         variant="outline"
                         color="gray"
-                        size="md"
+                        size="sm"
                         font-weight="normal"
                         :disabled="isLoading"
                         @click="handleCancelClick"
@@ -48,7 +53,7 @@
                     <Button
                         variant="filled"
                         color="blue"
-                        size="md"
+                        size="sm"
                         font-weight="normal"
                         :disabled="isLoading"
                         @click="handleUpgradeClick"
@@ -59,14 +64,14 @@
             </div>
 
             <!-- No Subscription State -->
-            <div v-else class="text-center py-8">
-                <p class="text-subtitle1 text-gray-800 mb-4">
+            <div v-else class="text-center py-4">
+                <p class="text-subtitle3 text-gray-800 mb-3">
                     {{ $t('settings.subscription.noActiveSubscription') }}
                 </p>
                 <Button
                     variant="filled"
                     color="blue"
-                    size="md"
+                    size="sm"
                     font-weight="normal"
                     @click="handleUpgradeClick"
                 >
@@ -76,25 +81,25 @@
         </section>
 
         <!-- Payment Information -->
-        <!-- <section class="bg-white rounded-md p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-subtitle1 text-gray-950 font-bold">
+        <!-- <section class="rounded border border-gray-600 p-3 space-y-3">
+            <div class="flex justify-between items-center">
+                <h3 class="text-body1 font-medium text-gray-950">
                     {{ $t('settings.subscription.paymentInformation') }}
-                </h2>
+                </h3>
                 <button
-                    class="text-blue-500 hover:text-blue-600 text-subtitle2 font-medium"
+                    class="text-blue-500 hover:text-blue-600 text-subtitle3 font-medium"
                     @click="handleEditPayment"
                 >
                     {{ $t('settings.subscription.edit') }}
                 </button>
             </div>
 
-            <div v-if="defaultPaymentMethod" class="space-y-3">
-                <div class="flex items-center gap-4">
-                    <span class="text-subtitle2 text-gray-800 min-w-[140px]">
+            <div v-if="defaultPaymentMethod" class="space-y-2">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <span class="text-subtitle3 text-gray-800">
                         {{ $t('settings.subscription.paymentMethod') }}:
                     </span>
-                    <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-3 md:col-span-2">
                         <label
                             v-for="method in paymentMethods"
                             :key="method.id"
@@ -108,7 +113,7 @@
                                 class="peer sr-only"
                             />
                             <div
-                                class="flex items-center gap-2 px-3 py-2 border-2 rounded-lg cursor-pointer transition-all"
+                                class="flex items-center gap-2 px-2 py-1.5 border rounded cursor-pointer transition-all"
                                 :class="
                                     method.is_default
                                         ? 'border-blue-500 bg-blue-50'
@@ -123,20 +128,20 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-4">
-                    <span class="text-subtitle2 text-gray-800 min-w-[140px]">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <span class="text-subtitle3 text-gray-800">
                         {{ $t('settings.subscription.billingEmail') }}:
                     </span>
-                    <span class="text-subtitle2 text-gray-950">
+                    <span class="text-subtitle3 text-gray-950 md:col-span-2">
                         {{ defaultPaymentMethod.billing_email }}
                     </span>
                 </div>
 
-                <div class="flex items-center gap-4">
-                    <span class="text-subtitle2 text-gray-800 min-w-[140px]">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <span class="text-subtitle3 text-gray-800">
                         {{ $t('settings.subscription.billingAddress') }}:
                     </span>
-                    <span class="text-subtitle2 text-gray-950">
+                    <span class="text-subtitle3 text-gray-950 md:col-span-2">
                         {{ formatAddress(defaultPaymentMethod.billing_address) }}
                     </span>
                 </div>
@@ -144,12 +149,10 @@
         </section> -->
 
         <!-- Billing History -->
-        <!-- <section class="bg-white rounded-md overflow-hidden">
-            <div class="p-6 pb-0">
-                <h2 class="text-subtitle1 text-gray-950 font-bold mb-4">
-                    {{ $t('settings.subscription.billingHistory') }}
-                </h2>
-            </div>
+        <!-- <section class="rounded border border-gray-600 p-3 space-y-3">
+            <h3 class="text-body1 font-medium text-gray-950">
+                {{ $t('settings.subscription.billingHistory') }}
+            </h3>
 
             <Table
                 :columns="billingColumns"
@@ -161,11 +164,11 @@
                 wrapper-class="border-0"
             >
                 <template #empty>
-                    <div class="flex flex-col items-center justify-center py-12">
-                        <svg class="w-16 h-16 text-gray-400 mb-3">
+                    <div class="flex flex-col items-center justify-center py-6">
+                        <svg class="w-12 h-12 text-gray-400 mb-2">
                             <use xlink:href="/sprite.svg#receipt" />
                         </svg>
-                        <p class="text-gray-800 text-subtitle1">
+                        <p class="text-gray-800 text-subtitle3">
                             {{ $t('settings.subscription.noBillingHistory') }}
                         </p>
                     </div>
