@@ -309,15 +309,15 @@
             </nav>
 
             <!-- Collapse Button -->
-            <div :class="['p-4 flex', { 'px-4 pb-6 justify-center': !isCollapsed, 'justify-start': isCollapsed }]">
+            <div class="p-4 flex justify-center">
                 <Icon
                     is-button
-                    size="sm"
-                    :tooltip="isCollapsed ? $t('navigation.collapseMenu', 'Collapse Menu') : $t('navigation.expandMenu', 'Expand Menu')"
+                    size="md"
+                    :tooltip="isCollapsed ? $t('navigation.expandMenu', 'Expand Menu') : $t('navigation.collapseMenu', 'Collapse Menu')"
                     color="gray"
                     hover-color="red"
-                    container-class="p-2 transition-transform duration-300"
-                    :icon-class="{ 'rotate-180': !isCollapsed }"
+                    container-class="p-2"
+                    :icon-class="['transition-transform duration-300', { 'rotate-180': !isCollapsed }]"
                     icon="double-caret-left"
                     @click="globalStore.toggleSideBar"
                 />
