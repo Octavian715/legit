@@ -87,7 +87,8 @@
                     variant="secound"
                     :is-active="settingItem.isActive"
                     :label="settingItem.label"
-                    @click="handleNavigationAction(settingItem)"
+                    :disabled="settingItem.disabled"
+                    @click="!settingItem.disabled && handleNavigationAction(settingItem)"
                 >
                     <template #icon>
                         <svg class="w-5 h-5">
@@ -129,6 +130,7 @@
         href?: string
         action?: string
         isActive?: boolean
+        disabled?: boolean
     }
 
     const emit = defineEmits<{
@@ -205,7 +207,7 @@
                 icon: 'box-plus',
                 label: `${t('suppliers', { n: 0 })} ${t('dashboard').toLowerCase()}`,
                 href: '/supplier/dashboard',
-                isActive: route.path.includes('/supplier/'),
+                isActive: route.path.includes('/supplier'),
             })
         }
 
@@ -213,14 +215,14 @@
             icon: 'plan',
             label: `${t('buyers', { n: 0 })} ${t('dashboard').toLowerCase()}`,
             href: '/buyer/dashboard',
-            isActive: route.path.includes('/buyer/'),
+            isActive: route.path.includes('/buyer'),
         })
 
         items.push({
             icon: 'shopping-cart',
             label: t('navigation.marketplace'),
             href: '/marketplace',
-            isActive: route.path.includes('/marketplace'),
+            isActive: isEcommerce.value,
         })
 
         return items
@@ -232,18 +234,35 @@
             label: t('navigation.settings'),
             href: '/settings',
             isActive: route.path.includes('/settings'),
+            disabled: false,
         },
         {
             icon: 'help-circle',
             label: t('navigation.support'),
             href: '/support',
             isActive: false,
+            disabled: true,
         },
         {
             icon: 'book-saved',
             label: t('navigation.guide'),
             action: 'openGuide',
             isActive: false,
+            disabled: true,
+        },
+        {
+            icon: 'chart',
+            label: t('navigation.sales', 'Sales'),
+            href: '/sales',
+            isActive: false,
+            disabled: true,
+        },
+        {
+            icon: 'box',
+            label: t('navigation.inventory', 'Inventory'),
+            href: '/inventory',
+            isActive: false,
+            disabled: true,
         },
     ])
 </script>

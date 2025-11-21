@@ -87,7 +87,8 @@
                     variant="secound"
                     :is-active="settingItem.isActive"
                     :label="settingItem.label"
-                    @click="handleNavigationAction(settingItem)"
+                    :disabled="settingItem.disabled"
+                    @click="!settingItem.disabled && handleNavigationAction(settingItem)"
                 >
                     <template #icon>
                         <svg class="w-5 h-5">
@@ -129,6 +130,7 @@
         href?: string
         action?: string
         isActive?: boolean
+        disabled?: boolean
     }
 
     const emit = defineEmits<{
@@ -232,18 +234,35 @@
             label: t('navigation.settings'),
             href: '/settings',
             isActive: route.path.includes('/settings'),
+            disabled: false,
         },
         {
             icon: 'help-circle',
             label: t('navigation.support'),
             href: '/support',
             isActive: false,
+            disabled: true,
         },
         {
             icon: 'book-saved',
             label: t('navigation.guide'),
             action: 'openGuide',
             isActive: false,
+            disabled: true,
+        },
+        {
+            icon: 'chart',
+            label: t('navigation.sales', 'Sales'),
+            href: '/sales',
+            isActive: false,
+            disabled: true,
+        },
+        {
+            icon: 'box',
+            label: t('navigation.inventory', 'Inventory'),
+            href: '/inventory',
+            isActive: false,
+            disabled: true,
         },
     ])
 </script>
