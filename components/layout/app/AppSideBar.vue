@@ -451,11 +451,12 @@
      * Handle parent item click
      */
     const handleParentClick = (event: MouseEvent, item: MenuItem) => {
-        // If locked, prevent navigation and show upgrade prompt
+        // If locked, prevent navigation
         if (isMenuItemLocked(item)) {
             event.preventDefault()
+            // Only show upgrade for features that can be upgraded (not coming_soon)
             const requiredFeature = menuKeyToFeature[item.key!]
-            if (requiredFeature) {
+            if (requiredFeature && requiredFeature !== 'feature_coming_soon') {
                 navigateToUpgrade(requiredFeature as any)
             }
             return
@@ -489,11 +490,12 @@
      * Handle menu item click (items without children)
      */
     const handleMenuItemClick = (event: MouseEvent, item: MenuItem) => {
-        // If locked, prevent navigation and show upgrade prompt
+        // If locked, prevent navigation
         if (isMenuItemLocked(item)) {
             event.preventDefault()
+            // Only show upgrade for features that can be upgraded (not coming_soon)
             const requiredFeature = menuKeyToFeature[item.key!]
-            if (requiredFeature) {
+            if (requiredFeature && requiredFeature !== 'feature_coming_soon') {
                 navigateToUpgrade(requiredFeature as any)
             }
             return
@@ -510,11 +512,12 @@
      * Handle subitem click
      */
     const handleSubItemClick = (event: MouseEvent, subItem: MenuItem) => {
-        // If locked, prevent navigation and show upgrade prompt
+        // If locked, prevent navigation
         if (isMenuItemLocked(subItem)) {
             event.preventDefault()
+            // Only show upgrade for features that can be upgraded (not coming_soon)
             const requiredFeature = menuKeyToFeature[subItem.key!]
-            if (requiredFeature) {
+            if (requiredFeature && requiredFeature !== 'feature_coming_soon') {
                 navigateToUpgrade(requiredFeature as any)
             }
             return

@@ -305,14 +305,9 @@
      * Handle parent item click (with or without children)
      */
     const handleParentClick = (event: MouseEvent, item: MenuItem) => {
-        // If locked, prevent navigation and show upgrade prompt
+        // If locked, do nothing
         if (isMenuItemLocked(item)) {
             event.preventDefault()
-            const requiredFeature = menuKeyToFeature[item.key!]
-            if (requiredFeature) {
-                // ✅ Use already initialized function from top-level
-                showUpgradePrompt(requiredFeature as any)
-            }
             return
         }
 
@@ -326,15 +321,9 @@
      * Handle single menu item click (no children)
      */
     const handleMenuItemClick = (event: MouseEvent, item: MenuItem) => {
-        // If locked, prevent navigation and show upgrade prompt
+        // If locked, do nothing
         if (isMenuItemLocked(item)) {
             event.preventDefault()
-            const requiredFeature = menuKeyToFeature[item.key!]
-
-            if (requiredFeature) {
-                // ✅ Use already initialized function from top-level
-                showUpgradePrompt(requiredFeature as any)
-            }
             return
         }
 
@@ -346,14 +335,9 @@
      * Handle subitem click
      */
     const handleSubItemClick = (event: MouseEvent, subItem: MenuItem) => {
-        // If locked, prevent navigation and show upgrade prompt
+        // If locked, do nothing
         if (isMenuItemLocked(subItem)) {
             event.preventDefault()
-            const requiredFeature = menuKeyToFeature[subItem.key!]
-            if (requiredFeature) {
-                // ✅ Use already initialized function from top-level
-                showUpgradePrompt(requiredFeature as any)
-            }
             return
         }
 
