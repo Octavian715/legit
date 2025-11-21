@@ -1,10 +1,8 @@
 <template>
     <div :class="['layout', { 'layout--extend': !isCollapseSideBar }]">
-        <ClientOnly>
-            <div v-if="!isMobile" class="layout__sidebar">
-                <AppSideBar @open-invite="handleInvitation" />
-            </div>
-        </ClientOnly>
+        <div class="layout__sidebar hidden sm:block">
+            <AppSideBar @open-invite="handleInvitation" />
+        </div>
 
         <div class="layout__topbar">
             <AppHeaderDashboard @open-invite="handleInvitation" />
