@@ -262,7 +262,9 @@
                 {
                     key: 'bbd',
                     label: t('product.bbd'),
-                    value: props.product.shelf_life_days ? props.product.shelf_life_days : '—',
+                    value: props.product.shelf_life_days
+                        ? `${props.product.shelf_life_days} ${t('date.day', props.product.shelf_life_days)}`
+                        : '—',
                     type: 'text',
                 },
                 {
