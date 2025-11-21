@@ -1,47 +1,35 @@
 <template>
-    <div class="delete-account-modal">
-        <!-- Header -->
-        <div class="px-6 pt-6 pb-4 border-b border-gray-200">
-            <div class="flex justify-between items-center">
-                <h2 class="text-title3 font-semibold text-gray-900">
-                    {{ $t('deleteAccount.modalTitle') }}
-                </h2>
-                <button
-                    type="button"
-                    class="text-gray-500 hover:text-gray-700 transition-colors"
-                    :aria-label="$t('deleteAccount.closeModal')"
-                    @click="handleCancel"
-                >
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-        </div>
-
+    <Modal
+        :is-open="true"
+        :title="$t('deleteAccount.modalTitle')"
+        content-width="max-w-2xl"
+        :persistent="true"
+        :hide-footer="true"
+        @close="handleCancel"
+    >
         <!-- Body -->
-        <div class="px-6 py-6 max-h-[60vh] overflow-y-auto">
+        <div class="px-4 space-y-4">
             <!-- Primary Message -->
-            <p class="text-subtitle1 text-gray-900 mb-4">
+            <p class="text-subtitle1 text-gray-900">
                 {{ $t('deleteAccount.sorryMessage') }}
             </p>
 
             <!-- Secondary Message -->
-            <p class="text-subtitle2 text-gray-700 leading-relaxed mb-6">
+            <p class="text-subtitle2 text-gray-700 leading-relaxed">
                 {{ $t('deleteAccount.feedbackMessage') }}
             </p>
 
             <!-- Question Label -->
-            <p class="text-subtitle1 font-semibold text-gray-900 mb-4">
+            <p class="text-subtitle1 font-semibold text-gray-900">
                 {{ $t('deleteAccount.reasonQuestion') }}
             </p>
 
             <!-- Radio Group -->
-            <div class="space-y-3" role="radiogroup" :aria-labelledby="'reason-question'">
+            <div class="space-y-2 max-h-[40vh] overflow-y-auto" role="radiogroup">
                 <div
                     v-for="reason in reasons"
                     :key="reason.value"
-                    class="flex items-center py-3 px-4 rounded-md hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
+                    class="py-2 px-3 rounded hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
                     @click="selectedReason = reason.value"
                 >
                     <Radiobox
@@ -54,48 +42,49 @@
             </div>
 
             <!-- Conditional Text Area for "Other" reason -->
-            <div v-if="selectedReason === 'other'" class="mt-4">
+            <div v-if="selectedReason === 'other'" class="space-y-1">
                 <textarea
                     v-model="otherReasonText"
                     :placeholder="$t('deleteAccount.otherReasonPlaceholder')"
-                    rows="4"
+                    rows="3"
                     maxlength="500"
-                    class="w-full p-3 border rounded-md bg-white text-subtitle2 text-gray-900
-                           border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0
+                    class="w-full p-3 border rounded bg-white text-subtitle2 text-gray-900
+                           border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500
                            resize-none transition-colors duration-200"
                     :class="{ 'border-red-500': otherReasonError }"
                     :aria-label="$t('deleteAccount.otherReasonLabel')"
-                    :aria-invalid="!!otherReasonError"
                 ></textarea>
-                <div v-if="otherReasonError" class="text-caption1 text-red-500 mt-1">
+                <div v-if="otherReasonError" class="text-caption1 text-red-500">
                     {{ otherReasonError }}
                 </div>
-                <div class="text-caption1 text-gray-500 text-right mt-1">
+                <div class="text-caption1 text-gray-600 text-right">
                     {{ otherReasonText.length }}/500
                 </div>
             </div>
         </div>
 
         <!-- Footer -->
-        <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-            <Button
-                color="gray"
-                variant="filled"
-                size="lg"
-                :label="$t('common.cancel')"
-                @click="handleCancel"
-            />
-            <Button
-                color="red"
-                variant="filled"
-                size="lg"
-                :label="$t('common.next')"
-                :disabled="!canProceed"
-                :loading="isLoading"
-                @click="handleNext"
-            />
-        </div>
-    </div>
+        <template #footer>
+            <div class="flex gap-2.5 justify-center w-full">
+                <Button
+                    color="gray"
+                    variant="filled"
+                    size="lg"
+                    :label="$t('common.cancel')"
+                    @click="handleCancel"
+                />
+                <Button
+                    color="red"
+                    variant="filled"
+                    size="lg"
+                    :label="$t('common.next')"
+                    :disabled="!canProceed"
+                    :loading="isLoading"
+                    @click="handleNext"
+                />
+            </div>
+        </template>
+    </Modal>
 </template>
 
 <script setup lang="ts">
@@ -165,10 +154,8 @@ const handleNext = async () => {
     isLoading.value = true
 
     try {
-        // Request deletion code from API
         await post('/user/delete/request')
 
-        // Get the reason to pass to next modal
         const reason = selectedReason.value === 'other'
             ? otherReasonText.value.trim()
             : selectedReason.value
@@ -182,16 +169,3 @@ const handleNext = async () => {
     }
 }
 </script>
-
-<style scoped>
-.delete-account-modal {
-    min-width: 400px;
-    max-width: 672px;
-}
-
-@media (max-width: 640px) {
-    .delete-account-modal {
-        min-width: 100%;
-    }
-}
-</style>

@@ -75,26 +75,18 @@
             </div>
         </div>
 
-        <!-- Delete Account Modal -->
-        <Modal
-            v-model:is-open="showDeleteModal"
-            :hide-header="true"
-            :hide-footer="true"
-            content-width="max-w-2xl"
-            :persistent="true"
-        >
-            <DeleteAccountModal
-                v-if="currentStep === 'reason'"
-                @cancel="closeDeleteModal"
-                @next="handleReasonSubmit"
-            />
-            <DeleteAccountConfirmationModal
-                v-else-if="currentStep === 'confirm'"
-                :reason="selectedReason"
-                @cancel="closeDeleteModal"
-                @success="handleDeleteSuccess"
-            />
-        </Modal>
+        <!-- Delete Account Modals -->
+        <DeleteAccountModal
+            v-if="showDeleteModal && currentStep === 'reason'"
+            @cancel="closeDeleteModal"
+            @next="handleReasonSubmit"
+        />
+        <DeleteAccountConfirmationModal
+            v-if="showDeleteModal && currentStep === 'confirm'"
+            :reason="selectedReason"
+            @cancel="closeDeleteModal"
+            @success="handleDeleteSuccess"
+        />
     </div>
 </template>
 
