@@ -41,7 +41,7 @@
                                 chart-type="bar"
                                 :data="buyerOrdersChartData"
                                 :show-info="true"
-                                :is-loading="isBuyerLoading"
+                                :is-loading="buyerOrdersLoading"
                                 :empty-message="t('ordersDashboard.messages.noData')"
                                 :default-period="chartPeriods.buyerOrders"
                                 @period-change="
@@ -63,7 +63,7 @@
                                 :data="buyerSpentCategoryChartData"
                                 :legend-items="buyerCategoryLegendItems"
                                 :show-info="true"
-                                :is-loading="isBuyerLoading"
+                                :is-loading="buyerSpentCategoryLoading"
                                 :empty-message="t('ordersDashboard.messages.noData')"
                                 :currency="currency"
                                 value-type="currency"
@@ -87,7 +87,7 @@
                                 :data="buyerSpentSupplierChartData"
                                 :legend-items="buyerSupplierLegendItems"
                                 :show-info="true"
-                                :is-loading="isBuyerLoading"
+                                :is-loading="buyerSpentSupplierLoading"
                                 :empty-message="t('ordersDashboard.messages.noData')"
                                 :currency="currency"
                                 value-type="currency"
@@ -163,7 +163,7 @@
                                 :data="supplierOrdersByCountryChartData"
                                 :legend-items="supplierCountryLegendItems"
                                 :show-info="true"
-                                :is-loading="isSupplierLoading"
+                                :is-loading="supplierOrdersByCountryLoading"
                                 :empty-message="t('ordersDashboard.messages.noData')"
                                 :default-period="chartPeriods.supplierOrdersByCountry"
                                 @period-change="
@@ -187,7 +187,7 @@
                                 chart-type="bar"
                                 :data="supplierOrdersChartData"
                                 :show-info="true"
-                                :is-loading="isSupplierLoading"
+                                :is-loading="supplierOrdersLoading"
                                 :empty-message="t('ordersDashboard.messages.noData')"
                                 :default-period="chartPeriods.supplierOrders"
                                 @period-change="
@@ -207,7 +207,7 @@
                                 chart-type="line"
                                 :data="supplierAverageCartChartData"
                                 :show-info="true"
-                                :is-loading="isSupplierLoading"
+                                :is-loading="supplierAverageCartLoading"
                                 :empty-message="t('ordersDashboard.messages.noData')"
                                 :currency="currency"
                                 value-type="currency"
@@ -229,7 +229,7 @@
                                 chart-type="line"
                                 :data="supplierOrdersTimelineChartData"
                                 :show-info="true"
-                                :is-loading="isSupplierLoading"
+                                :is-loading="supplierOrdersLoading"
                                 :empty-message="t('ordersDashboard.messages.noData')"
                                 :default-period="chartPeriods.supplierOrdersTimeline"
                                 @period-change="
@@ -311,8 +311,6 @@
     const { defaultCurrency } = storeToRefs(userStore)
 
     const {
-        isBuyerLoading,
-        isSupplierLoading,
         error,
         buyerOrdersChart,
         buyerOrdersStats,
@@ -340,6 +338,14 @@
 
     const isRetrying = ref(false)
     const hasLoadedOnce = ref(false)
+
+    // Separate loading states for each chart
+    const buyerOrdersLoading = ref(false)
+    const buyerSpentCategoryLoading = ref(false)
+    const buyerSpentSupplierLoading = ref(false)
+    const supplierOrdersLoading = ref(false)
+    const supplierOrdersByCountryLoading = ref(false)
+    const supplierAverageCartLoading = ref(false)
 
     const buyerOrdersChartRef = ref()
     const buyerSpentCategoryChartRef = ref()
@@ -604,18 +610,49 @@
               })
             : buildChartFilters(period as any)
 
+        // Set loading state for specific chart
         if (chartType === 'buyerOrders') {
-            await loadBuyerOrdersChart(filters)
+            buyerOrdersLoading.value = true
+            try {
+                await loadBuyerOrdersChart(filters)
+            } finally {
+                buyerOrdersLoading.value = false
+            }
         } else if (chartType === 'buyerSpentCategory') {
-            await loadBuyerSpentCategoryChart(filters)
+            buyerSpentCategoryLoading.value = true
+            try {
+                await loadBuyerSpentCategoryChart(filters)
+            } finally {
+                buyerSpentCategoryLoading.value = false
+            }
         } else if (chartType === 'buyerSpentSupplier') {
-            await loadBuyerSpentSupplierChart(filters)
+            buyerSpentSupplierLoading.value = true
+            try {
+                await loadBuyerSpentSupplierChart(filters)
+            } finally {
+                buyerSpentSupplierLoading.value = false
+            }
         } else if (chartType === 'supplierOrders' || chartType === 'supplierOrdersTimeline') {
-            await loadSupplierOrdersChart(filters)
+            supplierOrdersLoading.value = true
+            try {
+                await loadSupplierOrdersChart(filters)
+            } finally {
+                supplierOrdersLoading.value = false
+            }
         } else if (chartType === 'supplierOrdersByCountry') {
-            await loadSupplierOrdersByCountryChart(filters)
+            supplierOrdersByCountryLoading.value = true
+            try {
+                await loadSupplierOrdersByCountryChart(filters)
+            } finally {
+                supplierOrdersByCountryLoading.value = false
+            }
         } else if (chartType === 'supplierAverageCart') {
-            await loadSupplierAverageCartChart(filters)
+            supplierAverageCartLoading.value = true
+            try {
+                await loadSupplierAverageCartChart(filters)
+            } finally {
+                supplierAverageCartLoading.value = false
+            }
         }
 
         updateAllCharts()
