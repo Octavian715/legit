@@ -390,14 +390,22 @@
     }
 
     const getPreviewUrl = (file: UploadImage): string => {
+        // First check for blob URLs (newly uploaded files)
         if (file.previewUrl && file.previewUrl.startsWith('blob:')) {
             return file.previewUrl
         }
 
+        // Then check for previewUrl with full URL (from API)
+        if (file.previewUrl && file.previewUrl.startsWith('http')) {
+            return file.previewUrl
+        }
+
+        // Fall back to building URL from file path for legacy data
         if (file.id && file.file && typeof file.file === 'string') {
             return `${config.public.apiBase}/storage/${file.file}`
         }
 
+        // Last resort: any previewUrl
         if (file.previewUrl) {
             return file.previewUrl
         }
