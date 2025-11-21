@@ -437,7 +437,7 @@
                         type: fileType,
                         file: certificate.file_path,
                         size: certificate.file_size || 0,
-                        previewUrl: certificate.file_path ? certificate.file_path : '',
+                        previewUrl: certificate.url || '',
                     }
                 })
             }

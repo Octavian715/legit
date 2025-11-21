@@ -417,9 +417,9 @@
                 form.companyRegistrationCertificate = companyCertificates.map((certificate) => ({
                     id: certificate.id || null,
                     name: certificate.file_name,
-                    // type: certificate.type,
                     file: certificate.file_path,
                     size: certificate.file_size,
+                    previewUrl: certificate.url,
                 }))
             }
         } catch (error) {
