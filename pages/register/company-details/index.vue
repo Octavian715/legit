@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
     import { useUserStore } from '~/stores/user'
-    import { useRegistrationNavigation } from '~/useRegistrationNavigation'
+    import { useRegistrationNavigation } from '~/composables/useRegistrationNavigation'
     import { useGlobalStore } from '~/stores/global'
 
     definePageMeta({ middleware: ['registration'], layout: 'auth' })

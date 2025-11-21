@@ -26,9 +26,9 @@
         <form v-else @submit.prevent="handleSubmit">
             <div class="space-y-3">
                 <div class="bg-white rounded-sm p-6 space-y-4">
-                    <div class="flex items-center gap-2 py-4">
-                        <div class="flex flex-1 items-center">
-                            <h3 class="text-title3 font-bold text-gray-950 flex-1">
+                    <div class="flex flex-col md:flex-row md:items-center gap-4 py-4">
+                        <div class="flex flex-col md:flex-row flex-1 md:items-center gap-4">
+                            <h3 class="text-title3 font-bold text-gray-950 md:flex-1">
                                 {{ t('orders.sections.buyerData.title') }}
                             </h3>
 
@@ -40,7 +40,7 @@
                                 :reduce="(option: any) => option.value"
                                 :searchable="false"
                                 size="lg"
-                                class="flex-1"
+                                class="w-full md:flex-1"
                                 :error-message="getFieldError('type')"
                                 :disabled="isAnyOperationInProgress || isEditMode"
                                 required
@@ -48,12 +48,13 @@
                             />
                         </div>
 
-                        <div class="flex items-start gap-2 flex-1">
+                        <div class="flex items-start gap-2 md:flex-1">
                             <Button
                                 :label="t('orders.reset')"
                                 size="lg"
                                 color="blue"
                                 variant="outline"
+                                class="w-full md:w-auto"
                                 :disabled="isAnyOperationInProgress"
                                 @click="handleReset"
                             />
@@ -61,7 +62,7 @@
                     </div>
 
                     <div class="flex flex-col gap-3">
-                        <div class="flex gap-2">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <Select
                                 v-model="formData.buyerId"
                                 :options="connectedClientOptions"
@@ -71,35 +72,27 @@
                                 size="lg"
                                 :error-message="getFieldError('buyerId')"
                                 :disabled="isAnyOperationInProgress || loadingClients"
-                                class="flex-1"
                                 required
                                 @update:model-value="handleBuyerChange"
                             />
-                            <div class="hidden md:flex flex-1"></div>
                         </div>
 
-                        <div class="flex gap-2">
-                            <div class="flex flex-1">
-                                <Input
-                                    v-model="invoiceNumber"
-                                    :label="t('orders.sections.buyerData.invoiceNumber')"
-                                    type="text"
-                                    size="lg"
-                                    copy
-                                    :disabled="!customInvoice || isAnyOperationInProgress"
-                                    required
-                                    @update:model-value="handleInvoiceNumberInput"
-                                    @copy="
-                                        () =>
-                                            toast.success(
-                                                t('notifications.copyNotificationMessage')
-                                            )
-                                    "
-                                />
-                                <div class="hidden md:flex flex-1"></div>
-                            </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Input
+                                v-model="invoiceNumber"
+                                :label="t('orders.sections.buyerData.invoiceNumber')"
+                                type="text"
+                                size="lg"
+                                copy
+                                :disabled="!customInvoice || isAnyOperationInProgress"
+                                required
+                                @update:model-value="handleInvoiceNumberInput"
+                                @copy="
+                                    () => toast.success(t('notifications.copyNotificationMessage'))
+                                "
+                            />
 
-                            <div class="flex flex-1">
+                            <div class="flex items-end pb-2">
                                 <Checkbox
                                     v-model="customInvoice"
                                     :label="t('orders.sections.buyerData.customInvoiceNumber')"
@@ -110,36 +103,29 @@
                         </div>
                     </div>
 
-                    <div class="flex gap-2">
-                        <div class="flex gap-2 flex-1">
-                            <DatePicker
-                                v-model="formData.date"
-                                :label="t('orders.sections.buyerData.date')"
-                                size="lg"
-                                :disabled="isAnyOperationInProgress"
-                                :error-message="getFieldError('date')"
-                                class="flex-1"
-                                required
-                                @date-selected="handleDateChange"
-                            />
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <DatePicker
+                            v-model="formData.date"
+                            :label="t('orders.sections.buyerData.date')"
+                            size="lg"
+                            :disabled="isAnyOperationInProgress"
+                            :error-message="getFieldError('date')"
+                            required
+                            @date-selected="handleDateChange"
+                        />
 
-                            <Select
-                                v-model="formData.currencyId"
-                                :options="userCurrencyOptions"
-                                :label="t('orders.sections.buyerData.currency')"
-                                select-label="label"
-                                :reduce="(option: any) => option.value"
-                                size="lg"
-                                :error-message="getFieldError('currencyId')"
-                                class="flex-1"
-                                :disabled="
-                                    isAnyOperationInProgress || userCurrencyOptions.length === 0
-                                "
-                                required
-                                @update:model-value="handleCurrencyChange"
-                            />
-                        </div>
-                        <div class="hidden md:flex flex-1"></div>
+                        <Select
+                            v-model="formData.currencyId"
+                            :options="userCurrencyOptions"
+                            :label="t('orders.sections.buyerData.currency')"
+                            select-label="label"
+                            :reduce="(option: any) => option.value"
+                            size="lg"
+                            :error-message="getFieldError('currencyId')"
+                            :disabled="isAnyOperationInProgress || userCurrencyOptions.length === 0"
+                            required
+                            @update:model-value="handleCurrencyChange"
+                        />
                     </div>
 
                     <div
@@ -564,49 +550,45 @@
                         {{ t('orders.sections.footArea.title') }}
                     </h3>
 
-                    <div class="flex gap-2">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Textarea
                             v-model="formData.documentNotes"
                             :label="t('orders.sections.footArea.legendText')"
                             :rows="4"
                             size="lg"
-                            class="flex-1"
                             :error-message="getFieldError('documentNotes')"
                             :disabled="isAnyOperationInProgress"
                             @input="handleFootFieldChange"
                         />
-                        <div class="hidden md:flex flex-1"></div>
                     </div>
 
-                    <div class="flex gap-2">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Textarea
                             v-model="formData.documentCommentary"
                             :label="t('orders.sections.footArea.commentary')"
                             :rows="4"
-                            class="flex-1"
                             size="lg"
                             :error-message="getFieldError('documentCommentary')"
                             :disabled="isAnyOperationInProgress"
                             @input="handleFootFieldChange"
                         />
-                        <div class="hidden md:flex flex-1"></div>
                     </div>
 
                     <h3 class="text-subtitle2 font-semibold text-gray-950 mb-4">
                         {{ t('orders.sections.actions.title') }}
                     </h3>
 
-                    <div class="flex gap-2">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <Button
                             size="md"
                             color="blue"
                             variant="filled"
-                            class="flex-1"
+                            class="w-full"
                             :disabled="isAnyOperationInProgress || !canPreview"
                             @click="handlePreview"
                         >
                             <template #default>
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center justify-center gap-2">
                                     <div
                                         v-if="loadingPreview"
                                         class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"
@@ -629,12 +611,12 @@
                             size="md"
                             color="blue"
                             variant="filled"
-                            class="flex-1"
+                            class="w-full"
                             :disabled="isAnyOperationInProgress || !canPrint"
                             @click="handlePrint"
                         >
                             <template #default>
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center justify-center gap-2">
                                     <svg class="h-4 w-4">
                                         <use xlink:href="/sprite.svg#printer"></use>
                                     </svg>
@@ -644,11 +626,14 @@
                         </Button>
                     </div>
 
-                    <div class="flex items-start justify-center pt-6 gap-3">
+                    <div
+                        class="flex flex-col sm:flex-row items-stretch sm:items-start justify-center pt-6 gap-3"
+                    >
                         <Button
                             size="lg"
                             color="gray"
                             variant="filled"
+                            class="w-full sm:w-auto"
                             :label="t('cancel')"
                             :disabled="isAnyOperationInProgress"
                             @click="handleCancel"
@@ -657,6 +642,7 @@
                             size="lg"
                             color="red"
                             variant="filled"
+                            class="w-full sm:w-auto"
                             :label="t('saveAndNotfiy')"
                             :disabled="isAnyOperationInProgress"
                             @click="handleSubmit"

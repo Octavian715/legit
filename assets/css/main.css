@@ -111,6 +111,7 @@ body {
 .loader {
     display: block;
     position: relative;
+    @apply rounded-full;
     height: 20px;
     width: 140px;
     background-image:

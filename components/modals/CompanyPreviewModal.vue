@@ -114,7 +114,7 @@
                     <!-- Right Side: Rating + Buttons -->
                     <div class="flex flex-col lg:ml-auto justify-center lg:justify-end gap-3">
                         <!-- Rating -->
-                        <div
+                        <!-- <div
                             class="flex flex-col justify-center lg:justify-end gap-2 mb-2 lg:ml-auto select-none lg:w-fit"
                         >
                             <div class="flex justify-center lg:justify-start items-center gap-2">
@@ -141,7 +141,7 @@
                             >
                                 {{ $t('viewReviews', 'View Reviews') }}
                             </span>
-                        </div>
+                        </div> -->
 
                         <!-- Action Buttons -->
                         <div class="flex flex-col gap-2 lg:items-end lg:justify-center">

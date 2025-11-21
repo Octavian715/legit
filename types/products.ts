@@ -1,3 +1,4 @@
+
 export interface ProductListing {
     id: number
     article_number: string
@@ -108,13 +109,13 @@ export interface ProductListingMeta {
 
 export interface ProductSummary {
     total_products: number
-    average_price: number
+    total_suppliers: number
     price_range: {
         min: number
         max: number
     }
-    categories_count: number
-    suppliers_count: number
+    average_price: number
+    filters_count: number
 }
 
 export interface ProductFilters {
@@ -130,6 +131,8 @@ export interface ProductFilters {
         | 'weight'
         | 'brand'
         | 'shelf_life'
+        | 'discount'
+        | 'most_ordered'
     sort_direction?: 'asc' | 'desc'
     categories?: number[] | string
     subcategories?: number[] | string
@@ -145,14 +148,27 @@ export interface ProductFilters {
     conditions?: number[] | string
     weight_min?: number
     weight_max?: number
+    weight_type?: number
     shelf_life_min?: number
     status?: number[] | string
     allergens?: number[] | string
     business_types?: number[] | string
+    supplier_id?: number
     has_discount?: boolean
     private_label_available?: boolean
     my_products?: boolean
+    only_favorites?: boolean
     in_stock?: boolean
+}
+
+export interface FilterOption {
+    id: number
+    name: string
+    code?: string
+    count?: number
+    depth?: number
+    symbol?: string
+    value?: string
 }
 
 export interface FilterOptions {
@@ -161,19 +177,17 @@ export interface FilterOptions {
     countries: FilterOption[]
     features: FilterOption[]
     additional_features: FilterOption[]
-    brands: string[]
+    brands: Array<{ name: string; value: string }>
     conditions: FilterOption[]
     storage_conditions: FilterOption[]
+    weight_types: FilterOption[]
     allergens: FilterOption[]
     business_types: FilterOption[]
     statuses: FilterOption[]
-}
-
-export interface FilterOption {
-    id: number
-    name: string
-    code?: string
-    count?: number
+    price_range: {
+        min: number
+        max: number
+    }
 }
 
 export interface ProductsResponse {

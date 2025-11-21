@@ -1,6 +1,6 @@
 <!-- ~/components/settings/tabs/ExportTab.vue -->
 <template>
-    <div class="w-full space-y-3">
+    <div class="w-full space-y-3 mb-20">
         <!-- Export Question Section -->
         <section class="">
             <h2 class="text-subtitle3 text-gray-800 mb-3">

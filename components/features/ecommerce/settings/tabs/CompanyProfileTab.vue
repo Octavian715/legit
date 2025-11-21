@@ -1,5 +1,5 @@
 <template>
-    <div class="w-full space-y-3">
+    <div class="w-full space-y-3 mb-20">
         <!-- Cover Image Section - EDITABLE -->
         <div class="bg-white rounded-md overflow-hidden">
             <div
@@ -167,7 +167,7 @@
                     </div>
 
                     <!-- Right Side: Social Buttons (disabled in edit mode) -->
-                    <div class="flex lg:ml-auto justify-center lg:justify-end gap-3">
+                    <div class="flex lg:ml-auto mt-auto justify-center lg:justify-end gap-3">
                         <div class="flex flex-col gap-2 lg:items-end lg:justify-center">
                             <div class="flex gap-2">
                                 <!-- Chat Button -->
@@ -176,6 +176,7 @@
                                     variant="filled"
                                     size="md"
                                     disabled
+                                    container-classes="flex-1"
                                     class="opacity-50"
                                 >
                                     <div class="flex items-center">
@@ -192,6 +193,7 @@
                                     variant="filled"
                                     size="md"
                                     disabled
+                                    container-classes="flex-1"
                                     class="opacity-50"
                                 >
                                     {{ $t('profile.follow', 'Follow') }}
@@ -203,6 +205,7 @@
                                     variant="filled"
                                     size="md"
                                     disabled
+                                    container-classes="flex-1"
                                     class="opacity-50"
                                 >
                                     <svg class="w-4 h-4">
@@ -269,7 +272,7 @@
 
                             <!-- Remove Button -->
                             <button
-                                class="absolute -top-2 -right-2 w-7 h-7 bg-white rounded-sm shadow-md flex items-center justify-center text-gray-700 hover:text-red-600 hover:bg-red-50 transition-all z-10"
+                                class="absolute -top-2 -right-2 w-7 h-7 bg-white rounded-sm shadow-md flex items-center justify-center text-gray-700 hover:text-red-600 hover:bg-red-50 transition-all z-[1]"
                                 @click.stop="removeGalleryImage(index)"
                             >
                                 <svg class="w-4 h-4">

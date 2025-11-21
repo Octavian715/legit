@@ -37,6 +37,7 @@ const DEFAULT_DASHBOARD_DATA: DashboardData = {
     productFilters: null,
     buyers: null,
     buyersFilters: null,
+    suppliers: null,
 }
 
 const safeAssignData = (dataRef: any, property: keyof DashboardData, value: any): void => {
@@ -71,6 +72,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
         productFilters: null,
         buyers: null,
         buyersFilters: null,
+        suppliers: null,
     })
     const isLoading = ref(false)
     const loadingStates = ref({
@@ -82,6 +84,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
         productFilters: false,
         buyers: false,
         buyersFilters: false,
+        suppliers: false,
     })
     const error = ref<DashboardError | null>(null)
     const lastFetched = ref<Date | null>(null)
@@ -94,6 +97,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
     const partnersPage = ref(1)
     const itemsPerPage = ref(15)
     const buyersPage = ref(1)
+    const suppliersPage = ref(1)
 
     const activeChartFilters = ref<DashboardFilters>({})
     const activeTableFilters = ref<TableFilters>({})
@@ -189,6 +193,10 @@ export const useDashboardStore = defineStore('dashboard', () => {
 
     const totalPartners = computed<number>(() => {
         try {
+            // For buyer, use suppliers table total; for supplier, use partners chart total
+            if (role.value === 'buyer') {
+                return data.value?.suppliers?.meta?.total || 0
+            }
             return data.value?.partners?.total || 0
         } catch (error) {
             console.warn('Error getting total partners:', error)
@@ -299,6 +307,30 @@ export const useDashboardStore = defineStore('dashboard', () => {
             safeAssignData(data, 'buyersFilters', null)
         } finally {
             loadingStates.value.buyersFilters = false
+        }
+    }
+
+    const fetchSuppliers = async (): Promise<void> => {
+        if (!role.value || role.value !== 'buyer') return
+
+        loadingStates.value.suppliers = true
+        try {
+            const params = DashboardService.buyersFiltersToParams({
+                page: suppliersPage.value,
+                perPage: itemsPerPage.value,
+                ...activeTableFilters.value,
+            })
+
+            const suppliersData = await retryOperation(() =>
+                dashboardService.getSuppliersTable(role.value!, params)
+            )
+
+            safeAssignData(data, 'suppliers', suppliersData)
+        } catch (errorData) {
+            console.error('Failed to fetch suppliers:', errorData)
+            safeAssignData(data, 'suppliers', null)
+        } finally {
+            loadingStates.value.suppliers = false
         }
     }
 
@@ -448,6 +480,14 @@ export const useDashboardStore = defineStore('dashboard', () => {
                         fetchBuyersFilters().catch((e) =>
                             console.error('Buyers filters failed:', e)
                         )
+                    )
+                }
+            }
+
+            if (role.value === 'buyer') {
+                if (options.partners !== false) {
+                    promises.push(
+                        fetchSuppliers().catch((e) => console.error('Suppliers failed:', e))
                     )
                 }
             }
@@ -676,6 +716,16 @@ export const useDashboardStore = defineStore('dashboard', () => {
         }
     }
 
+    const changeSuppliersPage = async (page: number): Promise<void> => {
+        try {
+            suppliersPage.value = page
+            await fetchSuppliers()
+        } catch (error) {
+            console.error('Error changing suppliers page:', error)
+            handleError(error, 'Failed to change page')
+        }
+    }
+
     const refresh = async (options: RefreshOptions = {}): Promise<void> => {
         await loadDashboard({ force: true, ...options })
     }
@@ -693,6 +743,8 @@ export const useDashboardStore = defineStore('dashboard', () => {
 
             productsPage.value = 1
             partnersPage.value = 1
+            buyersPage.value = 1
+            suppliersPage.value = 1
             activeChartFilters.value = {}
             activeTableFilters.value = {}
 
@@ -728,6 +780,8 @@ export const useDashboardStore = defineStore('dashboard', () => {
         productsPage,
         partnersPage,
         itemsPerPage,
+        buyersPage,
+        suppliersPage,
         activeChartFilters,
         activeTableFilters,
 
@@ -763,10 +817,11 @@ export const useDashboardStore = defineStore('dashboard', () => {
         resetError,
 
         totalBuyers,
-        buyersPage,
         fetchBuyers,
         fetchBuyersFilters,
         changeBuyersPage,
+        fetchSuppliers,
+        changeSuppliersPage,
     }
 })
 

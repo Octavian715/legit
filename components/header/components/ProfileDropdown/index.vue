@@ -86,6 +86,7 @@
                     class="rounded-sm"
                     variant="secound"
                     :is-active="settingItem.isActive"
+                    :disabled="settingItem.disabled"
                     :label="settingItem.label"
                     @click="handleNavigationAction(settingItem)"
                 >
@@ -205,7 +206,7 @@
                 icon: 'box-plus',
                 label: `${t('suppliers', { n: 0 })} ${t('dashboard').toLowerCase()}`,
                 href: '/supplier/dashboard',
-                isActive: route.path.includes('/supplier'),
+                isActive: route.path.includes('/supplier/'),
             })
         }
 
@@ -213,29 +214,43 @@
             icon: 'plan',
             label: `${t('buyers', { n: 0 })} ${t('dashboard').toLowerCase()}`,
             href: '/buyer/dashboard',
-            isActive: route.path.includes('/buyer'),
+            isActive: route.path.includes('/buyer/'),
         })
 
         items.push({
             icon: 'shopping-cart',
             label: t('navigation.marketplace'),
             href: '/marketplace',
-            isActive: isEcommerce.value,
+            isActive: route.path.includes('/marketplace'),
         })
 
         return items
+    })
+
+    // Compute dynamic settings path based on current route context
+    const settingsPath = computed(() => {
+        // If we're on a buyer/supplier dashboard route, link to that dashboard's settings
+        if (route.path.includes('/buyer')) {
+            return '/buyer/settings'
+        }
+        if (route.path.includes('/supplier')) {
+            return '/supplier/settings'
+        }
+        // Default to standalone settings page
+        return '/settings'
     })
 
     const settingsNavigation = computed<SettingsNavItem[]>(() => [
         {
             icon: 'settings',
             label: t('navigation.settings'),
-            href: '/settings',
+            href: settingsPath.value,
             isActive: route.path.includes('/settings'),
         },
         {
             icon: 'help-circle',
             label: t('navigation.support'),
+            disabled: true,
             href: '/support',
             isActive: false,
         },
@@ -243,6 +258,7 @@
             icon: 'book-saved',
             label: t('navigation.guide'),
             action: 'openGuide',
+            disabled: true,
             isActive: false,
         },
     ])

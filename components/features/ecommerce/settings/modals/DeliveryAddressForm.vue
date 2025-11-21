@@ -132,6 +132,7 @@
     const userStore = useUserStore()
 
     const sameAsLocation = ref(false)
+    const isFillingFromToggle = ref(false)
 
     const formData = ref<DeliveryLocationFormData>({
         id: props.initialData?.id,
@@ -165,6 +166,7 @@
             const userContacts = userStore.user?.contacts
 
             if (companyDetails) {
+                isFillingFromToggle.value = true
                 formData.value = {
                     ...formData.value,
                     contact_name: companyDetails.legal_name || '',
@@ -177,6 +179,9 @@
                     street_number: companyDetails.street_number || '',
                     postal_code: companyDetails.postal_code || '',
                 }
+                nextTick(() => {
+                    isFillingFromToggle.value = false
+                })
             }
         }
     }
@@ -262,6 +267,23 @@
         errors.value = {}
         sameAsLocation.value = false
     }
+
+    // Uncheck "Same as registration location" when address fields are manually changed
+    watch(
+        () => [
+            formData.value.country_id,
+            formData.value.state_name,
+            formData.value.city_name,
+            formData.value.street_name,
+            formData.value.street_number,
+            formData.value.postal_code,
+        ],
+        () => {
+            if (sameAsLocation.value && !isFillingFromToggle.value) {
+                sameAsLocation.value = false
+            }
+        }
+    )
 
     watch(
         () => props.initialData,

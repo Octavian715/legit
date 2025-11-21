@@ -117,7 +117,7 @@
     import { useI18n } from 'vue-i18n'
     import { useLocalePath } from '#imports'
     import { useRouter } from 'vue-router'
-    import { useRegistrationNavigation } from '~/useRegistrationNavigation'
+    import { useRegistrationNavigation } from '~/composables/useRegistrationNavigation'
     import { useToastNotification } from '~/composables/useToastNotification'
 
     definePageMeta({

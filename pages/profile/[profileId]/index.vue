@@ -155,7 +155,7 @@
                         </div>
 
                         <div class="flex flex-col lg:ml-auto justify-center lg:justify-end gap-3">
-                            <div
+                            <!-- <div
                                 class="flex flex-col justify-center lg:justify-end gap-2 mb-2 lg:ml-auto select-none lg:w-fit"
                             >
                                 <div
@@ -178,7 +178,7 @@
                                 >
                                     {{ t('viewReviews') }}
                                 </span>
-                            </div>
+                            </div> -->
 
                             <div
                                 v-if="isNotCurrentUser"
@@ -362,6 +362,7 @@
                             <CompanyProducts
                                 v-else-if="productCategories.length > 0"
                                 :products="productCategories"
+                                :user-id="profileData.id"
                             />
 
                             <!-- Empty -->
@@ -1038,8 +1039,13 @@
                     }, 500)
                 }
             } else {
-                // ✅ Check if already connected
-                if (socialState.value.connection?.exists) {
+                // Send new connection request
+                // Only block if already pending or connected, NOT if rejected
+                const currentStatus = socialState.value.connection?.status
+                if (
+                    socialState.value.connection?.exists &&
+                    (currentStatus === 'pending' || currentStatus === 'accepted')
+                ) {
                     toast.warning(t('connections.alreadyConnected'))
                     return
                 }

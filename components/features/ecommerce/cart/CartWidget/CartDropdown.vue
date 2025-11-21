@@ -1,5 +1,11 @@
 <template>
-    <div class="cart-dropdown" :class="{ 'cart-dropdown--in-widget': inWidget }">
+    <div
+        class="cart-dropdown"
+        :class="{
+            'cart-dropdown--in-widget': inWidget,
+            'cart-dropdown--auto-opened': isAutoOpened,
+        }"
+    >
         <div class="cart-dropdown__header">
             <div class="cart-dropdown__header-wrapper">
                 <svg class="w-6 h-6" aria-hidden="true">
@@ -104,9 +110,26 @@
 <script setup lang="ts">
     import { useFormatters } from '~/composables/useFormatters'
 
-    defineProps<{
+    const props = defineProps<{
         inWidget?: boolean
+        isAutoOpened?: boolean
     }>()
+
+    const showPulse = ref(false)
+
+    // Trigger pulse animation when auto-opened
+    watch(
+        () => props.isAutoOpened,
+        (newVal) => {
+            if (newVal) {
+                showPulse.value = true
+                setTimeout(() => {
+                    showPulse.value = false
+                }, 1000)
+            }
+        },
+        { immediate: true }
+    )
 
     defineEmits<{
         close: []
@@ -187,9 +210,31 @@
         max-width: 20rem;
         height: auto;
         max-height: 28rem;
-        box-shadow:
-            0 9px 46px 8px rgba(90, 93, 101, 0.12),
-            0 24px 38px 3px rgba(90, 93, 101, 0.14);
+        box-shadow: 0 2px 8px rgba(90, 93, 101, 0.08);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .cart-dropdown--auto-opened {
+        animation: cart-attention 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 2px 10px rgba(255, 50, 50, 0.12);
+    }
+
+    @keyframes cart-attention {
+        0% {
+            transform: scale(1);
+        }
+        25% {
+            transform: scale(1.05);
+        }
+        50% {
+            transform: scale(0.98);
+        }
+        75% {
+            transform: scale(1.02);
+        }
+        100% {
+            transform: scale(1);
+        }
     }
 
     .cart-dropdown--in-widget {

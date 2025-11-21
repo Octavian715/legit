@@ -1,7 +1,7 @@
 <template>
     <aside
         :class="[
-            'sidebar container flex flex-col justify-between bg-white shadow-md sticky top-0 h-screen transition-all duration-300 overflow-hidden py-6',
+            'sidebar container flex flex-col justify-between bg-white shadow-md sticky top-0 h-screen transition-all duration-300 overflow-hidden py-6 z-[2]',
             {
                 'w-full': isCollapsed,
                 'w-20': !isCollapsed,
@@ -399,7 +399,6 @@
     const isComingSoon = (item: MenuItem): boolean => {
         if (!item.path) return false
         return (
-            item.path.includes('/settings') ||
             item.path.includes('/guide') ||
             item.path.includes('/support') ||
             item.path.includes('/inventory') ||

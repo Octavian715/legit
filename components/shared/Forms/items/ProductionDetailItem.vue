@@ -127,7 +127,7 @@
         },
         stateId: {
             label: t('state', 'State'),
-            value: getStateName(production.stateId, production.countryId),
+            value: production.stateName,
         },
         cityName: {
             label: t('city', 'City'),
@@ -157,13 +157,6 @@
         if (!factorySizeId) return ''
         const factorySize = factorySizes.value.find((fs) => fs.id === factorySizeId)
         return factorySize?.name || ''
-    }
-
-    const getStateName = (stateId: number, countryId: number): string => {
-        if (!stateId || !countryId) return ''
-        const states = findStatesByCountryId(countryId)
-        const state = states.find((s) => s.id === stateId)
-        return state?.name || ''
     }
 
     // Watch editing state to expand when editing

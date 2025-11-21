@@ -115,7 +115,7 @@
         products: () => [],
         meta: () => ({}),
         currentPage: 1,
-        itemsPerPage: 15,
+        itemsPerPage: 20,
         loading: false,
         showPagination: true,
         sortBy: undefined,

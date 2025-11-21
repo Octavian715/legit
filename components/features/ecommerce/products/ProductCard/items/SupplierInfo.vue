@@ -2,7 +2,7 @@
     <div
         class="supplier-info flex flex-col xl:flex-row xl:items-center sm:border-b border-gray-400 gap-2 w-full sm:pb-2"
     >
-        <div class="flex items-start lg:items-center gap-1">
+        <div class="flex items-start xl:items-center gap-1">
             <span class="text-subtitle3 text-gray-800">{{ t('suppliers', { n: 0 }) }}:</span>
 
             <Link
@@ -10,7 +10,7 @@
                 :to="localePath(`/profile/${supplierUrl}`)"
                 :title="supplier"
                 :wrap="false"
-                container-class="lg:text-nowrap"
+                container-class="xl:text-nowrap"
                 size="sm"
             />
 

@@ -41,12 +41,10 @@
             <!-- Loading State -->
             <div
                 v-if="isLoadingFromRoute"
-                class="absolute inset-0 flex items-center justify-center bg-white rounded-md z-10"
+                class="absolute inset-0 flex items-center justify-center bg-white rounded-md z-50"
             >
                 <div class="text-center">
-                    <div
-                        class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"
-                    ></div>
+                    <div class="loader rounded-full mx-auto mb-4"></div>
                     <div class="text-gray-600">Loading conversation...</div>
                 </div>
             </div>
@@ -203,7 +201,13 @@
         initializeFromRoute,
     } = useChatNavigation()
 
-    const isLoadingFromRoute = ref(false)
+    // Initialize loading state based on query params to prevent ConversationList loading flash
+    const isLoadingFromRoute = ref(
+        !!(
+            route.query.chatId &&
+            (route.query.view === 'conversation' || route.query.view === 'profile')
+        )
+    )
 
     const desktopHeight = computed(() => 'calc(100vh - 250px)')
     const mobileHeight = computed(() => 'calc(100vh - 300px)')
@@ -336,10 +340,29 @@
 
         const chatId = route.query.chatId
         const view = route.query.view
+        const userId = route.query.userId
 
-        if (chatId && view === 'conversation') {
+        if (chatId && (view === 'conversation' || view === 'profile')) {
             const chatIdNum = parseInt(chatId as string)
             await loadChatFromUrl(chatIdNum)
+
+            // If profile view, set selectedUser after chat is loaded
+            if (view === 'profile' && userId) {
+                const userIdNum = parseInt(userId as string)
+                const chat = chats.value.find((c) => c.id === chatIdNum)
+                if (chat && chat.is_direct) {
+                    const participant = chat.participants.find((p) => p.id === userIdNum)
+                    if (participant) {
+                        chatStore.setSelectedUser({
+                            id: participant.id,
+                            name: participant.name,
+                            avatar: participant.avatar_url,
+                            company: participant.company,
+                            online: participant.online,
+                        })
+                    }
+                }
+            }
         } else {
             initializeFromRoute()
         }

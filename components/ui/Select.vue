@@ -43,7 +43,7 @@
                 :push-tags="pushTags"
                 :append-to-body="true"
                 :calculate-position="calculateDropdownPosition"
-                :select-on-key-codes="taggable ? [188, 13] : []"
+                :select-on-key-codes="[13]"
                 :class="[
                     'group',
                     'select',
@@ -472,21 +472,9 @@
                     enabled: true,
                     fn: ({ state }: any) => {
                         const toggleWidth = exactWidth.value
-                        const vw = window.innerWidth
-                        const isMobile = vw < 640
-
-                        // On mobile, use full width with padding
-                        if (isMobile) {
-                            const mobileWidth = Math.min(toggleWidth, vw - 16)
-                            state.styles.popper.width = `${mobileWidth}px`
-                            state.styles.popper.minWidth = `${mobileWidth}px`
-                            state.styles.popper.maxWidth = `${vw - 16}px`
-                        } else {
-                            // On desktop, match toggle width exactly
-                            state.styles.popper.width = `${toggleWidth + 1}px`
-                            state.styles.popper.minWidth = `${toggleWidth + 1}px`
-                            state.styles.popper.maxWidth = `${toggleWidth + 1}px`
-                        }
+                        state.styles.popper.width = `${toggleWidth + 1}px`
+                        state.styles.popper.minWidth = `${toggleWidth + 1}px`
+                        state.styles.popper.maxWidth = `${toggleWidth + 1}px`
                     },
                 },
                 {
@@ -495,15 +483,6 @@
                         boundary: 'viewport',
                         padding: 8,
                         altAxis: true,
-                        tether: false,
-                        altBoundary: true,
-                    },
-                },
-                {
-                    name: 'flip',
-                    options: {
-                        fallbackPlacements: ['top-start', 'bottom-start'],
-                        padding: 8,
                     },
                 },
             ],
@@ -547,7 +526,8 @@
         @apply w-full;
 
         .vs__selected {
-            @apply truncate;
+            @apply truncate max-w-full;
+            display: block;
         }
 
         &.disabled {
@@ -575,8 +555,11 @@
             min-height: inherit;
 
             .vs__selected-options {
+                @apply overflow-hidden;
+
                 .vs__selected {
-                    @apply py-0.5 text-subtitle3 text-gray-950;
+                    @apply py-0.5 text-subtitle3 text-gray-950 truncate max-w-full;
+                    display: block;
 
                     button {
                         @apply m-1;
@@ -603,18 +586,20 @@
                     @apply px-0 py-0;
 
                     input {
-                        @apply text-subtitle2 text-gray-900 pl-0 pt-4 pb-1 m-0;
+                        @apply text-subtitle3 text-gray-900 pl-0 pt-2.5 pb-1 m-0;
                     }
                 }
             }
 
             &.select--focus {
                 .vs__selected {
-                    @apply mt-2.5;
+                    @apply mt-1.5;
                 }
             }
             .vs__selected {
-                @apply px-1.5 py-0.5 ml-0 mt-3;
+                @apply px-1.5 py-0.5 ml-0 !mt-2.5 truncate;
+                max-width: calc(100% - 40px);
+                display: block;
             }
         }
 
@@ -630,7 +615,9 @@
             }
 
             .vs__selected {
-                @apply mt-3.5 ml-0;
+                @apply mt-3.5 ml-0 truncate;
+                max-width: calc(100% - 40px);
+                display: block;
             }
         }
 
@@ -646,7 +633,9 @@
             }
 
             .vs__selected {
-                @apply text-subtitle2 mt-5 ml-0 pl-0;
+                @apply text-subtitle2 mt-5 ml-0 pl-0 truncate;
+                max-width: calc(100% - 40px);
+                display: block;
             }
         }
 
@@ -679,24 +668,12 @@
         border-radius: 0;
         @apply border-blue-400;
 
-        // Mobile responsive styles
-        @media (max-width: 639px) {
-            max-height: min(200px, 40vh) !important;
-            padding: 0 !important;
-        }
-
         .vs__dropdown-option {
             @apply px-4 py-3 cursor-pointer;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             box-sizing: border-box;
-
-            // Mobile: better touch targets and spacing
-            @media (max-width: 639px) {
-                @apply px-3 py-2.5;
-                font-size: 14px;
-            }
 
             &--highlight {
                 @apply bg-red-50 text-red-500 !important;

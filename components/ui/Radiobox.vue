@@ -26,7 +26,7 @@
                     v-if="isChecked"
                     :class="[
                         'radio-circle',
-                        'absolute w-2.5 h-2.5 rounded-full bg-blue-500 hover:bg-blue-300 flex-shrink-0 mx-auto',
+                        'w-2 h-2 rounded-full bg-blue-500 hover:bg-blue-300 flex-shrink-0',
                         { '!bg-blue-300': isHovered && isChecked },
                     ]"
                 ></span>

@@ -96,6 +96,18 @@
     const isProcessing = ref(false)
     const activeButtonIndex = ref<number | null>(null)
 
+    // Global set to track actioned notifications across refreshes
+    const actionedNotificationIds = useState<Set<string | number>>(
+        'actioned-notifications',
+        () => new Set()
+    )
+
+    const actionCompleted = computed(() => {
+        return props.notification?.id
+            ? actionedNotificationIds.value.has(props.notification.id)
+            : false
+    })
+
     const props = defineProps<{
         notification?: Notification
     }>()
@@ -472,6 +484,13 @@
             return []
         }
 
+        // If action was completed locally, hide accept/reject buttons immediately
+        if (actionCompleted.value) {
+            return notification.action_buttons.filter(
+                (button) => button.type !== 'accept' && button.type !== 'reject'
+            )
+        }
+
         // Dacă show_action_buttons este false, exclude butoanele de tip accept și reject
         if (notification.data?.show_action_buttons === false) {
             return notification.action_buttons.filter(
@@ -495,9 +514,6 @@
     }
 
     const handleActionButtonClick = async (button: any, index: number) => {
-        console.log('🔵 Button clicked:', button)
-        console.log('🔵 Notification:', props.notification)
-
         // Handle URL navigation
         if (button.url) {
             handleButtonClick(button.url)
@@ -506,14 +522,30 @@
 
         // Handle connection actions
         if (button.type === 'accept' || button.type === 'reject') {
-            console.log('🟢 Connection action detected:', button.type)
+            // Extract connection_id from notification
+            // Store normalizes all notifications to have connection_id in data object
+            const notification = props.notification
+            const connectionId =
+                notification?.data?.connection_id ||
+                notification?.data?.connectionId ||
+                notification?.metadata?.connection_id ||
+                notification?.metadata?.connectionId ||
+                notification?.connection_id ||
+                notification?.connectionId
 
-            if (!props.notification?.connection_id) {
-                console.warn('❌ No connection_id in notification')
+            if (!connectionId) {
+                console.error(
+                    '[Notification] Cannot process connection action: missing connection_id',
+                    notification
+                )
+
+                // Show error toast to user
+                const { error: showError } = useToastNotification()
+                showError(
+                    t('notifications.errors.missingConnectionId', 'Connection information missing')
+                )
                 return
             }
-
-            console.log('🟢 Connection ID:', props.notification.connection_id)
 
             isProcessing.value = true
             activeButtonIndex.value = index
@@ -522,23 +554,27 @@
                 let success = false
 
                 if (button.type === 'accept') {
-                    console.log('🟢 Calling accept...')
                     success = await handleNotificationAcceptConnection(
-                        props.notification.connection_id,
-                        props.notification.user_id,
-                        props.notification.user_name
+                        connectionId,
+                        props.notification.user_id || props.notification.data?.user_id,
+                        props.notification.user_name || props.notification.data?.user_name
                     )
                 } else if (button.type === 'reject') {
                     success = await handleNotificationRejectConnection(
-                        props.notification.connection_id,
-                        props.notification.user_id,
-                        props.notification.user_name
+                        connectionId,
+                        props.notification.user_id || props.notification.data?.user_id,
+                        props.notification.user_name || props.notification.data?.user_name
                     )
-                    console.log('🔴 Reject result:', success)
                 }
 
                 if (success) {
+                    // Mark notification as actioned globally (persists across refreshes)
+                    if (props.notification?.id) {
+                        actionedNotificationIds.value.add(props.notification.id)
+                    }
+
                     emit('action-complete')
+
                     if (!props.notification?.is_read && props.notification?.id) {
                         emit('mark-read', props.notification.id)
                     }

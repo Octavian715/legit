@@ -47,7 +47,7 @@
         invitations: () => [],
         meta: () => ({}),
         currentPage: 1,
-        itemsPerPage: 10,
+        itemsPerPage: 20,
         loading: false,
         showPagination: true,
         sortBy: undefined,
@@ -270,7 +270,7 @@
             company_name: 'company_name',
             email: 'email',
             phone_number: 'phone_number',
-            sent_at: 'sent_at',
+            sent_at: 'created_at',
             expires_at: 'expires_at',
             status: 'status',
         }

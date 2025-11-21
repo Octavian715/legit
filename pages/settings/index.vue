@@ -183,7 +183,7 @@
         </div>
 
         <div class="fixed left-0 right-0 bottom-0 bg-white border-t border-gray-200 z-[1]">
-            <div class="flex gap-5 container mx-auto p-4">
+            <div class="flex gap-5 container mx-auto py-4">
                 <Button variant="outline" color="gray" :label="t('cancel')" @click="handleCancel" />
                 <Button
                     color="blue"
@@ -278,63 +278,7 @@
     // Access user role
     const isSupplier = computed(() => userStore.isSupplier)
 
-    const isLoading = ref(false)
-    const isSaving = ref(false)
-    const isSavingBeforeSwitch = ref(false)
-    const tabsRef = ref()
-    const activeTabIndex = ref(0)
-    const previousTabIndex = ref(0) // Track previous index
-    const dynamicTabRefs = ref<Record<string, any>>({})
-
-    const componentMap: Record<string, any> = {
-        'company-profile': CompanyProfileTab,
-        'company-details': CompanyDetailsTab,
-        'delivery-address': DeliveryTab,
-        'bank-accounts': BankAccountsTab,
-        certificates: CertificatesTab,
-        currencies: CurrenciesTab,
-        production: ProductionTab,
-        export: ExportTab,
-        'notification-settings': NotificationSettingsTab,
-        subscription: SubscriptionTab,
-        'account-settings': AccountSettingsTab,
-    }
-    const setTabRef = (el: any, key: string) => {
-        if (el) {
-            dynamicTabRefs.value[key] = el
-        }
-    }
-    const hasTabBeenSelected = ref<Record<string, boolean>>({
-        'company-profile': false,
-        'company-details': false,
-        'delivery-address': false,
-        'bank-accounts': false,
-        certificates: false,
-        currencies: false,
-        production: false,
-        export: false,
-        'notification-settings': false,
-        subscription: false,
-    })
-    const isLoadingCounts = ref(false)
-
-    // Exit modal state
-    const showExitModal = ref(false)
-    const pendingTabIndex = ref<number | null>(null)
-    const pendingTabRef = ref<any>(null) // Store the tab ref when we detect unsaved changes
-    const isClosingDueToValidationError = ref(false) // Flag to prevent reset on validation error
-
-    const deliveryTabRef = ref()
-    const currenciesTabRef = ref()
-    const companyProfileTabRef = ref()
-    const subscriptionTabRef = ref()
-    const exportTabRef = ref()
-    const productionTabRef = ref()
-    const notificationSettingsTabRef = ref()
-    const companyDetailsTabRef = ref()
-    const accountSettingsTabRef = ref()
-
-    // Base tab configuration - all tabs
+    // Base tab configuration - all tabs (must be defined before getInitialTabIndex)
     const baseTabConfig = [
         { key: 'company-profile', labelKey: t('company.profile'), requiresSupplier: false },
         {
@@ -372,6 +316,92 @@
             requiresSupplier: false,
         },
     ]
+
+    const isLoading = ref(false)
+    const isSaving = ref(false)
+    const isSavingBeforeSwitch = ref(false)
+    const tabsRef = ref()
+
+    // Initialize activeTabIndex and previousTabIndex based on route BEFORE rendering
+    const getInitialTabIndex = () => {
+        const tabFromQuery = route.query.tab as string
+        if (tabFromQuery) {
+            const tabIndex = baseTabConfig
+                .filter((tab) => !tab.requiresSupplier || userStore.isSupplier)
+                .findIndex((config) => config.key === tabFromQuery)
+            return tabIndex !== -1 ? tabIndex : 0
+        }
+        return 0
+    }
+
+    const activeTabIndex = ref(getInitialTabIndex())
+    const previousTabIndex = ref(getInitialTabIndex()) // Track previous index
+    const dynamicTabRefs = ref<Record<string, any>>({})
+
+    const componentMap: Record<string, any> = {
+        'company-profile': CompanyProfileTab,
+        'company-details': CompanyDetailsTab,
+        'delivery-address': DeliveryTab,
+        'bank-accounts': BankAccountsTab,
+        certificates: CertificatesTab,
+        currencies: CurrenciesTab,
+        production: ProductionTab,
+        export: ExportTab,
+        'notification-settings': NotificationSettingsTab,
+        subscription: SubscriptionTab,
+        'account-settings': AccountSettingsTab,
+    }
+    const setTabRef = (el: any, key: string) => {
+        if (el) {
+            dynamicTabRefs.value[key] = el
+        }
+    }
+
+    // Initialize hasTabBeenSelected with the initial tab already marked as selected
+    const getInitialTabSelection = () => {
+        const initialSelection: Record<string, boolean> = {
+            'company-profile': false,
+            'company-details': false,
+            'delivery-address': false,
+            'bank-accounts': false,
+            certificates: false,
+            currencies: false,
+            production: false,
+            export: false,
+            'notification-settings': false,
+            subscription: false,
+            'account-settings': false,
+        }
+
+        // Mark the initial tab as selected
+        const tabFromQuery = route.query.tab as string
+        if (tabFromQuery && tabFromQuery in initialSelection) {
+            initialSelection[tabFromQuery] = true
+        } else {
+            initialSelection['company-profile'] = true // Default first tab
+        }
+
+        return initialSelection
+    }
+
+    const hasTabBeenSelected = ref<Record<string, boolean>>(getInitialTabSelection())
+    const isLoadingCounts = ref(false)
+
+    // Exit modal state
+    const showExitModal = ref(false)
+    const pendingTabIndex = ref<number | null>(null)
+    const pendingTabRef = ref<any>(null) // Store the tab ref when we detect unsaved changes
+    const isClosingDueToValidationError = ref(false) // Flag to prevent reset on validation error
+
+    const deliveryTabRef = ref()
+    const currenciesTabRef = ref()
+    const companyProfileTabRef = ref()
+    const subscriptionTabRef = ref()
+    const exportTabRef = ref()
+    const productionTabRef = ref()
+    const notificationSettingsTabRef = ref()
+    const companyDetailsTabRef = ref()
+    const accountSettingsTabRef = ref()
 
     // Filtered tab configuration based on user role
     const tabConfig = computed(() => {
@@ -805,10 +835,10 @@
 
     onMounted(async () => {
         isLoading.value = false
-        initializeFromRoute()
 
         await nextTick()
 
+        // Ensure the current tab is marked as selected (should already be done in setup)
         const currentTabKey = getTabKeyByIndex(activeTabIndex.value)
         if (currentTabKey && !hasTabBeenSelected.value[currentTabKey]) {
             hasTabBeenSelected.value[currentTabKey] = true

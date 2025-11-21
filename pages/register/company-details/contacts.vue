@@ -94,6 +94,10 @@
                     @input="clearFieldError('customPosition')"
                 />
 
+                <p class="text-subtitle2 text-gray-800">
+                    {{ t('company.phoneNumber') }}
+                </p>
+
                 <!-- Phone Numbers Section -->
                 <div class="space-y-3">
                     <div
@@ -140,7 +144,9 @@
                         @click="addPhone"
                     />
                 </div>
-
+                <p class="text-subtitle2 text-gray-800">
+                    {{ t('company.fax') }}
+                </p>
                 <PhoneInput
                     v-model="form.faxNumber"
                     name="fax"
@@ -187,7 +193,7 @@
     import { useLocalePath } from '#imports'
     import { useRouter } from 'vue-router'
     import { validateData } from '~/utils/validator'
-    import { useRegistrationNavigation } from '~/useRegistrationNavigation'
+    import { useRegistrationNavigation } from '~/composables/useRegistrationNavigation'
     import { useToastNotification } from '~/composables/useToastNotification'
     import { useStaticData } from '~/composables/useStaticData'
 

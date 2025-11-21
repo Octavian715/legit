@@ -87,6 +87,7 @@
             @action="handleAction"
             @mark-read="handleMarkAsRead"
             @navigate="handleNavigate"
+            @action-complete="handleActionComplete"
             @page-change="handlePageChange"
             @items-per-page-change="handleItemsPerPageChange"
         />
@@ -252,44 +253,16 @@
     }
 
     const handleAction = async (payload: { action: string; id: string | number }) => {
-        const notification = notifications.value.find((n) => n.id === payload.id)
-        if (!notification) return
+        // This method is called from NotificationsList component
+        // The actual action handling is done in Notification.vue component
+        // which emits 'action-complete' after successful action
+        // We just need to refresh the notifications list here
+        await loadNotifications()
+    }
 
-        if (!notification.is_read) {
-            await handleMarkAsRead(payload.id)
-        }
-
-        switch (payload.action) {
-            case 'confirm':
-                if (
-                    notification.type === 'connection-request' ||
-                    notification.type === 'connection_request'
-                ) {
-                    // Handle connection request confirmation
-                    console.log('Confirm connection request:', notification.id)
-                } else if (notification.type === 'order-request') {
-                    // Handle order request confirmation
-                    console.log('Confirm order request:', notification.id)
-                }
-                break
-            case 'decline':
-                if (
-                    notification.type === 'connection-request' ||
-                    notification.type === 'connection_request'
-                ) {
-                    // Handle connection request decline
-                    console.log('Decline connection request:', notification.id)
-                } else if (notification.type === 'order-request') {
-                    // Handle order request decline
-                    console.log('Decline order request:', notification.id)
-                }
-                break
-            case 'add-stock':
-                // Handle add stock action
-                break
-            default:
-                break
-        }
+    const handleActionComplete = async () => {
+        // Refresh notifications list after accept/reject action completes
+        await loadNotifications()
     }
 
     const handlePageChange = (page: number) => {

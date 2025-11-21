@@ -1,9 +1,0 @@
-{
-    "extends": "../.nuxt/tsconfig.server.json",
-    "compilerOptions": {
-        "strict": true,
-        "noImplicitAny": true,
-        "esModuleInterop": true,
-        "skipLibCheck": true
-    }
-}

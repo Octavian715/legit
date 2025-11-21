@@ -21,6 +21,7 @@ export const useOrdersDashboard = () => {
 
         // Supplier state
         supplierOrdersChart,
+        supplierOrdersTimelineChart,
         supplierOrdersStats,
         supplierOrdersByCountryChart,
         supplierOrdersByCountryTable,
@@ -28,7 +29,21 @@ export const useOrdersDashboard = () => {
         supplierOrdersByCountryFilters,
         supplierAverageCartChart,
 
-        // Loading states
+        // Individual loading states for each chart
+        isBuyerOrdersChartLoading,
+        isBuyerOrdersStatsLoading,
+        isBuyerSpentCategoryChartLoading,
+        isBuyerSpentCategoryTableLoading,
+        isBuyerSpentSupplierChartLoading,
+        isBuyerSpentSupplierTableLoading,
+        isSupplierOrdersChartLoading,
+        isSupplierOrdersTimelineChartLoading,
+        isSupplierOrdersStatsLoading,
+        isSupplierOrdersByCountryChartLoading,
+        isSupplierOrdersByCountryTableLoading,
+        isSupplierAverageCartChartLoading,
+
+        // Global loading states (deprecated but kept for backwards compatibility)
         isLoading,
         isBuyerLoading,
         isSupplierLoading,
@@ -41,24 +56,36 @@ export const useOrdersDashboard = () => {
         hasSupplierData,
         totalBuyerOrders,
         totalSupplierOrders,
+        totalSupplierOrdersTimeline,
+        totalSupplierOrdersByCountry,
         buyerSpentTotal,
         supplierAverageCart,
     } = storeToRefs(store)
 
     /**
+     * Convert camelCase period to snake_case for API
+     */
+    const convertPeriodToSnakeCase = (period: string): string => {
+        return period.replace(/([A-Z])/g, '_$1').toLowerCase()
+    }
+
+    /**
      * Build chart filters from period and date range
      */
     const buildChartFilters = (
-        period: PeriodType,
-        dateRange?: { start: string; end: string }
+        period?: PeriodType,
+        dateRange?: { start_date: string; end_date: string }
     ): OrdersChartFilters => {
-        const filters: OrdersChartFilters = {
-            period,
+        const filters: OrdersChartFilters = {}
+
+        // Only include period if it's defined and no custom date range
+        if (period && !dateRange) {
+            filters.period = convertPeriodToSnakeCase(period) as OrdersChartFilters['period']
         }
 
         if (dateRange) {
-            filters.start_date = dateRange.start
-            filters.end_date = dateRange.end
+            filters.start_date = dateRange.start_date
+            filters.end_date = dateRange.end_date
         }
 
         return filters
@@ -114,6 +141,10 @@ export const useOrdersDashboard = () => {
         return await store.fetchSupplierOrdersChart(filters)
     }
 
+    const loadSupplierOrdersTimelineChart = async (filters: OrdersChartFilters = {}) => {
+        return await store.fetchSupplierOrdersTimelineChart(filters)
+    }
+
     const loadSupplierOrdersStats = async () => {
         return await store.fetchSupplierOrdersStats()
     }
@@ -147,6 +178,7 @@ export const useOrdersDashboard = () => {
         buyerSpentSupplierMeta,
         buyerSpentSupplierFilters,
         supplierOrdersChart,
+        supplierOrdersTimelineChart,
         supplierOrdersStats,
         supplierOrdersByCountryChart,
         supplierOrdersByCountryTable,
@@ -154,7 +186,21 @@ export const useOrdersDashboard = () => {
         supplierOrdersByCountryFilters,
         supplierAverageCartChart,
 
-        // Loading states
+        // Individual loading states for each chart
+        isBuyerOrdersChartLoading,
+        isBuyerOrdersStatsLoading,
+        isBuyerSpentCategoryChartLoading,
+        isBuyerSpentCategoryTableLoading,
+        isBuyerSpentSupplierChartLoading,
+        isBuyerSpentSupplierTableLoading,
+        isSupplierOrdersChartLoading,
+        isSupplierOrdersTimelineChartLoading,
+        isSupplierOrdersStatsLoading,
+        isSupplierOrdersByCountryChartLoading,
+        isSupplierOrdersByCountryTableLoading,
+        isSupplierAverageCartChartLoading,
+
+        // Global loading states (deprecated but kept for backwards compatibility)
         isLoading,
         isBuyerLoading,
         isSupplierLoading,
@@ -167,6 +213,8 @@ export const useOrdersDashboard = () => {
         hasSupplierData,
         totalBuyerOrders,
         totalSupplierOrders,
+        totalSupplierOrdersTimeline,
+        totalSupplierOrdersByCountry,
         buyerSpentTotal,
         supplierAverageCart,
 
@@ -182,6 +230,7 @@ export const useOrdersDashboard = () => {
 
         // Supplier load functions
         loadSupplierOrdersChart,
+        loadSupplierOrdersTimelineChart,
         loadSupplierOrdersStats,
         loadSupplierOrdersByCountryChart,
         loadSupplierOrdersByCountryTable,

@@ -76,9 +76,10 @@
                     })
                 }}
             </div>
-            <div v-else class="text-body text-gray-950">
+            <!-- <div v-else class="text-body text-gray-950">
                 {{ t('referralOnly') }}
-            </div>
+            </div> -->
+            <div v-else class="text-body text-red-400"> Valid until December 31, 2025 </div>
 
             <!-- Savings Message -->
             <div

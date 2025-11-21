@@ -338,7 +338,11 @@
             case 'accept':
                 success = await acceptConnectionRequest(action.connectionId, action.userName)
                 break
-
+            case 'profile':
+                if (action.userId) {
+                    await router.push(localePath(`/profile/${action.userId}`))
+                }
+                return
             case 'decline':
                 success = await showRemoveConnectionConfirmation(
                     action.userName,

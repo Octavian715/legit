@@ -75,6 +75,7 @@
                         v-if="!isEditing"
                         v-model="uploadedFiles"
                         :accept="acceptedFileTypes"
+                        :max-files="1"
                         :title="
                             $t(
                                 'certificates.dragAndDropFile',
@@ -84,7 +85,7 @@
                         :description="
                             $t(
                                 'certificates.fileTypesHint',
-                                '10 MB max, JPEG, PNG or PDF format only'
+                                '10 MB max, JPEG, PNG or PDF format only. Only one file allowed.'
                             )
                         "
                         :multiple="false"
@@ -212,6 +213,7 @@
 
     // File upload configuration
     const acceptedFileTypes = 'image/jpeg,image/png,application/pdf'
+    const maxFileSize = 10 * 1024 * 1024 // 10 MB in bytes
 
     // Computed properties
     const canSubmit = computed(() => {
@@ -318,9 +320,23 @@
         }
 
         // Validate file (only required for new certificates)
-        if (!props.isEditing && uploadedFiles.value.length === 0 && !form.file) {
-            errors.file = t('validation.certificateFileRequired', 'Certificate file is required')
-            isValid = false
+        if (!props.isEditing) {
+            if (uploadedFiles.value.length === 0 && !form.file) {
+                errors.file = t(
+                    'validation.certificateFileRequired',
+                    'Certificate file is required'
+                )
+                isValid = false
+            } else if (uploadedFiles.value.length > 1) {
+                errors.file = t('validation.onlyOneFileAllowed', 'Only one file is allowed')
+                isValid = false
+            } else if (uploadedFiles.value.length === 1) {
+                const file = uploadedFiles.value[0].file
+                if (file.size > maxFileSize) {
+                    errors.file = t('validation.fileTooLarge', 'File size must be less than 10 MB')
+                    isValid = false
+                }
+            }
         }
 
         return isValid
@@ -419,12 +435,34 @@
         }
     }
 
-    // Watch for file uploads
+    // Watch for file uploads - enforce single file limit
     watch(
         uploadedFiles,
         (newFiles) => {
+            // CRITICAL: Enforce only one file allowed
+            if (newFiles.length > 1) {
+                // Keep only the most recent file
+                uploadedFiles.value = [newFiles[newFiles.length - 1]]
+                toast.warning(
+                    t('validation.onlyOneFileAllowed', 'Only one certificate file is allowed'),
+                    t('warning', 'Warning')
+                )
+            }
+
             if (newFiles.length > 0) {
                 const file = newFiles[0]
+
+                // Validate file size
+                if (file.file.size > maxFileSize) {
+                    errors.file = t('validation.fileTooLarge', 'File size must be less than 10 MB')
+                    uploadedFiles.value = []
+                    toast.error(
+                        t('validation.fileTooLarge', 'File size must be less than 10 MB'),
+                        t('error', 'Error')
+                    )
+                    return
+                }
+
                 form.file = file.file
                 form.fileName = file.name
                 clearFieldError('file')

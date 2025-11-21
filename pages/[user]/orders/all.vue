@@ -256,6 +256,25 @@
             }
         }
 
+        // Merge order status filters from drawer
+        // Available on: "all" tab OR payment status tabs (NOT on order status tabs)
+        if (activeFilters.value?.status_ids?.length) {
+            const isPaymentStatusTab = currentTab?.key?.startsWith('payment_')
+            if (currentTab?.isCustom || isPaymentStatusTab) {
+                filters.status_ids = [...activeFilters.value.status_ids]
+            }
+        }
+
+        // Merge payment status filters from drawer
+        // Available on: "all" tab OR order status tabs (NOT on payment status tabs)
+        if (activeFilters.value?.payment_status_ids?.length) {
+            const isPaymentStatusTab = currentTab?.key?.startsWith('payment_')
+            const isOrderStatusTab = !currentTab?.isCustom && !isPaymentStatusTab
+            if (currentTab?.isCustom || isOrderStatusTab) {
+                filters.payment_status_ids = [...activeFilters.value.payment_status_ids]
+            }
+        }
+
         if (activeFilters.value?.currency_ids?.length) {
             filters.currency_ids = [...activeFilters.value.currency_ids]
         }
@@ -281,6 +300,8 @@
 
     const hasActiveFilters = computed(() => {
         return (
+            activeFilters.value?.status_ids?.length ||
+            activeFilters.value?.payment_status_ids?.length ||
             activeFilters.value?.currency_ids?.length ||
             activeFilters.value?.amount_min !== undefined ||
             activeFilters.value?.amount_max !== undefined ||

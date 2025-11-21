@@ -5,7 +5,7 @@
             <div
                 class="group border-2 border-dashed border-gray-400 hover:border-gray-800 rounded-md px-auto py-auto bg-gray-50 hover:bg-gray-600 cursor-pointer transition-colors duration-300 flex flex-col items-center justify-center text-center active:scale-95"
                 :class="{
-                    'pointer-events-none opacity-50': isLimitReached || buttonLoading,
+                    'pointer-events-none opacity-60': isLimitReached || buttonLoading,
                 }"
                 :aria-label="ariaLabel"
                 @dragover.prevent="handleDragOver"
@@ -179,7 +179,7 @@
         </div>
 
         <!-- Reorder Hint -->
-        <div v-if="localFiles.length > 1" class="text-caption2 text-gray-600 italic">
+        <div v-if="localFiles.length > 1 && !hideReorderHint" class="text-subtitle4 text-gray-600">
             {{ $t('dragToReorder', 'Drag images to reorder. First image will be the main photo.') }}
         </div>
     </div>
@@ -200,6 +200,7 @@
         ariaLabel: 'Upload file',
         showButton: false,
         maxFiles: undefined,
+        hideReorderHint: false,
     })
 
     const emit = defineEmits<{
@@ -389,17 +390,25 @@
     }
 
     const getPreviewUrl = (file: UploadImage): string => {
+        // First check for blob URLs (newly uploaded files)
+
         if (file.previewUrl && file.previewUrl.startsWith('blob:')) {
             return file.previewUrl
         }
+
+        // Then check for previewUrl with full URL (from API)
+
+        if (file.previewUrl && file.previewUrl.startsWith('http')) {
+            return file.previewUrl
+        }
+
+        // Fall back to building URL from file path for legacy data
 
         if (file.id && file.file && typeof file.file === 'string') {
             return `${config.public.apiBase}/storage/${file.file}`
         }
 
-        if (file.previewUrl) {
-            return file.previewUrl
-        }
+        // Last resort: any previewUrl
 
         return ''
     }
@@ -443,7 +452,7 @@
             case 'txt':
                 return '/sprite.svg#text'
             default:
-                return '/sprite.svg#document'
+                return '/sprite.svg#feed'
         }
     }
 

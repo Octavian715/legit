@@ -139,6 +139,10 @@ export class DashboardService {
         return this.makeRequest<ProductFilterOptions>(`${this.apiBase}/buyer/top-products/filters`)
     }
 
+    async getBuyerSuppliersTable(params: BuyersQueryParams = {}): Promise<BuyersResponse> {
+        return this.makeRequest<BuyersResponse>(`${this.buyersBuyersApiBase}/suppliers/all`, params)
+    }
+
     async getMetric(
         role: UserRole,
         metricType: 'revenue' | 'spent' | 'orders' | 'connections' | 'buyers' | 'suppliers',
@@ -207,6 +211,16 @@ export class DashboardService {
             return this.getSupplierBuyersFilters()
         }
         throw new Error(`Buyers filters not available for role: ${role}`)
+    }
+
+    async getSuppliersTable(
+        role: UserRole,
+        params: BuyersQueryParams = {}
+    ): Promise<BuyersResponse> {
+        if (role === 'buyer') {
+            return this.getBuyerSuppliersTable(params)
+        }
+        throw new Error(`Suppliers table not available for role: ${role}`)
     }
 
     // services/dashboardService.ts

@@ -444,7 +444,7 @@ export const useGlobalStore = defineStore(
     {
         persist: {
             key: 'global-store',
-            pick: ['staticData', 'staticDataFetchedAt', 'staticDataError', 'isCollapseSideBar'],
+            pick: ['staticData', 'staticDataFetchedAt', 'isCollapseSideBar'],
             storage: piniaPluginPersistedstate.localStorage(),
         },
     }

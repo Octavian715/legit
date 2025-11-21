@@ -474,9 +474,25 @@ const transformIdsByCodes = (items: any[] | undefined, staticData: any[] | undef
 
 const transformIdsByNames = (items: any[] | undefined, staticData: any[] | undefined): number[] => {
     if (!Array.isArray(items) || !staticData) return []
+
     return items
         .map((item) => {
-            const found = staticData.find((s: any) => s.name === item.name || s.label === item.name)
+            // Try matching by name/label (case-insensitive)
+            const itemName = item.name?.toLowerCase() || ''
+            const found = staticData.find((s: any) => {
+                const sName = s.name?.toLowerCase() || ''
+                const sLabel = s.label?.toLowerCase() || ''
+                return sName === itemName || sLabel === itemName
+            })
+
+            // If still not found, try matching by ID directly
+            if (!found && item.id) {
+                const foundById = staticData.find((s: any) => Number(s.value) === Number(item.id))
+                if (foundById) {
+                    return Number(item.id)
+                }
+            }
+
             return found?.value ? Number(found.value) : null
         })
         .filter((id): id is number => id !== null)

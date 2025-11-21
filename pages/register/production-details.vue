@@ -160,8 +160,8 @@
     import { useI18n } from 'vue-i18n'
     import { useLocalePath } from '#imports'
     import { useRouter } from 'vue-router'
-    import { validateData } from '~/utils/validator'
-    import { useRegistrationNavigation } from '~/useRegistrationNavigation'
+    import { validateData } from '~/utils/validator/index'
+    import { useRegistrationNavigation } from '~/composables/useRegistrationNavigation'
     import { useToastNotification } from '~/composables/useToastNotification'
     import { NuxtImg } from '#components'
 
@@ -234,7 +234,7 @@
 
     const modalTitle = computed(() => {
         return editingIndex.value !== null
-            ? t('modal.editProduct', 'Edit Production Details')
+            ? t('modal.editfactoryAccount', 'Edit Production Details')
             : t('modal.addfactoryAccount', 'Add Production Details')
     })
 
@@ -524,7 +524,7 @@
                     name: factory.name,
                     userFactorySizeId: factory?.size?.id || null,
                     countryId: factory?.country?.id || null,
-                    stateName: factory?.stateName || null,
+                    stateName: factory?.state_name || null,
                     cityName: factory?.city_name,
                     streetName: factory?.street_name,
                     postalCode: factory?.postal_code,

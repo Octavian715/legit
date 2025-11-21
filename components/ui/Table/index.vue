@@ -283,7 +283,7 @@
             pagination: false,
             paginationConfig: () => ({
                 currentPage: 1,
-                itemsPerPage: 10,
+                itemsPerPage: 20,
                 totalItems: 0,
             }),
             title: '',

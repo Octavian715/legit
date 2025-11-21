@@ -41,7 +41,7 @@
                                 chart-type="bar"
                                 :data="buyerOrdersChartData"
                                 :show-info="true"
-                                :is-loading="isBuyerLoading"
+                                :is-loading="isBuyerOrdersChartLoading"
                                 :empty-message="t('ordersDashboard.messages.noData')"
                                 :default-period="chartPeriods.buyerOrders"
                                 @period-change="
@@ -63,7 +63,7 @@
                                 :data="buyerSpentCategoryChartData"
                                 :legend-items="buyerCategoryLegendItems"
                                 :show-info="true"
-                                :is-loading="isBuyerLoading"
+                                :is-loading="isBuyerSpentCategoryChartLoading"
                                 :empty-message="t('ordersDashboard.messages.noData')"
                                 :currency="currency"
                                 value-type="currency"
@@ -87,7 +87,7 @@
                                 :data="buyerSpentSupplierChartData"
                                 :legend-items="buyerSupplierLegendItems"
                                 :show-info="true"
-                                :is-loading="isBuyerLoading"
+                                :is-loading="isBuyerSpentSupplierChartLoading"
                                 :empty-message="t('ordersDashboard.messages.noData')"
                                 :currency="currency"
                                 value-type="currency"
@@ -158,12 +158,12 @@
                             <Chart
                                 ref="supplierOrdersByCountryChartRef"
                                 :title="t('ordersDashboard.supplier.ordersByCountry')"
-                                :main-value="totalSupplierOrders"
+                                :main-value="totalSupplierOrdersByCountry"
                                 chart-type="doughnut"
                                 :data="supplierOrdersByCountryChartData"
                                 :legend-items="supplierCountryLegendItems"
                                 :show-info="true"
-                                :is-loading="isSupplierLoading"
+                                :is-loading="isSupplierOrdersByCountryChartLoading"
                                 :empty-message="t('ordersDashboard.messages.noData')"
                                 :default-period="chartPeriods.supplierOrdersByCountry"
                                 @period-change="
@@ -187,7 +187,7 @@
                                 chart-type="bar"
                                 :data="supplierOrdersChartData"
                                 :show-info="true"
-                                :is-loading="isSupplierLoading"
+                                :is-loading="isSupplierOrdersChartLoading"
                                 :empty-message="t('ordersDashboard.messages.noData')"
                                 :default-period="chartPeriods.supplierOrders"
                                 @period-change="
@@ -197,7 +197,7 @@
                             />
                         </div>
 
-                        <!-- Average Shopping Cart Chart -->
+                        <!-- Average Cart Chart -->
                         <ChartSkeleton v-if="!hasLoadedOnce" />
                         <div v-else class="chart-container">
                             <Chart
@@ -207,7 +207,7 @@
                                 chart-type="line"
                                 :data="supplierAverageCartChartData"
                                 :show-info="true"
-                                :is-loading="isSupplierLoading"
+                                :is-loading="isSupplierAverageCartChartLoading"
                                 :empty-message="t('ordersDashboard.messages.noData')"
                                 :currency="currency"
                                 value-type="currency"
@@ -225,11 +225,11 @@
                             <Chart
                                 ref="supplierOrdersTimelineChartRef"
                                 :title="t('ordersDashboard.supplier.ordersTimeline')"
-                                :main-value="totalSupplierOrders"
+                                :main-value="totalSupplierOrdersTimeline"
                                 chart-type="line"
                                 :data="supplierOrdersTimelineChartData"
                                 :show-info="true"
-                                :is-loading="isSupplierLoading"
+                                :is-loading="isSupplierOrdersTimelineChartLoading"
                                 :empty-message="t('ordersDashboard.messages.noData')"
                                 :default-period="chartPeriods.supplierOrdersTimeline"
                                 @period-change="
@@ -311,26 +311,37 @@
     const { defaultCurrency } = storeToRefs(userStore)
 
     const {
-        isBuyerLoading,
-        isSupplierLoading,
         error,
         buyerOrdersChart,
         buyerOrdersStats,
         buyerSpentCategoryChart,
         buyerSpentSupplierChart,
         supplierOrdersChart,
+        supplierOrdersTimelineChart,
         supplierOrdersStats,
         supplierOrdersByCountryChart,
         supplierAverageCartChart,
         totalBuyerOrders,
         totalSupplierOrders,
+        totalSupplierOrdersTimeline,
+        totalSupplierOrdersByCountry,
         buyerSpentTotal,
         supplierAverageCart,
+        // Individual loading states from store
+        isBuyerOrdersChartLoading,
+        isBuyerSpentCategoryChartLoading,
+        isBuyerSpentSupplierChartLoading,
+        isSupplierOrdersChartLoading,
+        isSupplierOrdersTimelineChartLoading,
+        isSupplierOrdersByCountryChartLoading,
+        isSupplierAverageCartChartLoading,
+        // Load functions
         loadBuyerOrdersChart,
         loadBuyerOrdersStats,
         loadBuyerSpentCategoryChart,
         loadBuyerSpentSupplierChart,
         loadSupplierOrdersChart,
+        loadSupplierOrdersTimelineChart,
         loadSupplierOrdersStats,
         loadSupplierOrdersByCountryChart,
         loadSupplierAverageCartChart,
@@ -384,11 +395,13 @@
         }
 
         return {
-            labels: buyerOrdersChart.value.chart_data.map((item) => item.date),
+            labels: buyerOrdersChart.value.chart_data.map((item) => item.period || item.date),
             datasets: [
                 {
                     label: t('ordersDashboard.orders'),
-                    data: buyerOrdersChart.value.chart_data.map((item) => item.count),
+                    data: buyerOrdersChart.value.chart_data.map(
+                        (item) => item.count ?? item.value ?? 0
+                    ),
                     backgroundColor: '#3B82F680',
                     borderColor: '#3B82F6',
                     borderWidth: 1,
@@ -503,16 +516,20 @@
     })
 
     const supplierOrdersTimelineChartData = computed<ChartData>(() => {
-        if (!supplierOrdersChart.value?.chart_data) {
+        if (!supplierOrdersTimelineChart.value?.chart_data) {
             return { labels: [], datasets: [] }
         }
 
         return {
-            labels: supplierOrdersChart.value.chart_data.map((item) => item.period || item.date),
+            labels: supplierOrdersTimelineChart.value.chart_data.map(
+                (item) => item.period || item.date
+            ),
             datasets: [
                 {
                     label: t('ordersDashboard.orders'),
-                    data: supplierOrdersChart.value.chart_data.map((item) => item.value || 0),
+                    data: supplierOrdersTimelineChart.value.chart_data.map(
+                        (item) => item.value || 0
+                    ),
                     borderColor: '#F59E0B',
                     backgroundColor: '#F59E0B20',
                     borderWidth: 2,
@@ -604,14 +621,17 @@
               })
             : buildChartFilters(period as any)
 
+        // Load data for specific chart - loading state is handled by store
         if (chartType === 'buyerOrders') {
             await loadBuyerOrdersChart(filters)
         } else if (chartType === 'buyerSpentCategory') {
             await loadBuyerSpentCategoryChart(filters)
         } else if (chartType === 'buyerSpentSupplier') {
             await loadBuyerSpentSupplierChart(filters)
-        } else if (chartType === 'supplierOrders' || chartType === 'supplierOrdersTimeline') {
+        } else if (chartType === 'supplierOrders') {
             await loadSupplierOrdersChart(filters)
+        } else if (chartType === 'supplierOrdersTimeline') {
+            await loadSupplierOrdersTimelineChart(filters)
         } else if (chartType === 'supplierOrdersByCountry') {
             await loadSupplierOrdersByCountryChart(filters)
         } else if (chartType === 'supplierAverageCart') {
@@ -666,6 +686,9 @@
         } else {
             await Promise.all([
                 loadSupplierOrdersChart(buildChartFilters(chartPeriods.value.supplierOrders)),
+                loadSupplierOrdersTimelineChart(
+                    buildChartFilters(chartPeriods.value.supplierOrdersTimeline)
+                ),
                 loadSupplierOrdersStats(),
                 loadSupplierOrdersByCountryChart(
                     buildChartFilters(chartPeriods.value.supplierOrdersByCountry)

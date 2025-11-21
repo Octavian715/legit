@@ -44,26 +44,27 @@
 
                     <div class="flex items-center gap-4 shrink-0 flex-wrap">
                         <div class="flex items-center gap-3 text-subtitle4">
-                            <div class="flex items-center gap-1">
+                            <!-- <div class="flex items-center gap-1">
                                 <span class="font-bold text-gray-950">{{ rating }}</span>
                                 <svg class="w-4 h-4 text-yellow-500">
                                     <use xlink:href="/sprite.svg#star-full" />
                                 </svg>
-                            </div>
-                            <span class="w-px h-4 bg-gray-400"></span>
+                            </div> -->
+                            <!-- <span class="w-px h-4 bg-gray-400"></span>
+                            <div class="flex items-center gap-1">
+                                <span class="font-bold text-gray-950">{{ postsCount }}</span>
+                                <span class="text-gray-800">{{ t('posts', postsCount) }}</span>
+                            </div> -->
+                            <!-- <span class="w-px h-4 bg-gray-400"></span> -->
                             <div class="flex items-center gap-1">
                                 <span class="font-bold text-gray-950">{{
                                     company.social.productsCount
                                 }}</span>
                                 <span class="text-gray-800">{{
-                                    t('products', company.social.productsCount)
+                                    t('profile.tabs.products', company.social.productsCount)
                                 }}</span>
                             </div>
-                            <span class="w-px h-4 bg-gray-400"></span>
-                            <div class="flex items-center gap-1">
-                                <span class="font-bold text-gray-950">{{ postsCount }}</span>
-                                <span class="text-gray-800">{{ t('posts', postsCount) }}</span>
-                            </div>
+
                             <span class="w-px h-4 bg-gray-400"></span>
                             <div class="flex items-center gap-1">
                                 <span class="font-bold text-gray-950">{{
@@ -85,7 +86,7 @@
                                 variant="filled"
                                 color="gray"
                                 size="sm"
-                                container-classes="flex-1 md:flex-initial"
+                                container-classes="flex-1 xl:flex-initial"
                                 :loading="isFollowLoading"
                                 @click="handleFollowToggle"
                             >
@@ -97,9 +98,9 @@
                             </Button>
                             <Button
                                 variant="filled"
-                                :color="isConnected ? 'gray' : 'red'"
+                                :color="connectionButtonColor"
                                 size="sm"
-                                container-classes="flex-1 md:flex-initial"
+                                container-classes="flex-1 xl:flex-initial"
                                 :loading="isConnectLoading"
                                 @click="handleConnectToggle"
                             >
@@ -124,10 +125,10 @@
                     <div class="text-subtitle4 text-gray-800">{{ t('email') }}</div>
                     <div class="text-subtitle4 text-gray-800">{{ t('contact.phoneNumbers') }}</div>
 
-                    <div class="text-subtitle4 text-gray-950">{{
+                    <div class="text-subtitle4 text-gray-950 break-all">{{
                         company.companyDetails.legalName
                     }}</div>
-                    <div class="text-subtitle4 text-gray-950"
+                    <div class="text-subtitle4 text-gray-950 break-all"
                         >@{{ company.companyDetails.username }}</div
                     >
                     <div class="text-subtitle4 text-gray-950">
@@ -135,11 +136,11 @@
                             v-if="company.companyDetails.websiteUrl"
                             :href="formatWebsiteUrl(company.companyDetails.websiteUrl)"
                             target="_blank"
-                            class="text-blue-600 hover:underline"
+                            class="text-blue-600 hover:underline break-all"
                             >{{ company.companyDetails.websiteUrl }}</a
                         >
                     </div>
-                    <div class="text-subtitle4 text-gray-950">
+                    <div class="text-subtitle4 text-gray-950 break-all">
                         <a
                             v-if="company.email"
                             :href="`mailto:${company.email}`"
@@ -216,7 +217,12 @@
                                             v-if="phone.type"
                                             class="capitalize mt-0.5 text-caption1"
                                         >
-                                            {{ getPhoneTypeLabel(phone.type) }}
+                                            {{
+                                                formatFullPhoneNumber(
+                                                    phone.countryCode,
+                                                    phone.phoneNumber
+                                                )
+                                            }}
                                         </span>
                                     </div>
 
@@ -241,40 +247,43 @@
                     variant="ghost"
                     square
                     size="md"
+                    disabled
                     font-weight="normal"
                     container-classes="base-btn"
                     @click="handleShare"
                 >
-                    <svg class="w-4 h-4"><use xlink:href="/sprite.svg#share" /></svg>
+                    <svg class="w-4 h-4"><use xlink:href="/sprite.svg#share1" /></svg>
                 </Button>
             </div>
         </div>
 
         <!-- Mobile Layout -->
-        <div class="lg:hidden flex flex-col gap-4">
-            <div class="flex items-start gap-3">
-                <NuxtLink
-                    :to="localePath(`/profile/${company.companyDetails.username}`)"
-                    class="shrink-0"
+        <div class="lg:hidden flex flex-col gap-3">
+            <NuxtLink
+                :to="localePath(`/profile/${company.companyDetails.username}`)"
+                class="w-full aspect-square"
+            >
+                <div
+                    class="relative w-full h-full rounded border border-gray-400 bg-gray-50 flex items-center justify-center overflow-hidden hover:border-blue-500 transition-colors"
                 >
-                    <div
-                        class="w-20 h-20 rounded border border-gray-400 bg-gray-50 flex items-center justify-center overflow-hidden hover:border-blue-500 transition-colors"
-                    >
-                        <img
-                            v-if="company.picture"
-                            :src="company.picture"
-                            :alt="company.companyDetails.legalName"
-                            class="w-full h-full object-cover"
-                            @error="handleImageError"
-                        />
-                        <span v-else class="text-red-600 font-bold text-subtitle3">{{
+                    <img
+                        v-if="company.picture"
+                        :src="company.picture"
+                        :alt="company.companyDetails.legalName"
+                        class="w-full h-full object-cover aspect-square"
+                        @error="handleImageError"
+                    />
+                    <div v-else class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-red-600 font-bold text-subtitle3">{{
                             getInitials(company.companyDetails.legalName)
                         }}</span>
                     </div>
-                </NuxtLink>
+                </div>
+            </NuxtLink>
 
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2 flex-wrap mb-1">
+            <div class="flex flex-col border border-gray-400 p-3 gap-3 rounded-sm">
+                <div class="flex flex-col flex-1 min-w-0 gap-3">
+                    <div class="flex items-center gap-2 flex-wrap">
                         <span class="text-body text-gray-800">{{ t('supplier') }}:</span>
 
                         <Link
@@ -294,25 +303,26 @@
                     </div>
 
                     <div class="flex flex-wrap items-center gap-2 text-caption1">
-                        <div class="flex items-center gap-1">
+                        <!-- <div class="flex items-center gap-1">
                             <span class="font-bold text-gray-950">{{ rating }}</span>
                             <svg class="w-3 h-3 text-yellow-500">
                                 <use xlink:href="/sprite.svg#star-full" />
                             </svg>
                         </div>
+
                         <span class="w-px h-3 bg-gray-400"></span>
+                        <div class="flex items-center gap-1">
+                            <span class="font-bold text-gray-950">{{ postsCount }}</span>
+                            <span class="text-gray-800">{{ t('posts', postsCount) }}</span>
+                        </div>
+                        <span class="w-px h-3 bg-gray-400"></span> -->
                         <div class="flex items-center gap-1">
                             <span class="font-bold text-gray-950">{{
                                 company.social.productsCount
                             }}</span>
                             <span class="text-gray-800">{{
-                                t('products', company.social.productsCount)
+                                t('profile.tabs.products', company.social.productsCount)
                             }}</span>
-                        </div>
-                        <span class="w-px h-3 bg-gray-400"></span>
-                        <div class="flex items-center gap-1">
-                            <span class="font-bold text-gray-950">{{ postsCount }}</span>
-                            <span class="text-gray-800">{{ t('posts', postsCount) }}</span>
                         </div>
                         <span class="w-px h-3 bg-gray-400"></span>
                         <div class="flex items-center gap-1">
@@ -330,55 +340,12 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-x-4 gap-y-2">
-                <div class="space-y-1">
-                    <div class="text-subtitle4 text-gray-800">{{ t('company.lagalName') }}</div>
-                    <div class="text-subtitle4 text-gray-950 break-words">{{
-                        company.companyDetails.legalName
-                    }}</div>
-                </div>
-                <div class="space-y-1">
-                    <div class="text-subtitle4 text-gray-800">{{ t('username') }}</div>
-                    <div class="text-subtitle4 text-gray-950 break-words"
-                        >@{{ company.companyDetails.username }}</div
-                    >
-                </div>
-                <div v-if="company.companyDetails.websiteUrl" class="space-y-1">
-                    <div class="text-subtitle4 text-gray-800">{{ t('company.website') }}</div>
-                    <a
-                        :href="formatWebsiteUrl(company.companyDetails.websiteUrl)"
-                        target="_blank"
-                        class="text-subtitle4 text-blue-600 hover:underline break-all"
-                        >{{ company.companyDetails.websiteUrl }}</a
-                    >
-                </div>
-                <div v-if="company.email" class="space-y-1">
-                    <div class="text-subtitle4 text-gray-800">{{ t('email') }}</div>
-                    <a
-                        :href="`mailto:${company.email}`"
-                        class="text-subtitle4 text-blue-600 hover:underline break-all"
-                        >{{ company.email }}</a
-                    >
-                </div>
-                <div v-if="company.phoneNumbers.length" class="space-y-1 col-span-2">
-                    <div class="text-subtitle4 text-gray-800">{{ t('contact.phoneNumbers') }}</div>
-                    <div class="flex flex-col gap-1 text-subtitle4 text-gray-950">
-                        <span v-for="(phone, index) in company.phoneNumbers" :key="index">{{
-                            formatFullPhoneNumber(phone.countryCode, phone.phoneNumber)
-                        }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex flex-col md:flex-row gap-2 flex-1">
                 <div class="flex gap-2">
                     <Button
                         variant="filled"
                         color="gray"
                         size="sm"
-                        container-classes="flex-1 md:flex-initial"
+                        container-classes="flex-1 xl:flex-initial"
                         :loading="isFollowLoading"
                         @click="handleFollowToggle"
                     >
@@ -390,9 +357,9 @@
                     </Button>
                     <Button
                         variant="filled"
-                        :color="isConnected ? 'gray' : 'red'"
+                        :color="connectionButtonColor"
                         size="sm"
-                        container-classes="flex-1 md:flex-initial"
+                        container-classes="flex-1 xl:flex-initial"
                         :loading="isConnectLoading"
                         @click="handleConnectToggle"
                     >
@@ -408,10 +375,52 @@
                     </Button>
                 </div>
 
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="space-y-1">
+                        <div class="text-subtitle4 text-gray-800">{{ t('company.lagalName') }}</div>
+                        <div class="text-subtitle4 text-gray-950 break-words">{{
+                            company.companyDetails.legalName
+                        }}</div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="text-subtitle4 text-gray-800">{{ t('username') }}</div>
+                        <div class="text-subtitle4 text-gray-950 break-words"
+                            >@{{ company.companyDetails.username }}</div
+                        >
+                    </div>
+                    <div v-if="company.companyDetails.websiteUrl" class="space-y-1">
+                        <div class="text-subtitle4 text-gray-800">{{ t('company.website') }}</div>
+                        <a
+                            :href="formatWebsiteUrl(company.companyDetails.websiteUrl)"
+                            target="_blank"
+                            class="text-subtitle4 text-blue-600 hover:underline break-all"
+                            >{{ company.companyDetails.websiteUrl }}</a
+                        >
+                    </div>
+                    <div v-if="company.email" class="space-y-1">
+                        <div class="text-subtitle4 text-gray-800">{{ t('email') }}</div>
+                        <a
+                            :href="`mailto:${company.email}`"
+                            class="text-subtitle4 text-blue-600 hover:underline break-all"
+                            >{{ company.email }}</a
+                        >
+                    </div>
+                    <div v-if="company.phoneNumbers.length" class="space-y-1 col-span-2">
+                        <div class="text-subtitle4 text-gray-800">{{
+                            t('contact.phoneNumbers')
+                        }}</div>
+                        <div class="flex flex-col gap-1 text-subtitle4 text-gray-950">
+                            <span v-for="(phone, index) in company.phoneNumbers" :key="index">{{
+                                formatFullPhoneNumber(phone.countryCode, phone.phoneNumber)
+                            }}</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div
-                    class="flex justify-around gap-2 bg-gray-200 border border-gray-400 p-2 rounded-sm shrink-0 flex-1"
+                    class="flex justify-around gap-2 shrink-0 bg-gray-200 border border-gray-400 p-2 rounded-sm"
                 >
-                    <!-- <Button
+                    <Button
                         color="gray"
                         variant="ghost"
                         square
@@ -425,7 +434,7 @@
                         <svg class="w-4 h-4">
                             <use xlink:href="/sprite.svg#message" />
                         </svg>
-                    </Button> -->
+                    </Button>
                     <VDropdown
                         v-if="company.phoneNumbers.length > 0"
                         :triggers="['click']"
@@ -466,7 +475,12 @@
                                                 v-if="phone.type"
                                                 class="capitalize mt-0.5 text-caption1"
                                             >
-                                                {{ getPhoneTypeLabel(phone.type) }}
+                                                {{
+                                                    formatFullPhoneNumber(
+                                                        phone.countryCode,
+                                                        phone.phoneNumber
+                                                    )
+                                                }}
                                             </span>
                                         </div>
 
@@ -486,34 +500,18 @@
                             </div>
                         </template>
                     </VDropdown>
-                    <!-- <Button
-                        color="gray"
-                        variant="ghost"
-                        square
-                        size="md"
-                        font-weight="normal"
-                        container-classes="base-btn"
-                        @click="handleShare"
-                    >
-                        <svg class="w-4 h-4 flex-shrink-0">
-                            <use xlink:href="/sprite.svg#connected"></use>
-                        </svg>
-                    </Button>
                     <Button
                         color="gray"
                         variant="ghost"
                         square
                         size="md"
+                        disabled
                         font-weight="normal"
                         container-classes="base-btn"
-                        :disabled="isChatLoading"
-                        :loading="isChatLoading"
-                        @click="handleChatClick"
+                        @click="handleShare"
                     >
-                        <svg class="w-4 h-4">
-                            <use xlink:href="/sprite.svg#message" />
-                        </svg>
-                    </Button> -->
+                        <svg class="w-4 h-4"><use xlink:href="/sprite.svg#share1" /></svg>
+                    </Button>
                 </div>
             </div>
         </div>
@@ -530,7 +528,7 @@
     import type { CompanyUser } from '~/types/connections'
     import Link from '~/components/ui/Link.vue'
     import { useToastNotification } from '~/composables/useToastNotification'
-
+    import { ConnectionsService } from '~/services/connections'
     interface Props {
         company: CompanyUser
     }
@@ -538,7 +536,12 @@
     const props = defineProps<Props>()
     const emit = defineEmits<{
         (e: 'follow-toggle', companyId: number, newState: boolean): void
-        (e: 'connect-toggle', companyId: number): void
+        (
+            e: 'connect-toggle',
+            companyId: number,
+            value: 'accepted' | 'rejected' | 'disconnect',
+            data?: any
+        ): void
     }>()
 
     const { t } = useI18n()
@@ -546,7 +549,9 @@
     const userStore = useUserStore()
     const { showRemoveConnectionConfirmation } = useConnections()
     const { handleStartChat } = useChat()
-    const { showSuccess, showError } = useToast()
+    const { success: showSuccess, error: showError } = useToastNotification()
+    const connectionsService = new ConnectionsService()
+    const { showUnfollowConfirmation } = useConnections()
 
     const isFollowLoading = ref(false)
     const isConnectLoading = ref(false)
@@ -559,9 +564,14 @@
     const postsCount = computed(() => props.company?.postsCount || 0)
 
     const connectionButtonText = computed(() => {
-        if (!props.company?.social?.connection) return t('connections.connect')
-        if (isPending.value || isConnected.value) return t('connections.disconnect')
+        if (isPending.value) return t('connections.cancel')
+        if (isConnected.value) return t('connections.disconnect')
         return t('connections.connect')
+    })
+    const connectionButtonColor = computed(() => {
+        if (!isConnected.value && !isPending.value) return 'red'
+        if (isConnected.value || isPending.value) return 'gray'
+        return 'red'
     })
 
     const getInitials = (name: string) =>
@@ -579,29 +589,83 @@
         ;(event.target as HTMLImageElement).style.display = 'none'
     }
 
-    const handleFollowToggle = () =>
-        emit('follow-toggle', props.company.id, !props.company.social.isFollowing)
+    const handleFollowToggle = async () => {
+        try {
+            isFollowLoading.value = true
+
+            const action = props.company.social.isFollowing
+                ? showUnfollowConfirmation(props.company.companyDetails.legalName, props.company.id)
+                : connectionsService.followUser(props.company.id)
+
+            const result = await action
+
+            if (result.success || result) {
+                emit('follow-toggle', props.company.id, !props.company.social.isFollowing)
+            }
+        } catch (error) {
+            console.error('Follow toggle error:', error)
+        } finally {
+            isFollowLoading.value = false
+        }
+    }
 
     const handleConnectToggle = async () => {
-        if (!props.company?.social?.connection) {
-            emit('connect-toggle', props.company.id)
-            return
-        }
+        const connection = props.company?.social?.connection
 
         try {
-            if (isPending.value || isConnected.value) {
-                if (!props.company.social.connection.id) return error(t('connections.error'))
-                await showRemoveConnectionConfirmation(
-                    props.company.companyDetails.legalName,
-                    props.company.social.connection.id,
-                    props.company.id,
-                    isPending.value
-                )
-            } else {
-                emit('connect-toggle', props.company.id)
+            isConnectLoading.value = true
+
+            if (!connection?.exists || !connection?.id) {
+                const result = await connectionsService.sendConnectionRequest(props.company.id)
+
+                if (result.success) {
+                    showSuccess(t('connections.requestSent'))
+                    emit('connect-toggle', props.company.id, 'request', result)
+                }
+                return
+            }
+
+            switch (connection.status) {
+                case 'pending': {
+                    const success = await showRemoveConnectionConfirmation(
+                        props.company.companyDetails.legalName,
+                        connection.id,
+                        props.company.id,
+                        true
+                    )
+
+                    if (success) {
+                        emit('connect-toggle', props.company.id, 'cancel')
+                    }
+                    break
+                }
+
+                case 'accepted': {
+                    const result = await showRemoveConnectionConfirmation(
+                        props.company.companyDetails.legalName,
+                        connection.id,
+                        props.company.id,
+                        false
+                    )
+
+                    if (result.success) {
+                        showSuccess(t('connections.disconnected'))
+                        emit('connect-toggle', props.company.id, 'disconnect')
+                    }
+                    break
+                }
+
+                default:
+                    showError(t('connections.error'))
             }
         } catch (error: any) {
-            if (error.statusCode !== 409) error(error.message || t('connections.error'))
+            if (error?.cancelled) return
+
+            if (error.statusCode !== 409) {
+                showError(error.message || t('connections.error'))
+            }
+        } finally {
+            isConnectLoading.value = false
         }
     }
 
@@ -616,7 +680,7 @@
                       : 'ecom'
             await handleStartChat(props.company.id, module)
         } catch (error) {
-            error(t('chat.failedToStartChat'))
+            showError(t('chat.failedToStartChat'))
         } finally {
             isChatLoading.value = false
         }
@@ -639,30 +703,25 @@
     const formatFullPhoneNumber = (countryCode: string, phoneNumber: string): string => {
         if (!phoneNumber) return ''
 
-        // Remove any non-digit characters from country code for comparison
         const cleanedCountryCode = countryCode.replace(/\D/g, '')
-
-        // Check if phoneNumber already starts with the country code (with or without +)
         const phoneWithoutPlus = phoneNumber.replace(/^\+/, '')
 
         if (phoneWithoutPlus.startsWith(cleanedCountryCode)) {
-            // Phone number already contains country code, just return it with + prefix
             return phoneNumber.startsWith('+') ? phoneNumber : `+${phoneNumber}`
         }
 
-        // Phone number doesn't contain country code, combine them
         return `${countryCode} ${phoneNumber}`
     }
 
-    const getPhoneTypeLabel = (type: string): string => {
-        const typeMap: Record<string, string> = {
-            mobile: t('phone.mobile'),
-            office: t('phone.office'),
-            home: t('phone.home'),
-            fax: t('phone.fax'),
-        }
-        return typeMap[type.toLowerCase()] || type
-    }
+    // const getPhoneTypeLabel = (type: string): string => {
+    //     const typeMap: Record<string, string> = {
+    //         mobile: t('phone.mobile'),
+    //         office: t('phone.office'),
+    //         home: t('phone.home'),
+    //         fax: t('phone.fax'),
+    //     }
+    //     return typeMap[type.toLowerCase()] || type
+    // }
 
     const handlePhoneCall = (phone: { countryCode: string; phoneNumber: string }) => {
         window.location.href = `tel:${phone.countryCode}${phone.phoneNumber}`

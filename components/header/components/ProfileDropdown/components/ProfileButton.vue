@@ -4,10 +4,15 @@
         :to="href"
         :type="isLink ? undefined : 'button'"
         :aria-current="isLink && isActive ? 'page' : undefined"
-        class="flex items-center gap-2 p-3 text-gray-950 border hover:text-red-500 hover:border-red-500 hover:bg-red-50 active:text-red-700 active:scale-95 rounded-md transition-colors"
+        class="flex items-center gap-2 p-3 text-gray-950 border rounded-md transition-colors"
         :class="[
+            // Active state
             isActive ? 'bg-red-50 text-red-500 border-red-500' : 'border-gray-600',
-            { 'cursor-pointer': !disabled },
+            // Hover and active effects (only when not disabled)
+            !disabled &&
+                'hover:text-red-500 hover:border-red-500 hover:bg-red-50 active:text-red-700 active:scale-95',
+            // Disabled state
+            disabled && 'opacity-60 cursor-not-allowed',
         ]"
         :disabled="disabled"
         @click="handleClick"

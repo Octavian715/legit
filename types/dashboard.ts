@@ -114,6 +114,7 @@ export interface DashboardData {
     productFilters: ProductFilterOptions | null
     buyers: BuyersResponse | null
     buyersFilters: BuyersFiltersResponse | null
+    suppliers: BuyersResponse | null
 }
 
 export interface MetricQueryParams {

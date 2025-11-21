@@ -127,7 +127,7 @@
     })
 
     const currentPage = ref(1)
-    const itemsPerPage = ref(15)
+    const itemsPerPage = ref(20)
     const sortBy = ref<ProductFeaturesSort | undefined>(undefined)
     const sortDirection = ref<SortDirection | undefined>(undefined)
     const isHandlingAction = ref(false)

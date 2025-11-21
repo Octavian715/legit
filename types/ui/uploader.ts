@@ -17,4 +17,5 @@ export interface UploadImageProps {
     buttonTitle?: string
     buttonLoading?: boolean
     maxFiles?: undefined | number
+    hideReorderHint?: boolean
 }

@@ -235,7 +235,9 @@
                         </div>
 
                         <!-- Square Image Container -->
-                        <div class="aspect-square w-full flex items-center justify-center p-14">
+                        <div
+                            class="aspect-square w-full flex items-center justify-center py-14 px-3"
+                        >
                             <img
                                 :src="currentDisplayImage"
                                 :alt="`${productName} - Full View ${currentImageIndex + 1}`"

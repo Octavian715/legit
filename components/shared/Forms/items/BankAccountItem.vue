@@ -144,7 +144,7 @@
         },
         stateId: {
             label: t('bank.chooseState', 'State'),
-            value: getStateName(bank.stateId, bank.countryId),
+            value: bank.stateName,
         },
         cityName: {
             label: t('bank.enterYourCity', 'City'),
@@ -181,12 +181,7 @@
         return currency ? `${currency.name} (${currency.symbol})` : ''
     }
 
-    const getStateName = (stateId: number | null, countryId: number): string => {
-        if (!stateId || !countryId) return ''
-        const states = findStatesByCountryId(countryId)
-        const state = states.find((s) => s.id === stateId)
-        return state?.name || ''
-    }
+
 
     // Watch editing state to expand when editing
     watch(

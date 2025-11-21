@@ -114,7 +114,7 @@
 </template>
 
 <script setup lang="ts">
-    import { useRegistrationNavigation } from '~/useRegistrationNavigation'
+    import { useRegistrationNavigation } from '~/composables/useRegistrationNavigation'
 
     const route = useRoute()
     const router = useRouter()

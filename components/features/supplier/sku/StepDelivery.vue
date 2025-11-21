@@ -8,16 +8,18 @@
 
                 <div class="flex flex-col md:flex-row md:space-x-2 space-y-2 md:space-y-0">
                     <div class="flex flex-1 flex-col md:flex-row gap-4 md:gap-2">
-                        <Select
-                            v-model="selectedContinent"
+                        <MultiSelect
+                            :model-value="selectedContinents"
                             :label="t('product.chooseContinents')"
-                            name="continent"
+                            name="continents"
                             size="lg"
                             background="bg-white"
                             class="flex-1"
                             :options="continentOptions"
-                            :placeholder="t('product.chooseContinents')"
-                            @update:model-value="handleFieldChange"
+                            :placeholder="t('multiSelect.placeholder')"
+                            :search-placeholder="t('multiSelect.searchPlaceholder')"
+                            :no-results-text="t('multiSelect.noResultsText')"
+                            @update:model-value="handleContinentChange"
                         />
                     </div>
                     <div class="flex-1 flex items-start pt-4">
@@ -33,31 +35,31 @@
 
                 <div
                     v-for="continent in availableContinents"
-                    :key="continent.code"
+                    :key="continent.id"
                     class="flex flex-col md:flex-row md:space-x-2 space-y-2 md:space-y-0"
                 >
                     <MultiSelect
-                        :model-value="selectedCountriesByContinent[continent.code] || []"
+                        :model-value="selectedCountriesByContinent[continent.id] || []"
                         :label="continent.name"
-                        :name="continent.code"
+                        :name="`continent-${continent.id}`"
                         size="lg"
                         background="bg-white"
                         class="flex-1"
-                        :options="getCountriesByContinent(continent.code)"
+                        :options="getCountriesByContinent(continent.id)"
                         :placeholder="t('multiSelect.placeholder')"
                         :search-placeholder="t('multiSelect.searchPlaceholder')"
                         :no-results-text="t('multiSelect.noResultsText')"
                         @update:model-value="
-                            (value) => handleContinentCountriesChange(continent.code, value)
+                            (value) => handleContinentCountriesChange(continent.id, value)
                         "
                     />
                     <div class="flex-1 flex items-start pt-4">
                         <Checkbox
-                            :model-value="selectAllByContinent[continent.code] || false"
+                            :model-value="selectAllByContinent[continent.id] || false"
                             :label="t('selectAll')"
-                            :name="`selectAll${continent.code}`"
+                            :name="`selectAll${continent.id}`"
                             size="md"
-                            @update:model-value="toggleAllContinent(continent.code, $event)"
+                            @update:model-value="toggleAllContinent(continent.id, $event)"
                         />
                     </div>
                 </div>
@@ -149,12 +151,13 @@
     const { incotermOptions } = useProductStaticData()
     const { t } = useI18n()
 
-    const selectedContinent = ref<string>('')
+    const selectedContinents = ref<number[]>([])
     const isWorldwide = ref(false)
     const selectAllIncoterms = ref(false)
-    const selectedCountriesByContinent = ref<Record<string, number[]>>({})
-    const selectAllByContinent = ref<Record<string, boolean>>({})
+    const selectedCountriesByContinent = ref<Record<number, number[]>>({})
+    const selectAllByContinent = ref<Record<number, boolean>>({})
     const incotermSelections = ref<Record<string, boolean>>({})
+    const isInternalUpdate = ref(false)
 
     const getDefaultFormData = (): ProductDeliveryFormData => {
         return {
@@ -166,15 +169,15 @@
     const formData = ref<ProductDeliveryFormData>(getDefaultFormData())
 
     const availableContinents = computed(() => {
-        if (!selectedContinent.value || selectedContinent.value === '') {
-            return continents.value
+        if (!selectedContinents.value || selectedContinents.value.length === 0) {
+            return []
         }
-        return continents.value.filter((c) => c.code === selectedContinent.value)
+        return continents.value.filter((c) => selectedContinents.value.includes(c.id))
     })
 
-    const getCountriesByContinent = (continentCode: string) => {
+    const getCountriesByContinent = (continentId: number) => {
         return countries.value
-            .filter((country) => country.continent.code === continentCode)
+            .filter((country) => country.continent.id === continentId)
             .map((country) => ({
                 value: country.id,
                 label: country.name,
@@ -194,46 +197,78 @@
         return rows
     })
 
-    const handleFieldChange = () => {
-        emitUpdate()
+    const handleContinentChange = (value: number[]) => {
+        const previousContinents = selectedContinents.value || []
+        selectedContinents.value = value || []
+
+        // Find newly added continents
+        const addedContinents = selectedContinents.value.filter(
+            (id) => !previousContinents.includes(id)
+        )
+
+        // Auto-select all countries for newly added continents
+        addedContinents.forEach((id) => {
+            const countriesInContinent = getCountriesByContinent(id)
+            selectedCountriesByContinent.value[id] = countriesInContinent.map((c) => c.value)
+            selectAllByContinent.value[id] = true
+        })
+
+        // Remove countries from continents that are no longer selected
+        const removedContinents = previousContinents.filter(
+            (id) => !selectedContinents.value.includes(id)
+        )
+        removedContinents.forEach((id) => {
+            selectedCountriesByContinent.value[id] = []
+            selectAllByContinent.value[id] = false
+        })
+
+        updateAvailabilityCountries()
     }
 
     const handleWorldwideChange = (value: boolean) => {
         if (value) {
+            // Select all continents
+            selectedContinents.value = continents.value.map((c) => c.id)
+
+            // Select all countries for each continent
             continents.value.forEach((continent) => {
-                const countriesInContinent = getCountriesByContinent(continent.code)
-                selectedCountriesByContinent.value[continent.code] = countriesInContinent.map(
+                const countriesInContinent = getCountriesByContinent(continent.id)
+                selectedCountriesByContinent.value[continent.id] = countriesInContinent.map(
                     (c) => c.value
                 )
-                selectAllByContinent.value[continent.code] = true
+                selectAllByContinent.value[continent.id] = true
             })
         } else {
+            // Clear all selections
+            selectedContinents.value = []
             continents.value.forEach((continent) => {
-                selectedCountriesByContinent.value[continent.code] = []
-                selectAllByContinent.value[continent.code] = false
+                selectedCountriesByContinent.value[continent.id] = []
+                selectAllByContinent.value[continent.id] = false
             })
         }
         updateAvailabilityCountries()
     }
 
-    const handleContinentCountriesChange = (continentCode: string, value: number[]) => {
-        selectedCountriesByContinent.value[continentCode] = value || []
+    const handleContinentCountriesChange = (continentId: number, value: number[]) => {
+        selectedCountriesByContinent.value[continentId] = value || []
 
-        const countriesInContinent = getCountriesByContinent(continentCode)
-        selectAllByContinent.value[continentCode] =
+        const countriesInContinent = getCountriesByContinent(continentId)
+        selectAllByContinent.value[continentId] =
             value?.length === countriesInContinent.length && countriesInContinent.length > 0
 
         updateAvailabilityCountries()
     }
 
-    const toggleAllContinent = (continentCode: string, value: boolean) => {
+    const toggleAllContinent = (continentId: number, value: boolean) => {
         if (value) {
-            const countriesInContinent = getCountriesByContinent(continentCode)
-            selectedCountriesByContinent.value[continentCode] = countriesInContinent.map(
+            const countriesInContinent = getCountriesByContinent(continentId)
+            selectedCountriesByContinent.value[continentId] = countriesInContinent.map(
                 (c) => c.value
             )
+            selectAllByContinent.value[continentId] = true
         } else {
-            selectedCountriesByContinent.value[continentCode] = []
+            selectedCountriesByContinent.value[continentId] = []
+            selectAllByContinent.value[continentId] = false
         }
         updateAvailabilityCountries()
     }
@@ -241,6 +276,12 @@
     const updateAvailabilityCountries = () => {
         const allSelected = Object.values(selectedCountriesByContinent.value).flat()
         formData.value.availabilityCountryIds = [...new Set(allSelected)]
+
+        // Check if all countries from all continents are selected (for isWorldwide checkbox)
+        const totalCountries = countries.value.length
+        const totalSelected = formData.value.availabilityCountryIds.length
+        isWorldwide.value = totalSelected === totalCountries && totalCountries > 0
+
         emitUpdate()
     }
 
@@ -258,6 +299,11 @@
         })
 
         formData.value.incotermIds = selectedIds
+
+        // Update selectAllIncoterms checkbox based on selections
+        selectAllIncoterms.value =
+            selectedIds.length === incotermOptions.value.length && incotermOptions.value.length > 0
+
         emitUpdate()
     }
 
@@ -276,7 +322,11 @@
     }
 
     const emitUpdate = () => {
+        isInternalUpdate.value = true
         emit('update', { ...toRaw(formData.value) })
+        nextTick(() => {
+            isInternalUpdate.value = false
+        })
     }
 
     const validate = () => {
@@ -301,11 +351,11 @@
         const defaultData = getDefaultFormData()
 
         continents.value.forEach((continent) => {
-            if (!selectedCountriesByContinent.value[continent.code]) {
-                selectedCountriesByContinent.value[continent.code] = []
+            if (!selectedCountriesByContinent.value[continent.id]) {
+                selectedCountriesByContinent.value[continent.id] = []
             }
-            if (selectAllByContinent.value[continent.code] === undefined) {
-                selectAllByContinent.value[continent.code] = false
+            if (selectAllByContinent.value[continent.id] === undefined) {
+                selectAllByContinent.value[continent.id] = false
             }
         })
 
@@ -326,17 +376,25 @@
                 props.stepData.availabilityCountryIds &&
                 props.stepData.availabilityCountryIds.length > 0
             ) {
+                const continentsWithSelectedCountries: number[] = []
+
                 continents.value.forEach((continent) => {
-                    const countriesInContinent = getCountriesByContinent(continent.code)
+                    const countriesInContinent = getCountriesByContinent(continent.id)
                     const selectedInContinent = props.stepData.availabilityCountryIds.filter((id) =>
                         countriesInContinent.some((c) => c.value === id)
                     )
-                    selectedCountriesByContinent.value[continent.code] = selectedInContinent
 
-                    selectAllByContinent.value[continent.code] =
-                        selectedInContinent.length === countriesInContinent.length &&
-                        countriesInContinent.length > 0
+                    if (selectedInContinent.length > 0) {
+                        continentsWithSelectedCountries.push(continent.id)
+                        selectedCountriesByContinent.value[continent.id] = selectedInContinent
+
+                        selectAllByContinent.value[continent.id] =
+                            selectedInContinent.length === countriesInContinent.length &&
+                            countriesInContinent.length > 0
+                    }
                 })
+
+                selectedContinents.value = continentsWithSelectedCountries
 
                 const totalCountries = countries.value.length
                 const totalSelected = props.stepData.availabilityCountryIds.length
@@ -371,6 +429,11 @@
     watch(
         () => props.stepData,
         () => {
+            // Don't reinitialize if the update came from us
+            if (isInternalUpdate.value) {
+                return
+            }
+
             if (
                 props.stepData &&
                 Object.keys(props.stepData).length > 0 &&

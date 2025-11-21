@@ -586,7 +586,8 @@
             return
         }
 
-        if (!validateForm()) {
+        const validationResult = validateForm()
+        if (!validationResult.isValid) {
             return
         }
 
@@ -607,13 +608,23 @@
 
     /**
      * Public method for parent to trigger save
+     * Returns boolean indicating save success
      */
-    const save = async () => {
+    const save = async (): Promise<boolean> => {
         if (!isMounted.value) {
             console.warn('[CompanyDetailsTab] Cannot save - component not mounted')
-            return
+            return false
         }
-        submitButtonRef.value?.click()
+
+        // Validate form first
+        const validation = validateForm()
+        if (!validation.isValid) {
+            return false
+        }
+
+        // Save and return the result
+        const result = await saveCompanyDetails()
+        return result.success
     }
 
     /**
@@ -634,7 +645,7 @@
     /**
      * Public method for parent to validate form
      */
-    const validate = (): boolean => {
+    const validate = () => {
         return validateForm()
     }
 

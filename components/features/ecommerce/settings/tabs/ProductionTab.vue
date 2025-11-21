@@ -1,6 +1,6 @@
 <!-- ~/components/features/ecommerce/settings/tabs/ProductionTab.vue -->
 <template>
-    <div class="w-full space-y-3">
+    <div class="w-full space-y-3 mb-20">
         <!-- Production Details Section -->
         <section>
             <h2 class="text-subtitle3 text-gray-800 mb-3">
@@ -192,7 +192,7 @@
     // Modal title
     const modalTitle = computed(() => {
         return editingIndex.value !== null
-            ? t('modal.editProduct', 'Edit Production Details')
+            ? t('modal.editfactoryAccount', 'Edit Production Details')
             : t('modal.addfactoryAccount', 'Add Production Details')
     })
 

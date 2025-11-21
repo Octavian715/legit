@@ -22,26 +22,29 @@
                             <template v-for="(item, index) in menu" :key="item.key || index">
                                 <!-- Menu Item Container with Single Border -->
                                 <div
-                                    class="overflow-hidden bg-white border border-gray-600 rounded hover:border-red-500 hover:text-red-500 transition-colors"
-                                    :class="{
-                                        'border-red-500 text-red-500 font-medium': isActive(item),
-                                        'hover:border-red-500':
-                                            !isActive(item) && !isMenuItemLocked(item),
-                                        'border-gray-400 opacity-60': isMenuItemLocked(item),
-                                    }"
+                                    class="overflow-hidden bg-white border rounded transition-colors"
+                                    :class="[
+                                        isActive(item) && !isMenuItemLocked(item)
+                                            ? 'border-red-500 text-red-500 font-medium'
+                                            : 'border-gray-600',
+                                        !isMenuItemLocked(item) &&
+                                            'hover:border-red-500 hover:text-red-500',
+                                        isMenuItemLocked(item) && 'border-gray-400 opacity-60',
+                                    ]"
                                 >
                                     <!-- Parent Item with Children -->
                                     <div v-if="item.children && item.children.length > 0">
                                         <button
                                             type="button"
-                                            class="w-full flex items-center justify-between p-3 text-subtitle1 transition-colors hover:bg-red-50"
-                                            :class="{
-                                                'text-red-500 font-medium hover:bg-white':
-                                                    shouldShowSubmenu(item),
-                                                'font-medium': !shouldShowSubmenu(item),
-                                                'text-gray-600 cursor-not-allowed hover:bg-white':
-                                                    isMenuItemLocked(item),
-                                            }"
+                                            class="w-full flex items-center justify-between p-3 text-subtitle1 transition-colors"
+                                            :class="[
+                                                shouldShowSubmenu(item) && !isMenuItemLocked(item)
+                                                    ? 'text-red-500 font-medium'
+                                                    : 'font-medium',
+                                                !isMenuItemLocked(item) && 'hover:bg-red-50',
+                                                isMenuItemLocked(item) &&
+                                                    'text-gray-600 cursor-not-allowed',
+                                            ]"
                                             @click="handleParentClick($event, item)"
                                         >
                                             <div class="flex items-center gap-2">
@@ -134,27 +137,31 @@
                                                                     : undefined
                                                             "
                                                             type="button"
-                                                            class="flex items-center group justify-between mx-6 text-subtitle2 font-medium text-gray-950 transition-colors relative border-l-2 border-gray-600 hover:border-red-500 w-full"
-                                                            :class="{
-                                                                'text-red-500 border-red-500 font-medium':
-                                                                    isActive(subItem) &&
-                                                                    !isMenuItemLocked(subItem),
-                                                                'text-gray-600 border-gray-600 cursor-not-allowed opacity-60':
-                                                                    isMenuItemLocked(subItem),
-                                                            }"
+                                                            class="flex items-center group justify-between mx-6 text-subtitle2 font-medium text-gray-950 transition-colors relative border-l-2 w-full"
+                                                            :class="[
+                                                                isActive(subItem) &&
+                                                                !isMenuItemLocked(subItem)
+                                                                    ? 'text-red-500 border-red-500 font-medium'
+                                                                    : 'border-gray-600',
+                                                                !isMenuItemLocked(subItem) &&
+                                                                    'hover:border-red-500',
+                                                                isMenuItemLocked(subItem) &&
+                                                                    'text-gray-600 border-gray-600 cursor-not-allowed opacity-60',
+                                                            ]"
                                                             @click="
                                                                 handleSubItemClick($event, subItem)
                                                             "
                                                         >
                                                             <span
-                                                                class="truncate capitalize mx-3 p-3 w-full group-hover:text-red-500 group-hover:bg-red-50 text-left"
-                                                                :class="{
-                                                                    'bg-red-50':
-                                                                        isActive(subItem) &&
-                                                                        !isMenuItemLocked(subItem),
-                                                                    'group-hover:bg-white':
-                                                                        isMenuItemLocked(subItem),
-                                                                }"
+                                                                class="truncate capitalize mx-3 p-3 w-full text-left"
+                                                                :class="[
+                                                                    isActive(subItem) &&
+                                                                    !isMenuItemLocked(subItem)
+                                                                        ? 'bg-red-50'
+                                                                        : '',
+                                                                    !isMenuItemLocked(subItem) &&
+                                                                        'group-hover:text-red-500 group-hover:bg-red-50',
+                                                                ]"
                                                             >
                                                                 {{ subItem.label }}
 
@@ -185,15 +192,15 @@
                                                 : undefined
                                         "
                                         type="button"
-                                        class="w-full flex items-center justify-between p-3 text-subtitle1 bg-white hover:bg-gray-50 transition-colors"
-                                        :class="{
-                                            'text-red-500 font-medium':
-                                                isActive(item) && !isMenuItemLocked(item),
-                                            'font-medium':
-                                                !isActive(item) && !isMenuItemLocked(item),
-                                            'text-gray-600 cursor-not-allowed opacity-60':
-                                                isMenuItemLocked(item),
-                                        }"
+                                        class="w-full flex items-center justify-between p-3 text-subtitle1 bg-white transition-colors"
+                                        :class="[
+                                            isActive(item) && !isMenuItemLocked(item)
+                                                ? 'text-red-500 font-medium'
+                                                : 'font-medium',
+                                            !isMenuItemLocked(item) && 'hover:bg-gray-50',
+                                            isMenuItemLocked(item) &&
+                                                'text-gray-600 cursor-not-allowed opacity-60',
+                                        ]"
                                         @click="handleMenuItemClick($event, item)"
                                     >
                                         <div class="flex items-center gap-2">
@@ -280,11 +287,19 @@
 
     const iconLink = (icon: string): string => `/sprite.svg#${icon}`
 
+    // ✅ List of disabled menu items
+    const disabledMenuKeys = ['inventory', 'sales', 'guide', 'support']
+
     /**
-     * Check if menu item is locked based on feature access
+     * Check if menu item is locked based on feature access or disabled list
      */
     const isMenuItemLocked = (item: MenuItem): boolean => {
         if (!item.key) return false
+
+        // ✅ Check if item is in disabled list
+        if (disabledMenuKeys.includes(item.key)) {
+            return true
+        }
 
         // Check if this menu key requires a feature
         const requiredFeature = menuKeyToFeature[item.key]
@@ -305,14 +320,9 @@
      * Handle parent item click (with or without children)
      */
     const handleParentClick = (event: MouseEvent, item: MenuItem) => {
-        // If locked, prevent navigation and show upgrade prompt
+        // If locked, do nothing
         if (isMenuItemLocked(item)) {
             event.preventDefault()
-            const requiredFeature = menuKeyToFeature[item.key!]
-            if (requiredFeature) {
-                // ✅ Use already initialized function from top-level
-                showUpgradePrompt(requiredFeature as any)
-            }
             return
         }
 
@@ -326,15 +336,9 @@
      * Handle single menu item click (no children)
      */
     const handleMenuItemClick = (event: MouseEvent, item: MenuItem) => {
-        // If locked, prevent navigation and show upgrade prompt
+        // If locked, do nothing
         if (isMenuItemLocked(item)) {
             event.preventDefault()
-            const requiredFeature = menuKeyToFeature[item.key!]
-
-            if (requiredFeature) {
-                // ✅ Use already initialized function from top-level
-                showUpgradePrompt(requiredFeature as any)
-            }
             return
         }
 
@@ -346,14 +350,9 @@
      * Handle subitem click
      */
     const handleSubItemClick = (event: MouseEvent, subItem: MenuItem) => {
-        // If locked, prevent navigation and show upgrade prompt
+        // If locked, do nothing
         if (isMenuItemLocked(subItem)) {
             event.preventDefault()
-            const requiredFeature = menuKeyToFeature[subItem.key!]
-            if (requiredFeature) {
-                // ✅ Use already initialized function from top-level
-                showUpgradePrompt(requiredFeature as any)
-            }
             return
         }
 

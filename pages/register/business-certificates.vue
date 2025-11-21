@@ -148,7 +148,7 @@
     import { useI18n } from 'vue-i18n'
     import { useLocalePath } from '#imports'
     import { useRouter } from 'vue-router'
-    import { useRegistrationNavigation } from '~/useRegistrationNavigation'
+    import { useRegistrationNavigation } from '~/composables/useRegistrationNavigation'
     import { useToastNotification } from '~/composables/useToastNotification'
     import type { TableColumn } from '~/types/ui/table'
 
@@ -207,6 +207,9 @@
             align: 'left',
             view: 'TableCellText',
             width: '25%',
+            cellOptions: {
+                classes: 'break-words whitespace-normal line-clamp-2',
+            },
         },
         {
             key: 'certificateNumber',
@@ -520,24 +523,15 @@
             if (companyCertificates?.length) {
                 form.certificates =
                     certificatesData?.certificates ||
-                    companyCertificates.map((certificate) => {
-                        // Extract filename from file_path if file_name is not available
-                        const fileName =
-                            certificate.file_name ||
-                            certificate.file_path?.split('/').pop() ||
-                            `${certificate.certificate_number}.pdf`
-
-                        return {
-                            id: certificate.id || null,
-                            name: certificate.file_name,
-                            certificateNumber: certificate.certificate_number,
-                            expiryDate: certificate.expiry_date,
-                            issueDate: certificate.issue_date,
-                            file: certificate.file_path,
-                            fileName: fileName,
-                            size: certificate.file_size,
-                        }
-                    })
+                    companyCertificates.map((certificate) => ({
+                        id: certificate.id || null,
+                        name: certificate.file_name,
+                        certificateNumber: certificate.certificate_number,
+                        expiryDate: certificate.expiry_date,
+                        issueDate: certificate.issue_date,
+                        file: certificate.url || certificate.file_path, // ✅ Use URL with signature for download
+                        size: certificate.file_size,
+                    }))
             }
         } catch (error) {
             console.error('[CompanyForm] Error loading user company data:', error)

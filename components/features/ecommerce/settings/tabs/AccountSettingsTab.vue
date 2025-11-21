@@ -77,6 +77,9 @@
     const errors = ref<Record<string, string>>({})
 
     const validate = () => {
+        // Clear previous errors
+        errors.value = {}
+
         const result = validator.validate('accountSettings', accountSettingsSchema, form.value)
         if (!result.isValid) {
             result.errors.forEach((err) => {
@@ -103,8 +106,50 @@
             }
             isDirty.value = false
             return true
-        } catch (err) {
-            showError(t('settings.errorSavingChanges'))
+        } catch (err: any) {
+            // Handle backend validation errors (4XX)
+            if (err.data && err.data.errors) {
+                // Laravel validation errors format
+                const backendErrors = err.data.errors
+
+                // Map backend errors to form fields
+                Object.keys(backendErrors).forEach((field) => {
+                    const errorMessages = backendErrors[field]
+                    const message = Array.isArray(errorMessages) ? errorMessages[0] : errorMessages
+
+                    // Map backend field names to frontend field names
+                    if (
+                        field === 'password_data.current_password' ||
+                        field === 'current_password'
+                    ) {
+                        errors.value.current_password = message
+                    } else if (field === 'password_data.new_password' || field === 'new_password') {
+                        errors.value.new_password = message
+                    } else if (
+                        field === 'password_data.new_password_confirmation' ||
+                        field === 'new_password_confirmation'
+                    ) {
+                        errors.value.new_password_confirmation = message
+                    } else if (
+                        field === 'password_data.logout_other_devices' ||
+                        field === 'logout_other_devices'
+                    ) {
+                        errors.value.logout_other_devices = message
+                    }
+                })
+
+                // Show toast with general error message if available
+                // const errorMessage =
+                //     err.data.message ||
+                //     t('validation.pleaseFixErrors', 'Please fix the errors before saving')
+                // showError(errorMessage)
+            } else {
+                // Generic error handling
+                const errorMessage =
+                    err.data?.message || err.message || t('settings.errorSavingChanges')
+                showError(errorMessage)
+            }
+
             return false
         }
     }

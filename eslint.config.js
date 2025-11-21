@@ -33,6 +33,8 @@ export default [
             'vue/multi-word-component-names': 'off', // Allow single-word components
             // Add rule to enforce kebab-case for attribute names in Vue templates
             'vue/attribute-hyphenation': ['error', 'always'],
+            // Disallow console.log in production code
+            'no-console': ['error', { allow: ['warn', 'error'] }],
         },
     },
     {

@@ -54,7 +54,7 @@
                 v-model="minValueDisplay"
                 type="number"
                 name="range-min"
-                :placeholder="minPlaceholder || t('filters.from')"
+                :label="minPlaceholder || t('filters.from')"
                 :min="absoluteMin"
                 :max="internalMax"
                 :step="step"
@@ -66,7 +66,7 @@
                 v-model="maxValueDisplay"
                 type="number"
                 name="range-max"
-                :placeholder="maxPlaceholder || t('filters.to')"
+                :label="maxPlaceholder || t('filters.to')"
                 :min="internalMin"
                 :max="absoluteMax"
                 :step="step"
@@ -187,13 +187,9 @@
             internalMax.value = absoluteMax.value
         }
 
-        // Initialize display values ONLY if they differ from absolute bounds
-        if (props.modelValue.min !== null && props.modelValue.min > absoluteMin.value) {
-            minValueDisplay.value = props.modelValue.min.toString()
-        }
-        if (props.modelValue.max !== null && props.modelValue.max < absoluteMax.value) {
-            maxValueDisplay.value = props.modelValue.max.toString()
-        }
+        // ✅ Always show min/max values in inputs on mount
+        minValueDisplay.value = internalMin.value.toString()
+        maxValueDisplay.value = internalMax.value.toString()
     })
 
     const minPercentage = computed(() => {
@@ -359,9 +355,8 @@
             // Only restrict if trying to go beyond max
             internalMin.value = internalMax.value
         }
-        // Only show value in input if different from absolute minimum
-        minValueDisplay.value =
-            internalMin.value > absoluteMin.value ? internalMin.value.toString() : ''
+        // ✅ Always show value in input
+        minValueDisplay.value = internalMin.value.toString()
         emitChange()
     }
 
@@ -373,9 +368,8 @@
             // Only restrict if trying to go below min
             internalMax.value = internalMin.value
         }
-        // Only show value in input if different from absolute maximum
-        maxValueDisplay.value =
-            internalMax.value < absoluteMax.value ? internalMax.value.toString() : ''
+        // ✅ Always show value in input
+        maxValueDisplay.value = internalMax.value.toString()
         emitChange()
     }
 
@@ -386,9 +380,8 @@
         } else {
             internalMin.value = absoluteMin.value
         }
-        // Only show value if different from absolute minimum
-        minValueDisplay.value =
-            internalMin.value > absoluteMin.value ? internalMin.value.toString() : ''
+        // ✅ Always show value in input
+        minValueDisplay.value = internalMin.value.toString()
         emitChange()
     }
 
@@ -399,9 +392,8 @@
         } else {
             internalMax.value = absoluteMax.value
         }
-        // Only show value if different from absolute maximum
-        maxValueDisplay.value =
-            internalMax.value < absoluteMax.value ? internalMax.value.toString() : ''
+        // ✅ Always show value in input
+        maxValueDisplay.value = internalMax.value.toString()
         emitChange()
     }
 
@@ -413,26 +405,22 @@
                     absoluteMin.value,
                     Math.min(newValue.min, absoluteMax.value)
                 )
-                // Only show if different from absolute minimum
-                minValueDisplay.value =
-                    internalMin.value > absoluteMin.value ? internalMin.value.toString() : ''
             } else {
                 internalMin.value = absoluteMin.value
-                minValueDisplay.value = ''
             }
+            // ✅ Always show value in input
+            minValueDisplay.value = internalMin.value.toString()
 
             if (newValue.max !== null) {
                 internalMax.value = Math.max(
                     absoluteMin.value,
                     Math.min(newValue.max, absoluteMax.value)
                 )
-                // Only show if different from absolute maximum
-                maxValueDisplay.value =
-                    internalMax.value < absoluteMax.value ? internalMax.value.toString() : ''
             } else {
                 internalMax.value = absoluteMax.value
-                maxValueDisplay.value = ''
             }
+            // ✅ Always show value in input
+            maxValueDisplay.value = internalMax.value.toString()
         },
         { immediate: true, deep: true }
     )

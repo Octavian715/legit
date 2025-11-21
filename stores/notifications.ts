@@ -22,6 +22,16 @@ export const useNotificationsStore = defineStore('notifications', () => {
         const exists = notifications.value.find((n) => n.id === notification.id)
 
         if (!exists) {
+            // Normalize notification: move connection_id from root to data object
+            // This ensures consistency between WebSocket notifications (root level)
+            // and API notifications (data object)
+            if (notification.connection_id && !notification.data?.connection_id) {
+                if (!notification.data) {
+                    notification.data = {}
+                }
+                notification.data.connection_id = notification.connection_id
+            }
+
             notifications.value.unshift(notification)
 
             if (!notification.is_read) {
@@ -79,10 +89,22 @@ export const useNotificationsStore = defineStore('notifications', () => {
 
             const response = await notificationService.getNotifications(page, 20, options)
 
+            // Normalize all notifications to ensure connection_id is in data object
+            const normalizedData = response.data.map((notification) => {
+                // Move connection_id from root to data object if present
+                if (notification.connection_id && !notification.data?.connection_id) {
+                    if (!notification.data) {
+                        notification.data = {}
+                    }
+                    notification.data.connection_id = notification.connection_id
+                }
+                return notification
+            })
+
             if (page === 1) {
-                notifications.value = response.data
+                notifications.value = normalizedData
             } else {
-                notifications.value.push(...response.data)
+                notifications.value.push(...normalizedData)
             }
 
             meta.value = response.meta

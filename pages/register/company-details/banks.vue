@@ -149,7 +149,7 @@
     import { useLocalePath } from '#imports'
     import { useRouter } from 'vue-router'
     import { validateData } from '~/utils/validator'
-    import { useRegistrationNavigation } from '~/useRegistrationNavigation'
+    import { useRegistrationNavigation } from '~/composables/useRegistrationNavigation'
     import { useToastNotification } from '~/composables/useToastNotification'
 
     import {
@@ -454,7 +454,7 @@
                 swift_code: account.swiftCode,
                 currency_id: account.currencyId,
                 country_id: account.countryId,
-                state_id: account.stateName || null,
+                state_name: account.stateName || null,
                 city_name: account.cityName,
                 street_name: account.streetName,
                 street_number: account.streetNumber,
@@ -512,7 +512,7 @@
                         swiftCode: account.swift_code,
                         currencyId: account.currency?.id || null,
                         countryId: account.country?.id || null,
-                        stateName: account.stateName || null,
+                        stateName: account.state_name || null,
                         cityName: account.city_name,
                         streetName: account.street_name,
                         streetNumber: account.street_number,

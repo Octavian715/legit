@@ -14,7 +14,7 @@
                 containerClasses,
             ]"
         >
-            <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600">
+            <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-800">
                 <svg class="w-4 h-4">
                     <use xlink:href="/sprite.svg#search" />
                 </svg>
@@ -32,7 +32,7 @@
                 :aria-describedby="
                     hasError ? `${inputId}-error` : explain ? `${inputId}-explain` : null
                 "
-                class="w-full h-full pl-10 pr-10 border-none bg-transparent focus:outline-none text-gray-950"
+                class="w-full h-full pl-10 pr-10 border-none placeholder:text-gray-800 bg-transparent focus:outline-none text-gray-950"
                 :class="{
                     'text-red-500': hasError,
                     'cursor-not-allowed': disabled,

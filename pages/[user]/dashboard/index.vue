@@ -225,7 +225,7 @@
                             <div class="flex items-center justify-between">
                                 <div>
                                     <h3 class="text-gray-950 font-bold text-title3">
-                                        {{ t('dashboardUser.buyer.suppliersTable') }}
+                                        {{ t('dashboardUser.buyer.suppliers') }}
                                     </h3>
                                     <p class="text-gray-800 text-subtitle3 mt-1">
                                         {{
@@ -598,10 +598,10 @@
     ])
 
     const suppliersTableRows = computed<TableRow[]>(() => {
-        const partners = dashboardStore.data?.partners
-        if (!partners?.data?.length) return []
+        const suppliers = dashboardStore.data?.suppliers
+        if (!suppliers?.data?.length) return []
 
-        return partners.data.map((supplier, index) => ({
+        return suppliers.data.map((supplier, index) => ({
             id: supplier.company_id?.toString() || index.toString(),
             row: [
                 supplier.company_id || '-',
@@ -622,7 +622,7 @@
     const productsTableColumns = computed<TableColumn[]>(() => [
         {
             key: 'id',
-            label: t('product.productId'),
+            label: t('table.productId', 0),
             sortable: false,
             view: 'TableCellText',
             width: '100px',
@@ -630,7 +630,7 @@
         },
         {
             key: 'brand_name',
-            label: t('brand'),
+            label: t('table.brandName'),
             sortable: false,
             view: 'TableCellText',
             width: '150px',
@@ -638,7 +638,7 @@
         },
         {
             key: 'original_name',
-            label: t('product.productName'),
+            label: t('table.productName'),
             sortable: false,
             view: 'TableCellText',
             width: '200px',
@@ -646,7 +646,7 @@
         },
         {
             key: 'article_number',
-            label: t('product.articleNumber'),
+            label: t('table.articleNumber'),
             sortable: false,
             view: 'TableCellText',
             width: '130px',
@@ -678,7 +678,7 @@
         },
         {
             key: 'total_amount',
-            label: t('totalAmount'),
+            label: t('table.totalAmount'),
             sortable: false,
             view: 'TableCellText',
             classes: 'font-bold',

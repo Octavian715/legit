@@ -42,7 +42,7 @@ export const useTable = (props: UseTableProps, emit: (event: string, ...args: an
     // Default pagination config with fallback
     const defaultPaginationConfig: PaginationConfig = {
         currentPage: 1,
-        itemsPerPage: 10,
+        itemsPerPage: 20,
         totalItems: 0,
     }
 

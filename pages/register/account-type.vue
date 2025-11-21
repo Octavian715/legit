@@ -124,7 +124,7 @@
 </template>
 
 <script setup lang="ts">
-    import { useRegistrationNavigation } from '~/useRegistrationNavigation'
+    import { useRegistrationNavigation } from '~/composables/useRegistrationNavigation'
     import Link from '~/components/ui/Link.vue'
 
     definePageMeta({

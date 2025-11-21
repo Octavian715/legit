@@ -49,9 +49,9 @@
                             )
                         "
                         accept=".jpg,.jpeg,.png,.pdf"
-                        :multiple="false"
-                        c
+                        :multiple="true"
                         :select-primary="false"
+                        :hide-reorder-hint="true"
                         :error="errors.companyCertificate"
                         :aria-label="
                             $t('uploadCompanyCertificateLabel', 'Upload company certificate')
@@ -118,7 +118,7 @@
         initialData: () => ({ passportImages: [], companyCertificate: [] }),
         isSubmitting: false,
         maxPassportFiles: 5,
-        maxCompanyCertificateFiles: 1,
+        maxCompanyCertificateFiles: 5,
         requirePassport: true,
         requireCompanyCertificate: true,
     })
@@ -193,7 +193,7 @@
         } else if (form.companyCertificate.length > props.maxCompanyCertificateFiles) {
             errors.companyCertificate = t(
                 'validation.maxCompanyCertificateFiles',
-                `Maximum ${props.maxCompanyCertificateFiles} company certificate file allowed`
+                `Maximum ${props.maxCompanyCertificateFiles} company certificate files allowed`
             )
             isValid = false
         }

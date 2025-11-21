@@ -80,11 +80,12 @@
                 <span class="label">{{ t('product.ownPrice') }}:</span>
                 <div class="own-price-input-wrapper">
                     <input
-                        v-model.number="ownPrice"
+                        :value="ownPrice"
                         type="number"
                         :min="0"
                         :max="999999"
                         :step="0.01"
+                        :placeholder="'-'"
                         class="own-price-input"
                         @input="validateOwnPrice"
                         @blur="roundOwnPrice"
@@ -106,17 +107,53 @@
 
             <!-- ENHANCED PROGRESS BAR WITH STEP INDICATORS -->
             <div v-if="displayQuantity > 0 && hasVolumeDiscount" class="discount-progress-section">
-                <!-- SAVINGS TEXT ABOVE PROGRESS BAR -->
-                <div v-if="totalSavings > 0" class="savings-text-above">
-                    {{ t('product.youSaved') }}: <strong>{{ formatPrice(totalSavings) }}</strong>
+                <!-- SAVINGS TEXT ABOVE PROGRESS BAR WITH MAX BADGE -->
+                <div class="savings-header-container">
+                    <div class="savings-header">
+                        <div
+                            v-if="totalSavings > 0"
+                            class="savings-text-above"
+                            :class="{ 'savings-text-glow': isMaxDiscountReached }"
+                        >
+                            {{ t('product.youSaved') }}:
+                            <strong>{{ formatPrice(totalSavings) }}</strong>
+                        </div>
+                        <Transition name="badge-pop">
+                            <div v-if="isMaxDiscountReached" class="max-savings-badge">
+                                🎉 {{ t('product.maxSavings') || 'MAX SAVINGS!' }}
+                            </div>
+                        </Transition>
+                    </div>
                 </div>
 
                 <!-- PROGRESS BAR WITH FIXED STEPS -->
                 <div class="progress-bar-wrapper">
-                    <div class="progress-bar-track">
+                    <!-- CELEBRATION PARTICLES -->
+                    <Transition name="celebration-fade">
+                        <div
+                            v-if="showCelebration"
+                            :key="celebrationKey"
+                            class="celebration-container"
+                        >
+                            <div
+                                v-for="i in 12"
+                                :key="i"
+                                class="celebration-particle"
+                                :style="{ '--i': i }"
+                            ></div>
+                        </div>
+                    </Transition>
+
+                    <div
+                        class="progress-bar-track"
+                        :class="{ 'progress-complete': isMaxDiscountReached }"
+                    >
                         <div
                             class="progress-bar-fill"
-                            :class="progressBarColorClass"
+                            :class="[
+                                progressBarColorClass,
+                                { 'progress-fill-complete': isMaxDiscountReached },
+                            ]"
                             :style="progressBarStyle"
                         ></div>
 
@@ -401,11 +438,13 @@
     const isSyncingFromCart = ref(false)
     const displayQuantity = ref<number>(0)
     const inputPendingValue = ref<number | null>(null)
-    const ownPrice = ref(0)
+    const ownPrice = ref<number | null>(null)
     const vatValue = ref(props.vat)
     const selectedMultiplier = ref<number | null>(null)
     const pendingUpdate = ref(false)
     const lastUpdateValue = ref<number | null>(null)
+    const showCelebration = ref(false)
+    const celebrationKey = ref(0)
 
     const multipliers = [1, 2, 3, 4, 5]
 
@@ -569,11 +608,6 @@
         const margin = 10 // Same margin as step positions
         const usableWidth = 100 - 2 * margin
 
-        // CRITICAL: If at or beyond last tier, go to 100% IMMEDIATELY
-        if (currentTierIndex >= tiers.length - 1) {
-            return 100
-        }
-
         // If before first tier (quantity < first tier)
         if (currentTierIndex === -1) {
             const nextTier = tiers[0]
@@ -581,6 +615,14 @@
 
             // Progress from 0% to first step position (10%)
             return progressRatio * margin
+        }
+
+        // Calculate step position for current tier
+        const currentStepPos = margin + (currentTierIndex / (tiers.length - 1)) * usableWidth
+
+        // If we're at or beyond the last tier, return 100%
+        if (currentTierIndex >= tiers.length - 1) {
+            return 100
         }
 
         // Between two tiers
@@ -593,13 +635,17 @@
             (nextTier.quantity_from - currentTier.quantity_from)
 
         // Calculate step positions for current and next tier
-        const currentStepPos = margin + (currentTierIndex / (tiers.length - 1)) * usableWidth
         const nextStepPos = margin + ((currentTierIndex + 1) / (tiers.length - 1)) * usableWidth
 
         // Interpolate progress between current step position and next step position
         const progress = currentStepPos + progressRatio * (nextStepPos - currentStepPos)
 
         return Math.min(Math.max(progress, 0), 100)
+    })
+
+    // Check if max discount is reached (100%)
+    const isMaxDiscountReached = computed(() => {
+        return progressToNextTier.value >= 100
     })
 
     const progressBarColorClass = computed(() => {
@@ -744,6 +790,10 @@
     const cartItemId = computed(() => cartItemInfo.value.id)
 
     const marginPercentage = computed(() => {
+        // Show "-" when ownPrice is not entered
+        if (ownPrice.value === null || ownPrice.value === undefined || ownPrice.value === 0) {
+            return '-'
+        }
         const markup = calculateMarkupPercentage(ownPrice.value, currentActivePrice.value)
         return formatPercentage(markup, 1)
     })
@@ -911,11 +961,21 @@
 
     const validateOwnPrice = (event: Event) => {
         const target = event.target as HTMLInputElement
-        let value = parseFloat(target.value) || 0
 
-        if (value < 0) {
-            value = 0
-        } else if (value > 999999) {
+        // If input is empty, set to null
+        if (target.value === '' || target.value === null) {
+            ownPrice.value = null
+            return
+        }
+
+        let value = parseFloat(target.value)
+
+        if (isNaN(value) || value <= 0) {
+            ownPrice.value = null
+            return
+        }
+
+        if (value > 999999) {
             value = 999999
         }
 
@@ -923,7 +983,9 @@
     }
 
     const roundOwnPrice = () => {
-        ownPrice.value = Math.round(ownPrice.value * 100) / 100
+        if (ownPrice.value !== null && ownPrice.value !== undefined) {
+            ownPrice.value = Math.round(ownPrice.value * 100) / 100
+        }
     }
 
     const handleRemoveItem = async (productId: number) => {
@@ -959,6 +1021,23 @@
             }
         }
     )
+
+    // Watch for 100% completion to trigger celebration
+    watch(isMaxDiscountReached, (newVal, oldVal) => {
+        // Skip celebration during initial sync or if already showing
+        if (isSyncingFromCart.value || showCelebration.value) return
+
+        if (newVal && !oldVal) {
+            // Trigger celebration
+            showCelebration.value = true
+            celebrationKey.value++
+
+            // Hide celebration after animation
+            setTimeout(() => {
+                showCelebration.value = false
+            }, 1500)
+        }
+    })
 
     onMounted(() => {
         nextTick(() => {
@@ -1045,8 +1124,82 @@
         @apply space-y-1;
     }
 
+    .savings-header-container {
+        @apply relative;
+        min-height: 20px;
+    }
+
+    .savings-header {
+        @apply flex items-center justify-between gap-2;
+    }
+
     .savings-text-above {
-        @apply text-gray-800 text-subtitle4 font-normal;
+        @apply text-gray-800 text-subtitle4 font-normal transition-all duration-300 flex-shrink-0;
+    }
+
+    .savings-text-glow {
+        @apply text-green-600 font-bold;
+        animation: text-glow 2s ease-in-out infinite;
+    }
+
+    @keyframes text-glow {
+        0%,
+        100% {
+            text-shadow: 0 0 4px rgba(50, 175, 127, 0.5);
+        }
+        50% {
+            text-shadow:
+                0 0 8px rgba(50, 175, 127, 0.8),
+                0 0 12px rgba(50, 175, 127, 0.5);
+        }
+    }
+
+    .max-savings-badge {
+        @apply px-2 py-0.5 bg-green-600 text-white text-subtitle4 font-bold rounded-full whitespace-nowrap flex-shrink-0;
+        box-shadow: 0 0 12px rgba(50, 175, 127, 0.6);
+        animation: badge-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes badge-pulse {
+        0%,
+        100% {
+            transform: scale(1);
+            box-shadow: 0 0 12px rgba(50, 175, 127, 0.6);
+        }
+        50% {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(50, 175, 127, 0.9);
+        }
+    }
+
+    .badge-pop-enter-active {
+        animation: badge-pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .badge-pop-leave-active {
+        animation: badge-pop-out 0.3s cubic-bezier(0.4, 0, 0.6, 1);
+    }
+
+    @keyframes badge-pop-in {
+        0% {
+            opacity: 0;
+            transform: scale(0) rotate(-10deg);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1) rotate(0deg);
+        }
+    }
+
+    @keyframes badge-pop-out {
+        0% {
+            opacity: 1;
+            transform: scale(1);
+        }
+        100% {
+            opacity: 0;
+            transform: scale(0.8);
+        }
     }
 
     .progress-info {
@@ -1063,14 +1216,93 @@
 
     .progress-bar-wrapper {
         @apply relative;
+        min-height: 8px;
+    }
+
+    .celebration-container {
+        @apply absolute pointer-events-none z-20;
+        left: 0;
+        right: 0;
+        top: -20px;
+        bottom: -20px;
+    }
+
+    .celebration-particle {
+        @apply absolute w-2 h-2 rounded-full;
+        left: 50%;
+        top: 50%;
+        background: linear-gradient(45deg, #ffd400, #ff0000, #32af7f);
+        animation: particle-burst 1s ease-out forwards;
+        animation-delay: calc(var(--i) * 0.05s);
+    }
+
+    @keyframes particle-burst {
+        0% {
+            transform: translate(0, 0) scale(1);
+            opacity: 1;
+        }
+        100% {
+            transform: translate(
+                    calc(cos(calc(var(--i) * 30deg)) * 40px),
+                    calc(sin(calc(var(--i) * 30deg)) * 40px)
+                )
+                scale(0);
+            opacity: 0;
+        }
+    }
+
+    .celebration-fade-enter-active {
+        animation: celebration-in 0.3s ease-out;
+    }
+
+    @keyframes celebration-in {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
     }
 
     .progress-bar-track {
-        @apply w-full h-2 bg-gray-300 rounded-full overflow-visible relative;
+        @apply w-full bg-gray-300 rounded-full overflow-visible relative transition-all duration-300;
+        height: 8px;
+    }
+
+    .progress-bar-track.progress-complete {
+        @apply bg-gray-400;
+        box-shadow: 0 0 8px rgba(50, 175, 127, 0.4);
+        animation: track-glow 2s ease-in-out infinite;
+    }
+
+    @keyframes track-glow {
+        0%,
+        100% {
+            box-shadow: 0 0 8px rgba(50, 175, 127, 0.4);
+        }
+        50% {
+            box-shadow:
+                0 0 16px rgba(50, 175, 127, 0.7),
+                0 0 24px rgba(50, 175, 127, 0.4);
+        }
     }
 
     .progress-bar-fill {
         @apply h-full bg-gradient-to-r transition-all duration-500 ease-out relative flex items-center justify-center rounded-full;
+    }
+
+    .progress-bar-fill.progress-fill-complete {
+        animation: fill-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes fill-pulse {
+        0%,
+        100% {
+            filter: brightness(1);
+        }
+        50% {
+            filter: brightness(1.2);
+        }
     }
 
     .progress-percentage {

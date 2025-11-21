@@ -71,6 +71,8 @@ export interface Notification {
     user_id?: string | number
     userName?: string
     user_name?: string
+    connectionId?: string | number
+    connection_id?: string | number
 }
 
 export interface NotificationMeta {

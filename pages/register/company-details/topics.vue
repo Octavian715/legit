@@ -120,7 +120,7 @@
     import { useLocalePath } from '#imports'
     import { useRouter } from 'vue-router'
     import { validateData } from '~/utils/validator'
-    import { useRegistrationNavigation } from '~/useRegistrationNavigation'
+    import { useRegistrationNavigation } from '~/composables/useRegistrationNavigation'
     import { useToastNotification } from '~/composables/useToastNotification'
 
     // Import the schema

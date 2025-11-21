@@ -27,71 +27,65 @@
             />
 
             <!-- Issue Date and Expiry Date - Side by Side -->
-            <div class="flex gap-3">
+            <div class="grid grid-cols-1 gap-3">
                 <!-- Issue Date -->
-                <div class="flex-1">
-                    <Input
+                <div class="flex flex-col w-full">
+                    <DatePicker
                         v-model="form.issueDate"
-                        :label="$t('certificates.issueDate', 'Issue Date')"
-                        name="issueDate"
-                        type="date"
-                        background="bg-white"
-                        :error="!!errors.issueDate"
-                        :error-message="errors.issueDate"
+                        :label="$t('certificates.selectIssueDate', 'Select issue date')"
+                        :placeholder="$t('certificates.selectDate', 'Select date')"
                         required
-                        @input="clearFieldError('issueDate')"
+                        @date-selected="clearFieldError('issueDate')"
                     />
+                    <div v-if="errors.issueDate" class="flex gap-1 text-caption1 mx-1 mt-1">
+                        <svg class="w-3 h-3 text-red-500">
+                            <use xlink:href="/sprite.svg#warn-error"></use>
+                        </svg>
+                        <span class="text-red-500">{{ errors.issueDate }}</span>
+                    </div>
                 </div>
 
                 <!-- Expiry Date -->
-                <div class="flex-1">
-                    <Input
+                <div class="flex flex-col w-full">
+                    <DatePicker
                         v-model="form.expiryDate"
-                        :label="$t('certificates.expiryDate', 'Expiry date')"
-                        name="expiryDate"
-                        type="date"
-                        background="bg-white"
-                        :error="!!errors.expiryDate"
-                        :error-message="errors.expiryDate"
+                        :label="$t('certificates.selectExpiryDate', 'Select expiry date')"
+                        :placeholder="$t('certificates.selectDate', 'Select date')"
                         required
-                        @input="clearFieldError('expiryDate')"
+                        @date-selected="clearFieldError('expiryDate')"
                     />
+                    <div v-if="errors.expiryDate" class="flex gap-1 text-caption1 mx-1 mt-1">
+                        <svg class="w-3 h-3 text-red-500">
+                            <use xlink:href="/sprite.svg#warn-error"></use>
+                        </svg>
+                        <span class="text-red-500">{{ errors.expiryDate }}</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- Issuing Authority -->
-            <Input
-                v-model="form.issuingAuthority"
-                :label="$t('certificates.issuingAuthority', 'Issuing Authority')"
-                name="issuingAuthority"
-                background="bg-white"
-                :error="!!errors.issuingAuthority"
-                :error-message="errors.issuingAuthority"
-                required
-                @input="clearFieldError('issuingAuthority')"
-            />
-
             <!-- File Upload -->
             <div>
-                <label class="block text-subtitle3 font-medium text-gray-900 mb-2">
-                    {{ $t('certificates.certificateFile', 'Certificate File') }} *
-                </label>
-
-                <FileUpload
-                    v-model="form.file"
-                    :title="$t('certificates.uploadCertificateFile', 'Upload Certificate File')"
-                    :subtitle="
+                <Uploader
+                    v-model="uploadedFiles"
+                    :accept="acceptedFileTypes"
+                    :title="
                         $t(
-                            'register.uploadCertificatesRequirementMessage',
-                            '1MB max. JPEG, PNG or PDF format only.'
+                            'certificates.dragAndDropFile',
+                            'Drag and drop certificate here or choose file'
                         )
                     "
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    :max-size="1048576"
-                    :error="!!errors.file"
-                    :error-message="errors.file"
-                    @update:model-value="clearFieldError('file')"
+                    :description="
+                        $t('certificates.fileTypesHint', '10 MB max, JPEG, PNG or PDF format only')
+                    "
+                    :multiple="false"
                 />
+
+                <div v-if="errors.file" class="flex gap-1 text-caption1 mx-1 mt-2">
+                    <svg class="w-3 h-3 text-red-500">
+                        <use xlink:href="/sprite.svg#warn-error"></use>
+                    </svg>
+                    <span class="text-red-500">{{ errors.file }}</span>
+                </div>
             </div>
 
             <!-- Actions (if showActions is true) -->
@@ -122,8 +116,9 @@
 </template>
 
 <script setup lang="ts">
-    import { reactive, computed, watch, onMounted } from 'vue'
+    import { ref, reactive, computed, watch, onMounted } from 'vue'
     import { useI18n } from 'vue-i18n'
+    import { useDate } from '~/composables/useDate'
     import { useToastNotification } from '~/composables/useToastNotification'
 
     interface Certificate {
@@ -132,8 +127,17 @@
         number: string
         issueDate: string
         expiryDate: string
-        issuingAuthority: string
         file: File | null
+        fileName?: string
+    }
+
+    interface UploadFile {
+        id?: number
+        file: File | string
+        name: string
+        type: string
+        size: number
+        previewUrl?: string
     }
 
     interface Props {
@@ -155,10 +159,17 @@
 
     // Composables
     const { t } = useI18n({ useScope: 'global' })
+    const { isValidDate, isDateBefore, isDateInFuture } = useDate()
     const toast = useToastNotification()
 
     // State
     const editMode = computed(() => !!props.initialData?.id || !!props.initialData?.name)
+
+    // File upload state
+    const uploadedFiles = ref<UploadFile[]>([])
+
+    // File upload configuration
+    const acceptedFileTypes = 'image/jpeg,image/png,application/pdf'
 
     // Form data
     const form = reactive<Certificate>({
@@ -167,8 +178,8 @@
         number: props.initialData?.number || '',
         issueDate: props.initialData?.issueDate || '',
         expiryDate: props.initialData?.expiryDate || '',
-        issuingAuthority: props.initialData?.issuingAuthority || '',
         file: props.initialData?.file || null,
+        fileName: props.initialData?.fileName || '',
     })
 
     // Field errors
@@ -177,22 +188,22 @@
         number: '',
         issueDate: '',
         expiryDate: '',
-        issuingAuthority: '',
         file: '',
     })
 
     // Computed Properties
     const canSubmit = computed(() => {
-        return (
-            form.name &&
-            form.number &&
+        const hasRequiredFields = !!(
+            form.name.trim() &&
+            form.number.trim() &&
             form.issueDate &&
-            form.expiryDate &&
-            form.issuingAuthority &&
-            form.file &&
-            !Object.values(errors).some((error) => error) &&
-            !props.isSubmitting
+            form.expiryDate
         )
+
+        const hasFile = uploadedFiles.value.length > 0 || !!form.file
+        const hasNoErrors = !Object.values(errors).some((error) => !!error)
+
+        return hasRequiredFields && hasFile && hasNoErrors && !props.isSubmitting
     })
 
     // Form validation
@@ -201,49 +212,59 @@
 
         let isValid = true
 
-        // Required field validation
+        // Validate certificate name
         if (!form.name.trim()) {
-            errors.name = t('validation.required', 'This field is required')
+            errors.name = t('validation.certificateNameRequired', 'Certificate name is required')
             isValid = false
         }
 
+        // Validate certificate number
         if (!form.number.trim()) {
-            errors.number = t('validation.required', 'This field is required')
+            errors.number = t(
+                'validation.certificateNumberRequired',
+                'Certificate number is required'
+            )
             isValid = false
         }
 
+        // Validate issue date
         if (!form.issueDate) {
-            errors.issueDate = t('validation.required', 'This field is required')
+            errors.issueDate = t('validation.issueDateRequired', 'Issue date is required')
+            isValid = false
+        } else if (!isValidDate(form.issueDate)) {
+            errors.issueDate = t('validation.invalidDate', 'Invalid date format')
+            isValid = false
+        } else if (isDateInFuture(form.issueDate)) {
+            errors.issueDate = t(
+                'validation.issueDateCannotBeFuture',
+                'Issue date cannot be in the future'
+            )
             isValid = false
         }
 
+        // Validate expiry date
         if (!form.expiryDate) {
-            errors.expiryDate = t('validation.required', 'This field is required')
+            errors.expiryDate = t('validation.expiryDateRequired', 'Expiry date is required')
+            isValid = false
+        } else if (!isValidDate(form.expiryDate)) {
+            errors.expiryDate = t('validation.invalidDate', 'Invalid date format')
+            isValid = false
+        } else if (
+            form.issueDate &&
+            isValidDate(form.issueDate) &&
+            isDateBefore(form.expiryDate, form.issueDate)
+        ) {
+            errors.expiryDate = t(
+                'validation.expiryDateMustBeAfterIssueDate',
+                'Expiry date must be after issue date'
+            )
             isValid = false
         }
 
-        if (!form.issuingAuthority.trim()) {
-            errors.issuingAuthority = t('validation.required', 'This field is required')
+        // Validate file (required for new certificates)
+        if (uploadedFiles.value.length === 0 && !form.file) {
+            errors.file = t('validation.certificateFileRequired', 'Certificate file is required')
             isValid = false
-        }
-
-        if (!form.file) {
-            errors.file = t('validation.required', 'Please upload a certificate file')
-            isValid = false
-        }
-
-        // Date validation
-        if (form.issueDate && form.expiryDate) {
-            const issueDate = new Date(form.issueDate)
-            const expiryDate = new Date(form.expiryDate)
-
-            if (expiryDate <= issueDate) {
-                errors.expiryDate = t(
-                    'certificates.expiryAfterIssue',
-                    'Expiry date must be after issue date'
-                )
-                isValid = false
-            }
         }
 
         return isValid
@@ -266,15 +287,68 @@
     // Handlers
     const handleSubmit = () => {
         if (!validateForm()) {
+            toast.error(
+                t('validation.fixErrors', 'Please fix the errors and try again'),
+                t('error', 'Error')
+            )
             return
         }
 
-        emit('save', { ...form })
+        try {
+            // Get file from uploaded files or existing form file
+            const fileToSubmit =
+                uploadedFiles.value.length > 0 ? uploadedFiles.value[0].file : form.file
+
+            const certificateData: Certificate = {
+                id: form.id,
+                name: form.name.trim(),
+                number: form.number.trim(),
+                issueDate: form.issueDate,
+                expiryDate: form.expiryDate,
+                file: fileToSubmit instanceof File ? fileToSubmit : form.file,
+                fileName: uploadedFiles.value[0]?.name || form.fileName || fileToSubmit?.name,
+            }
+
+            emit('save', certificateData)
+        } catch (error) {
+            console.error('Certificate submission error:', error)
+        }
     }
 
     const handleCancel = () => {
         emit('cancel')
     }
+
+    // Watch for file uploads
+    watch(
+        uploadedFiles,
+        (newFiles) => {
+            if (newFiles.length > 0) {
+                const file = newFiles[0]
+
+                // Update form.file only if it's a new File upload
+                // If file.file is a string (file path from backend), keep the original form.file
+                if (file.file instanceof File) {
+                    form.file = file.file
+                    form.fileName = file.name
+                    clearFieldError('file')
+                } else if (typeof file.file === 'string') {
+                    // File path from backend - keep existing form.file if it exists
+                    if (!form.file) {
+                        form.file = file.file as any // Store the path as file reference
+                    }
+                    form.fileName = file.name
+                    clearFieldError('file')
+                }
+            } else {
+                // ✅ File removed - always clear form.file regardless of edit mode
+                // This ensures validation will fail if file is required
+                form.file = null
+                form.fileName = ''
+            }
+        },
+        { deep: true }
+    )
 
     // Update form when initialData changes
     watch(
@@ -287,9 +361,32 @@
                     number: newData.number || '',
                     issueDate: newData.issueDate || '',
                     expiryDate: newData.expiryDate || '',
-                    issuingAuthority: newData.issuingAuthority || '',
                     file: newData.file || null,
+                    fileName: newData.fileName || '',
                 })
+
+                // Initialize uploadedFiles for edit mode with existing file
+                if (newData.file || newData.fileName) {
+                    const existingFile = newData.file instanceof File ? newData.file : newData.file // It could be a file path string from backend
+
+                    uploadedFiles.value = [
+                        {
+                            id: newData.id || Date.now(),
+                            file: existingFile || newData.fileName || '',
+                            name:
+                                newData.fileName ||
+                                (newData.file instanceof File ? newData.file.name : 'certificate'),
+                            type:
+                                newData.file instanceof File
+                                    ? newData.file.type
+                                    : 'application/pdf',
+                            size: newData.file instanceof File ? newData.file.size : 0,
+                            previewUrl: '',
+                        },
+                    ]
+                } else {
+                    uploadedFiles.value = []
+                }
             }
         },
         { immediate: true, deep: true }

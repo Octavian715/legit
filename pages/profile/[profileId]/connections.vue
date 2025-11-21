@@ -51,6 +51,11 @@
             />
         </div>
 
+        <!-- Loading State -->
+        <div v-if="isLoading" class="space-y-0 bg-white">
+            <CompanyCardSkeleton v-for="n in 5" :key="`skeleton-${n}`" />
+        </div>
+
         <!-- Empty State -->
         <NoDataPage
             v-else-if="!isLoading && companies.length === 0"
@@ -124,7 +129,7 @@
     // State
     const companies = ref<CompanyUser[]>([])
     const meta = ref<PaginationMeta | null>(null)
-    const isLoading = ref(false)
+    const isLoading = ref(true) // Start with true to show skeleton on initial load
     const errorMsg = ref('')
     const showFilters = ref(false)
     const validationErrors = ref<Record<string, string[]>>({})
@@ -170,12 +175,12 @@
     const sortOptions = computed(() => [
         { label: t('sorting.byAlphabetAZ'), value: 'company_name:asc' },
         { label: t('sorting.byAlphabetZA'), value: 'company_name:desc' },
-        { label: 'Products (Most)', value: 'products_count:desc' },
-        { label: 'Products (Least)', value: 'products_count:asc' },
+        { label: t('sorting.productsMost'), value: 'products_count:desc' },
+        { label: t('sorting.productsLeast'), value: 'products_count:asc' },
         { label: t('sorting.followersDesc'), value: 'followers_count:desc' },
         { label: t('sorting.followersAsc'), value: 'followers_count:asc' },
-        { label: 'Connections (Most)', value: 'connections_count:desc' },
-        { label: 'Connections (Least)', value: 'connections_count:asc' },
+        { label: t('sorting.connectionsMost'), value: 'connections_count:desc' },
+        { label: t('sorting.connectionsLeast'), value: 'connections_count:asc' },
     ])
 
     const currentSortLabel = computed(() => {
@@ -288,23 +293,57 @@
         showFilters.value = false
     }
 
-    const handleResetFilters = async () => {
-        searchQuery.value = ''
-        companyNameFilter.value = ''
-        emailFilter.value = ''
-        usernameFilter.value = ''
-        currentPage.value = 1
-        router.replace({ query: {} })
-        await fetchData()
-        showFilters.value = false
+    const handleFollowToggle = async (companyId: number, newState: boolean) => {
+        const company = companies.value.find((item) => item.id === companyId)
+
+        if (!company) return
+
+        company.social.isFollowing = newState
+        company.social.followersCount = newState
+            ? (company.social.followersCount || 0) + 1
+            : Math.max(0, (company.social.followersCount || 0) - 1)
     }
 
-    const handleFollowToggle = async () => {
-        await fetchData()
-    }
+    const handleConnectToggle = async (
+        companyId: number,
+        action: 'request' | 'rejected' | 'disconnect'
+    ) => {
+        const company = companies.value.find((item) => item.id === companyId)
 
-    const handleConnectToggle = async () => {
-        await fetchData()
+        if (!company) return
+
+        switch (action) {
+            case 'request':
+                // New connection request sent
+                company.social.connection = {
+                    id: null,
+                    exists: true,
+                    status: 'pending',
+                }
+                break
+
+            case 'rejected':
+                // Connection request cancelled
+                company.social.connection = {
+                    id: null,
+                    exists: false,
+                    status: null,
+                }
+                break
+
+            case 'disconnect':
+                // Connection removed
+                company.social.connection = {
+                    id: null,
+                    exists: false,
+                    status: null,
+                }
+                company.social.connectionsCount = Math.max(
+                    0,
+                    (company.social.connectionsCount || 0) - 1
+                )
+                break
+        }
     }
 
     // Initialize

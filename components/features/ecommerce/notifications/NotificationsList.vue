@@ -8,6 +8,7 @@
                 @action="$emit('action', $event)"
                 @mark-read="$emit('mark-read', $event)"
                 @navigate="$emit('navigate', $event)"
+                @action-complete="$emit('action-complete')"
             />
         </div>
 
@@ -49,5 +50,6 @@
         navigate: [url: string]
         'page-change': [page: number]
         'items-per-page-change': [perPage: number]
+        'action-complete': []
     }>()
 </script>

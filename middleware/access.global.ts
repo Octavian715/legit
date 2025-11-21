@@ -8,8 +8,6 @@ export default defineNuxtRouteMiddleware(async (to) => {
         // to.path.includes('/icons') ||
         to.path.includes('/inventory') ||
         to.path.includes('/guide') ||
-        to.path.includes('/supplier/settings') ||
-        to.path.includes('/buyer/settings') ||
         to.path.includes('/support')
 
     if (!isTemplateRoute) {

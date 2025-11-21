@@ -130,8 +130,8 @@
     import { useI18n } from 'vue-i18n'
     import { useLocalePath } from '#imports'
     import { useRouter } from 'vue-router'
-    import { validateData } from '~/utils/validator'
-    import { useRegistrationNavigation } from '~/useRegistrationNavigation'
+    import { validateData } from '~/utils/validator/index'
+    import { useRegistrationNavigation } from '~/composables/useRegistrationNavigation'
     import { useToastNotification } from '~/composables/useToastNotification'
     import { useStaticData } from '~/composables/useStaticData'
 
@@ -337,14 +337,17 @@
             const userCompanyDetails = await loadAndPopulateFieldRegistration('company_details')
             const spokenLanguages = await loadAndPopulateFieldRegistration('spoken_languages')
 
-            if (userCompanyDetails) {
+            if (userCompanyDetails || spokenLanguages) {
                 // Update form with user data if not already set
+                // Note: Use length check for arrays since empty arrays are truthy
                 form.spokenLanguages =
-                    form.spokenLanguages || spokenLanguages.map((item) => item.id) || ''
+                    form.spokenLanguages?.length > 0
+                        ? form.spokenLanguages
+                        : spokenLanguages?.map((item: any) => item.id) || []
                 form.revenueRangeId =
-                    form.revenueRangeId || userCompanyDetails?.revenue_range?.id || ''
+                    form.revenueRangeId || userCompanyDetails?.revenue_range?.id || 0
                 form.employeeCountRangeId =
-                    form.employeeCountRangeId || userCompanyDetails?.employee_count_range?.id || ''
+                    form.employeeCountRangeId || userCompanyDetails?.employee_count_range?.id || 0
                 form.websiteUrl = form.websiteUrl || userCompanyDetails?.website_url || ''
                 form.description = form.description || userCompanyDetails?.description || ''
             }

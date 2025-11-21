@@ -44,7 +44,7 @@
         buyers: () => [],
         meta: () => ({}),
         currentPage: 1,
-        itemsPerPage: 10,
+        itemsPerPage: 20,
         loading: false,
         showPagination: true,
         sortBy: undefined,

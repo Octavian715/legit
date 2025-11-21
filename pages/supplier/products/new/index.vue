@@ -781,4 +781,36 @@
             }
         }
     )
+
+    // Guard: prevent navigating to future steps when product is not complete
+    watch(
+        () => route.query.step,
+        async (newStep) => {
+            if (!newStep || !isInitialized.value) return
+
+            const isComplete = productStore.stepProgress?.is_complete || false
+            if (isComplete) return // Allow free navigation when product is complete
+
+            // Skip guard for method and import steps
+            if (newStep === 'method' || newStep === 'import') return
+
+            const currentStepNum = productStore.stepProgress?.current_step || 1
+            const targetStepIndex = nonMethodSteps.value.findIndex((s) => s.key === newStep)
+            const targetStepNum = targetStepIndex + 1
+
+            // If trying to access a step beyond current progress, redirect to max allowed step
+            if (targetStepNum > currentStepNum) {
+                const maxAllowedStep = nonMethodSteps.value[currentStepNum - 1]
+                if (maxAllowedStep) {
+                    await router.replace({
+                        query: {
+                            step: maxAllowedStep.key,
+                            product: route.query.product,
+                        },
+                    })
+                }
+            }
+        },
+        { immediate: true }
+    )
 </script>

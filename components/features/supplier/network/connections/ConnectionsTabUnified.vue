@@ -83,10 +83,10 @@
     }
 
     const tabStates = ref<Record<ConnectionType, TabPaginationState>>({
-        accepted: { currentPage: 1, itemsPerPage: 10 },
-        'my-requests': { currentPage: 1, itemsPerPage: 10 },
-        requests: { currentPage: 1, itemsPerPage: 10 },
-        declined: { currentPage: 1, itemsPerPage: 10 },
+        accepted: { currentPage: 1, itemsPerPage: 20 },
+        'my-requests': { currentPage: 1, itemsPerPage: 20 },
+        requests: { currentPage: 1, itemsPerPage: 20 },
+        declined: { currentPage: 1, itemsPerPage: 20 },
     })
 
     // ✅ Get current tab state

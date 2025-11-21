@@ -357,6 +357,8 @@
     })
 
     const isCartEmpty = computed(() => {
+        // Don't show empty cart if we're in the process of submitting (navigating to success)
+        if (isSubmitting.value) return false
         return (
             !isInitialLoading.value && (!supplierGroups.value || supplierGroups.value.length === 0)
         )

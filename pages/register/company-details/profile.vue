@@ -143,7 +143,7 @@
         companyProfileSchema,
         type CompanyProfileFormData,
     } from '~/utils/validator/schemas/auth/registerSchema'
-    import { useRegistrationNavigation } from '~/useRegistrationNavigation'
+    import { useRegistrationNavigation } from '~/composables/useRegistrationNavigation'
     import { useToastNotification } from '~/composables/useToastNotification'
     import { useStaticData } from '~/composables/useStaticData'
 

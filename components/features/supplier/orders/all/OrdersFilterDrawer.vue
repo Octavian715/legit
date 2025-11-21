@@ -56,6 +56,14 @@
                         }}</span>
                     </template>
                     <div class="filter-section">
+                        <div v-if="isOrderStatusTab" class="text-subtitle4 text-gray-800 mb-2">
+                            {{
+                                t(
+                                    'filters.orderStatusDisabledOnStatusTab',
+                                    'Order Status filter is disabled because you are viewing a specific status tab'
+                                )
+                            }}
+                        </div>
                         <div class="checkbox-group">
                             <div class="checkbox-grid">
                                 <Checkbox
@@ -64,6 +72,7 @@
                                     :model-value="selectedStatusIds.includes(status.id)"
                                     :label="getStatusName(status.code)"
                                     :name="`status-${status.id}`"
+                                    :disabled="isOrderStatusTab"
                                     class="capitalize"
                                     @update:model-value="
                                         (checked) => toggleStatus(status.id, checked)
@@ -81,6 +90,14 @@
                         }}</span>
                     </template>
                     <div class="filter-section">
+                        <div v-if="isPaymentStatusTab" class="text-subtitle4 text-gray-800 mb-2">
+                            {{
+                                t(
+                                    'filters.paymentStatusDisabledOnPaymentTab',
+                                    'Payment Status filter is disabled because you are viewing a specific payment status tab'
+                                )
+                            }}
+                        </div>
                         <div class="checkbox-group">
                             <div class="checkbox-grid">
                                 <Checkbox
@@ -91,6 +108,7 @@
                                     "
                                     :label="getPaymentStatusName(paymentStatus.code)"
                                     :name="`payment-status-${paymentStatus.id}`"
+                                    :disabled="isPaymentStatusTab"
                                     class="capitalize"
                                     @update:model-value="
                                         (checked) => togglePaymentStatus(paymentStatus.id, checked)
@@ -304,11 +322,25 @@
         return Math.max(1, Math.floor(range / 100))
     })
 
+    const isAllOrdersTab = computed(() => {
+        return props.activeTab === 'all'
+    })
+
+    const isPaymentStatusTab = computed(() => {
+        return props.activeTab?.startsWith('payment_')
+    })
+
+    const isOrderStatusTab = computed(() => {
+        return !isAllOrdersTab.value && !isPaymentStatusTab.value
+    })
+
     const activeFiltersCount = computed(() => {
         let count = 0
         if (searchQuery.value?.trim()) count++
-        if (selectedStatusIds.value?.length > 0) count++
-        if (selectedPaymentStatusIds.value?.length > 0) count++
+        // Count order status filters only if not on an order status tab
+        if (!isOrderStatusTab.value && selectedStatusIds.value?.length > 0) count++
+        // Count payment status filters only if not on a payment status tab
+        if (!isPaymentStatusTab.value && selectedPaymentStatusIds.value?.length > 0) count++
         if (selectedCurrencyIds.value?.length > 0) count++
         if (amountRangeModel.value.min || amountRangeModel.value.max) count++
         if (dateRangeModel.value?.start && dateRangeModel.value?.end) count++
@@ -421,11 +453,13 @@
             orderFilters.search = searchQuery.value.trim()
         }
 
-        if (selectedStatusIds.value?.length > 0) {
+        // Apply order status filters only if NOT on an order status tab
+        if (!isOrderStatusTab.value && selectedStatusIds.value?.length > 0) {
             orderFilters.status_ids = [...selectedStatusIds.value]
         }
 
-        if (selectedPaymentStatusIds.value?.length > 0) {
+        // Apply payment status filters only if NOT on a payment status tab
+        if (!isPaymentStatusTab.value && selectedPaymentStatusIds.value?.length > 0) {
             orderFilters.payment_status_ids = [...selectedPaymentStatusIds.value]
         }
 
@@ -502,7 +536,14 @@
         () => props.activeTab,
         (newTab, oldTab) => {
             if (newTab !== oldTab && oldTab !== undefined) {
-                resetFilters()
+                // Clear order status filters when switching to an order status tab
+                if (newTab !== 'all' && !newTab?.startsWith('payment_')) {
+                    selectedStatusIds.value = []
+                }
+                // Clear payment status filters when switching to a payment status tab
+                if (newTab?.startsWith('payment_')) {
+                    selectedPaymentStatusIds.value = []
+                }
             }
         }
     )

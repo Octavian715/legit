@@ -29,6 +29,7 @@
                     :key="notification.id"
                     :notification="notification"
                     @action="handleAction"
+                    @mark-read="handleMarkRead"
                     @click="handleNotificationClick(notification)"
                     @action-complete="handleActionComplete"
                 />
@@ -65,6 +66,7 @@
 <script setup lang="ts">
     import type { Notification } from '~/types/notifications'
     import { useLocalePath } from '#imports'
+    import { useNotificationsStore } from '~/stores/notifications'
 
     const props = defineProps<{
         notifications: Notification[]
@@ -73,6 +75,7 @@
 
     const emit = defineEmits<{
         (e: 'mark-all-read'): void
+        (e: 'mark-read', id: string | number): void
         (e: 'close'): void
         (e: 'notification-click', notification: Notification): void
         (e: 'refresh'): void
@@ -81,9 +84,24 @@
 
     const { t } = useI18n()
     const localePath = useLocalePath()
+    const notificationsStore = useNotificationsStore()
 
     const handleMarkAllRead = (): void => {
         emit('mark-all-read')
+    }
+
+    const handleMarkRead = async (id: string | number): Promise<void> => {
+        try {
+            // Mark notification as read in the store
+            await notificationsStore.markAsRead(Number(id))
+            emit('mark-read', id)
+            // Trigger refresh to update the notification list
+            emit('refresh')
+        } catch (error) {
+            console.error('[NotificationsDropdown] Error marking notification as read:', error)
+            // Still trigger refresh on error to update UI
+            emit('refresh')
+        }
     }
 
     const handleNotificationClick = (notification: Notification): void => {
@@ -99,7 +117,8 @@
     }
 
     const handleActionComplete = (): void => {
-        // Handle any post-action logic
+        // Refresh notifications list after accept/reject action
+        emit('refresh')
     }
 
     const handleViewAll = (): void => {

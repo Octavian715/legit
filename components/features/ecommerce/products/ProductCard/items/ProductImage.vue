@@ -91,7 +91,9 @@
                             <ButtonClose size="lg" @click="closeModal" />
                         </div>
 
-                        <div class="aspect-square w-full flex items-center justify-center p-14">
+                        <div
+                            class="aspect-square w-full flex items-center justify-center py-14 px-3"
+                        >
                             <img
                                 :src="displayImage"
                                 :alt="`${alt} - Full View`"

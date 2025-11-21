@@ -121,7 +121,10 @@
                                 ]"
                             >
                                 {{
-                                    $t('companyCertificateUploaded', 'Company certificate uploaded')
+                                    $t(
+                                        'companyCertificateUploaded',
+                                        'Company certificates uploaded'
+                                    )
                                 }}
                             </span>
                         </div>
@@ -172,7 +175,7 @@
             :require-passport="true"
             :require-company-certificate="true"
             :max-passport-files="5"
-            :max-company-certificate-files="1"
+            :max-company-certificate-files="5"
             @confirm="handleDocumentUpload"
             @cancel="handleDocumentCancel"
         />
@@ -184,7 +187,7 @@
     import { useI18n } from 'vue-i18n'
     import { useLocalePath } from '#imports'
     import { useRouter } from 'vue-router'
-    import { useRegistrationNavigation } from '~/useRegistrationNavigation'
+    import { useRegistrationNavigation } from '~/composables/useRegistrationNavigation'
     import { useToastNotification } from '~/composables/useToastNotification'
     import { NuxtImg } from '#components'
     import { toRaw } from 'vue'
@@ -414,13 +417,29 @@
                 (item) => item.type === 'company_certificate'
             )
             if (companyCertificates?.length) {
-                form.companyRegistrationCertificate = companyCertificates.map((certificate) => ({
-                    id: certificate.id || null,
-                    name: certificate.file_name,
-                    // type: certificate.type,
-                    file: certificate.file_path,
-                    size: certificate.file_size,
-                }))
+                form.companyRegistrationCertificate = companyCertificates.map((certificate) => {
+                    // Determine file type from file extension
+                    const fileName = certificate.file_name || ''
+                    const ext = fileName.toLowerCase().split('.').pop()
+                    let fileType = 'application/octet-stream'
+
+                    if (ext === 'pdf') {
+                        fileType = 'application/pdf'
+                    } else if (['jpg', 'jpeg'].includes(ext)) {
+                        fileType = 'image/jpeg'
+                    } else if (ext === 'png') {
+                        fileType = 'image/png'
+                    }
+
+                    return {
+                        id: certificate.id || null,
+                        name: fileName,
+                        type: fileType,
+                        file: certificate.file_path,
+                        size: certificate.file_size || 0,
+                        previewUrl: certificate.url || '',
+                    }
+                })
             }
         } catch (error) {
             console.error('[CompanyForm] Error loading user company data:', error)

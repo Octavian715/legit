@@ -56,7 +56,6 @@
                             :step="0.1"
                             :allow-negative="true"
                             :strict-number="true"
-                            placeholder="0"
                             @blur="handleFieldBlur('temperatureMin')"
                             @input="debouncedEmitUpdate"
                         />
@@ -76,7 +75,6 @@
                             :allow-negative="true"
                             :strict-number="true"
                             :step="0.1"
-                            placeholder="0"
                             @blur="handleFieldBlur('temperatureMax')"
                             @input="debouncedEmitUpdate"
                         />

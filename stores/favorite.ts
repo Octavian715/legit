@@ -95,6 +95,23 @@ export const useFavoriteStore = defineStore('favorite', () => {
                 favorites.value.push(favoriteItem)
             }
 
+            // ✅ SYNC: Update products store to reflect favorite status change
+            if (productId) {
+                try {
+                    const productsStore = useProductsStore()
+
+                    // Update product in marketplace listing
+                    productsStore.updateProductLocally(productId, { is_favorite: true })
+
+                    // Update current product if it's loaded
+                    if (productsStore.currentProduct?.id === productId) {
+                        productsStore.updateCurrentProduct({ is_favorite: true })
+                    }
+                } catch (syncError) {
+                    console.warn('[FavoriteStore] Failed to sync with products store:', syncError)
+                }
+            }
+
             // Refetch doar dacă este explicit cerut
             if (refetchFavorites) {
                 await fetchFavorites(true)
@@ -120,6 +137,21 @@ export const useFavoriteStore = defineStore('favorite', () => {
                 const index = favorites.value.findIndex((item) => item.product_id === productId)
                 if (index !== -1) {
                     favorites.value.splice(index, 1)
+                }
+
+                // ✅ SYNC: Update products store to reflect favorite status change
+                try {
+                    const productsStore = useProductsStore()
+
+                    // Update product in marketplace listing
+                    productsStore.updateProductLocally(productId, { is_favorite: false })
+
+                    // Update current product if it's loaded
+                    if (productsStore.currentProduct?.id === productId) {
+                        productsStore.updateCurrentProduct({ is_favorite: false })
+                    }
+                } catch (syncError) {
+                    console.warn('[FavoriteStore] Failed to sync with products store:', syncError)
                 }
             }
 

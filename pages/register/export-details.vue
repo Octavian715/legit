@@ -169,7 +169,7 @@
     import { useLocalePath } from '#imports'
     import { useRouter } from 'vue-router'
     import { validateData } from '~/utils/validator/index'
-    import { useRegistrationNavigation } from '~/useRegistrationNavigation'
+    import { useRegistrationNavigation } from '~/composables/useRegistrationNavigation'
     import { useStaticData } from '~/composables/useStaticData'
     import { useToastNotification } from '~/composables/useToastNotification'
     import { useUserStore } from '~/stores/user'
@@ -462,26 +462,30 @@
                         exportDetails?.export_since_year !== undefined)
             )
 
-            if (form.doesExport === null || form.doesExport === undefined) {
-                form.doesExport = hasExportData
-            }
-
-            if (!form.exportSinceYear && exportDetails?.export_since_year) {
+            // Always load from backend if data exists (priority over store)
+            if (exportDetails?.export_since_year) {
                 form.exportSinceYear = exportDetails.export_since_year
             }
 
-            if (!form.userExportPercentageId && exportDetails?.export_percentage?.id) {
+            if (exportDetails?.export_percentage?.id) {
                 form.userExportPercentageId = exportDetails.export_percentage.id
             }
 
-            if (!form.exportCountries?.length && Array.isArray(exportCountries)) {
+            if (Array.isArray(exportCountries) && exportCountries.length > 0) {
                 form.exportCountries = exportCountries
                     .map((item) => item?.id)
                     .filter((id) => id !== null && id !== undefined)
             }
 
-            if (!form.exportPorts?.length && Array.isArray(exportPorts)) {
+            if (Array.isArray(exportPorts) && exportPorts.length > 0) {
                 form.exportPorts = exportPorts.filter(Boolean)
+            }
+
+            // Set doesExport based on whether export data exists
+            if (hasExportData) {
+                form.doesExport = true
+            } else if (form.doesExport === null || form.doesExport === undefined) {
+                form.doesExport = false
             }
         } catch (error) {
             console.error('[ExportDetails] Error loading user data:', error)

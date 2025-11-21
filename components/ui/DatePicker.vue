@@ -5,7 +5,7 @@
             'date-picker group relative rounded outline-none': true,
             'date-picker--compact': compact,
             'date-picker--disabled': disabled,
-            'w-full': !compact,
+            'w-full sm:w-auto sm:min-w-[280px]': !compact,
             'inline-block': compact,
         }"
     >
@@ -175,9 +175,9 @@
                     </div>
 
                     <!-- Calendars -->
-                    <div class="date-picker__calendars flex gap-4">
+                    <div class="date-picker__calendars flex flex-col md:flex-row gap-4">
                         <!-- First Calendar -->
-                        <div class="date-picker__calendar min-w-[280px]">
+                        <div class="date-picker__calendar w-full md:min-w-[280px]">
                             <div
                                 class="date-picker__calendar-header relative flex justify-center items-center p-2 font-semibold"
                             >
@@ -235,7 +235,10 @@
                         </div>
 
                         <!-- Second Calendar (only in range mode) -->
-                        <div v-if="isRangeMode" class="date-picker__calendar min-w-[280px]">
+                        <div
+                            v-if="isRangeMode"
+                            class="date-picker__calendar w-full md:min-w-[280px]"
+                        >
                             <div
                                 class="date-picker__calendar-header relative flex justify-center items-center p-2 font-semibold"
                             >
@@ -820,27 +823,15 @@
 
         let left = triggerRect.left
         let top = triggerRect.bottom + 2
-        let width = modalRect.width
-
-        // Match dropdown width to input width on mobile and non-compact mode
-        const isMobile = vw < 640
-        if (!props.compact && isMobile) {
-            width = Math.min(triggerRect.width, vw - 16) // Full width on mobile with padding
-            left = 8 // 8px padding from left edge
-        } else if (!props.compact) {
-            // Match input width on desktop for non-compact mode
-            width = Math.max(triggerRect.width, modalRect.width)
-        }
 
         if (props.compact) {
             left = triggerRect.left - modalRect.width / 2 + triggerRect.width / 2
         }
 
-        // Ensure dropdown doesn't overflow viewport
-        if (left + width > vw) {
-            left = Math.max(8, vw - width - 8)
+        if (left + modalRect.width > vw) {
+            left = triggerRect.right - modalRect.width
         }
-        if (left < 8) left = 8
+        if (left < 0) left = 0
 
         const spaceBelow = vh - triggerRect.bottom
         const spaceAbove = triggerRect.top
@@ -856,8 +847,6 @@
             zIndex: '9999',
             top: `${top}px`,
             left: `${left}px`,
-            width: `${width}px`,
-            maxWidth: `${vw - 16}px`, // Ensure it never exceeds viewport
         }
     }
 
@@ -932,40 +921,20 @@
             }
 
             &--single {
-                @apply w-full sm:w-[320px];
-                min-width: 280px;
-                max-width: 100%;
+                @apply w-[320px];
             }
 
             &--range {
-                @apply w-full;
-                min-width: 280px;
-
-                @media (min-width: 640px) {
-                    min-width: 600px;
-                }
+                @apply w-full max-w-[95vw] md:min-w-[600px] md:max-w-[600px];
             }
 
             &--compact {
                 @apply pb-3;
             }
-
-            // Mobile responsive styles
-            @media (max-width: 639px) {
-                @apply p-2 pb-4;
-                max-height: calc(100vh - 100px);
-                overflow-y: auto;
-            }
         }
 
         &__tabs {
             @apply flex gap-2.5 mb-4 w-full;
-
-            // Mobile: Stack tabs or make them scrollable
-            @media (max-width: 639px) {
-                @apply gap-1.5 mb-3;
-                flex-wrap: wrap;
-            }
         }
 
         &__tab {
@@ -976,32 +945,14 @@
             &.is-active {
                 @apply bg-blue-400 text-white hover:bg-blue-700;
             }
-
-            // Mobile: Smaller text and padding
-            @media (max-width: 639px) {
-                @apply px-1.5 py-0.5 text-caption1;
-                min-width: fit-content;
-                flex: 1 1 auto;
-            }
         }
 
         &__calendars {
-            @apply flex gap-4;
-
-            // Mobile: Stack calendars vertically
-            @media (max-width: 639px) {
-                @apply flex-col gap-3;
-            }
+            @apply flex flex-col md:flex-row gap-4;
         }
 
         &__calendar {
-            @apply min-w-[280px];
-
-            // Mobile: Reduce min-width to fit screen
-            @media (max-width: 639px) {
-                @apply min-w-full;
-                width: 100%;
-            }
+            @apply w-full md:min-w-[280px];
         }
 
         &__month {
@@ -1034,29 +985,14 @@
 
         &__weekday {
             @apply text-center text-gray-700 text-caption1 py-0.5;
-
-            // Mobile: Smaller text
-            @media (max-width: 639px) {
-                @apply text-[10px] py-0;
-            }
         }
 
         &__calendar-grid {
             @apply grid grid-cols-7;
-
-            // Mobile: Reduce gap
-            @media (max-width: 639px) {
-                gap: 1px;
-            }
         }
 
         &__day {
             @apply px-2 py-2.5 text-body text-center text-gray-400 active:scale-95;
-
-            // Mobile: Reduce padding for better fit
-            @media (max-width: 639px) {
-                @apply px-1 py-2 text-caption1;
-            }
 
             &.is-disabled {
                 @apply opacity-30 cursor-not-allowed;
@@ -1128,16 +1064,6 @@
 
         &__actions {
             @apply flex justify-center gap-2.5 mt-3;
-
-            // Mobile: Stack buttons vertically or full width
-            @media (max-width: 639px) {
-                @apply gap-2 flex-wrap;
-
-                button {
-                    @apply flex-1;
-                    min-width: 100px;
-                }
-            }
         }
     }
 

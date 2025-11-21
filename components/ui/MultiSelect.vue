@@ -1,6 +1,6 @@
 <!-- components/ui/MultiSelect.vue -->
 <template>
-    <div class="multi-select group">
+    <div ref="containerRef" class="multi-select group">
         <!-- Multi Select Container -->
         <div class="relative">
             <!-- Selected Items Display -->
@@ -270,6 +270,7 @@
     const isFocused = ref(false)
     const searchQuery = ref('')
     const searchInput = ref<HTMLInputElement>()
+    const containerRef = ref<HTMLElement>()
 
     // Size classes mapping (same as Select component)
     const sizeClasses: Record<string, string> = {
@@ -365,9 +366,9 @@
     // Handle click outside
     const handleClickOutside = (event: Event) => {
         const target = event.target as Element
-        const container = document.getElementById(fieldId.value)
 
-        if (container && !container.contains(target)) {
+        // Check if click is outside the entire component (not just the trigger)
+        if (containerRef.value && !containerRef.value.contains(target)) {
             closeDropdown()
         }
     }

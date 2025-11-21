@@ -30,7 +30,7 @@
 
     const props = defineProps({
         itemsPerPage: {
-            type: Number,
+    type: Number,
             required: true,
             validator: (value: number) => value > 0,
         },
@@ -73,7 +73,7 @@
         const currentOption = props.pageOptions.find(
             (option) => option.value === localItemsPerPage.value
         )
-        return currentOption?.label || props.pageOptions[0]?.label || '10'
+        return currentOption?.label || props.pageOptions[0]?.label || '20'
     })
 
     watch(
@@ -98,7 +98,7 @@
     }
 
     if (!isValidPageOption(localItemsPerPage.value)) {
-        localItemsPerPage.value = props.pageOptions[0]?.value || 10
+        localItemsPerPage.value = props.pageOptions[0]?.value || 20
     }
 </script>
 

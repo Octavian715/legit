@@ -60,13 +60,13 @@
                     <!-- Rating + Actions Section -->
                     <div class="flex flex-col lg:ml-auto justify-center lg:justify-end gap-3">
                         <!-- Rating -->
-                        <div
+                        <!-- <div
                             class="flex flex-col justify-center lg:justify-end gap-2 mb-2 lg:ml-auto"
                         >
                             <div class="flex justify-center lg:justify-start items-center gap-2">
-                                <div class="h-7 w-10 bg-gray-300 rounded"></div>
-                                <!-- Stars -->
-                                <div class="flex gap-1">
+                                <div class="h-7 w-10 bg-gray-300 rounded"></div> -->
+                        <!-- Stars -->
+                        <!-- <div class="flex gap-1">
                                     <div
                                         v-for="i in 5"
                                         :key="i"
@@ -75,7 +75,7 @@
                                 </div>
                             </div>
                             <div class="h-4 w-24 bg-gray-300 rounded mx-auto lg:mx-0"></div>
-                        </div>
+                        </div> -->
 
                         <!-- Action Buttons (Chat, Follow, Connect) -->
                         <div class="flex flex-col gap-2 lg:items-end lg:justify-center">

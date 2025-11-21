@@ -121,7 +121,10 @@
     const checkboxClasses = computed(() => ({
         'border-gray-300': !props.modelValue && !props.indeterminate && !props.disabled,
         'bg-blue-500': (props.modelValue || props.indeterminate) && !props.disabled,
-        'border-gray-200 bg-gray-100': props.disabled,
+        // Disabled unchecked state
+        'border-gray-300 bg-gray-100': props.disabled && !props.modelValue && !props.indeterminate,
+        // Disabled checked state - use lighter blue to show it's checked but disabled
+        'border-blue-300 bg-blue-300': props.disabled && (props.modelValue || props.indeterminate),
         'border-blue-300':
             ((props.modelValue || props.indeterminate) && !props.disabled && isHovered.value) ||
             (isHovered.value && !props.modelValue && !props.indeterminate),

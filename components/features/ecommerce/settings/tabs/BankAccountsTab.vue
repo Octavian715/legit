@@ -290,8 +290,8 @@
             isLoading.value = true
             isInitializing.value = true // Block watch
 
-            // Get bank_accounts from user store
-            const accounts = userStore.user?.company_details?.bank_accounts || []
+            // Get bank_accounts from user store (at root level, not in company_details)
+            const accounts = userStore.user?.bank_accounts || []
 
             // Transform backend data to frontend format
             bankAccounts.value = accounts.map((account: any) => ({
@@ -443,24 +443,38 @@
             }
 
             // Transform frontend data to backend format
-            const bankAccountsPayload = completeAccounts.map((account) => ({
-                id: account.id || undefined,
-                bank_name: account.bankName,
-                account_holder_name: account.accountHolderName,
-                iban: account.iban,
-                swift_code: account.swiftCode,
-                currency_id: account.currencyId,
-                country_id: account.countryId,
-                state_name: account.stateName || undefined,
-                city_name: account.cityName,
-                street_name: account.streetName,
-                street_number: account.streetNumber,
-                postal_code: account.postalCode,
-            }))
+            // For existing accounts: include id
+            // For new accounts: omit id completely
+            const bankAccountsPayload = completeAccounts.map((account) => {
+                const payload: Record<string, any> = {
+                    bank_name: account.bankName,
+                    account_holder_name: account.accountHolderName,
+                    iban: account.iban,
+                    swift_code: account.swiftCode,
+                    currency_id: account.currencyId,
+                    country_id: account.countryId,
+                    city_name: account.cityName,
+                    street_name: account.streetName,
+                    street_number: account.streetNumber,
+                    postal_code: account.postalCode,
+                }
+
+                // Only include id for existing accounts
+                if (account.id) {
+                    payload.id = account.id
+                }
+
+                // Only include state_name if it has a value
+                if (account.stateName) {
+                    payload.state_name = account.stateName
+                }
+
+                return payload
+            })
 
             // Use userStore.updateProfile with bank_accounts
             await userStore.updateProfile({
-                bank_accounts: bankAccountsPayload,
+                company_details: { bank_accounts: bankAccountsPayload },
             })
 
             // Update original data after successful save

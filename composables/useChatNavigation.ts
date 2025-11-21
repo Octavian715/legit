@@ -1,76 +1,89 @@
 import { ref, computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { useChatStore } from '~/stores/chat'
 import type { Chat, ChatUser } from '~/types/chat'
 
-export type MobileChatView = 'list' | 'conversation' | 'profile'
+type MobileView = 'list' | 'conversation' | 'profile'
 
-export const useChatNavigation = () => {
-    const router = useRouter()
+export function useChatNavigation() {
     const route = useRoute()
+    const router = useRouter()
+    const chatStore = useChatStore()
 
-    const currentMobileView = ref<MobileChatView>('list')
-
-    const canGoBack = computed(() => {
-        return currentMobileView.value !== 'list'
-    })
+    const currentMobileView = ref<MobileView>('list')
 
     const navigateToConversation = async (chat: Chat) => {
         currentMobileView.value = 'conversation'
-
         await router.push({
             query: {
-                ...route.query,
                 chatId: chat.id.toString(),
                 view: 'conversation',
             },
         })
     }
 
-    const navigateToProfile = (user?: ChatUser) => {
+    const navigateToProfile = async (user: ChatUser) => {
         currentMobileView.value = 'profile'
-
-        router.push({
+        await router.push({
             query: {
                 ...route.query,
                 view: 'profile',
-                userId: user?.id?.toString(),
+                userId: user.id.toString(),
             },
         })
     }
 
-    const navigateToList = () => {
-        currentMobileView.value = 'list'
-
-        const query = { ...route.query }
-        delete query.chatId
-        delete query.view
-        delete query.userId
-
-        router.push({ query })
-    }
-
-    const goBack = () => {
+    const goBack = async () => {
         if (currentMobileView.value === 'profile') {
+            // Go back to conversation
             currentMobileView.value = 'conversation'
-
-            const query = { ...route.query }
-            delete query.userId
-            query.view = 'conversation'
-
-            router.push({ query })
+            const query: Record<string, string> = {
+                chatId: route.query.chatId as string,
+                view: 'conversation',
+            }
+            await router.push({ query })
         } else if (currentMobileView.value === 'conversation') {
-            navigateToList()
+            // Go back to list
+            currentMobileView.value = 'list'
+            chatStore.setActiveChat(null)
+            await router.push({ query: {} })
         }
     }
 
     const initializeFromRoute = async () => {
-        const view = route.query.view as MobileChatView
         const chatId = route.query.chatId
+        const view = route.query.view as MobileView
+        const userId = route.query.userId
 
-        if (view === 'conversation' && chatId) {
-            currentMobileView.value = 'conversation'
-        } else if (view === 'profile') {
+        if (!view) {
+            currentMobileView.value = 'list'
+            return
+        }
+
+        if (view === 'profile') {
             currentMobileView.value = 'profile'
+
+            // Set selectedUser if available (it should be set by ChatLayout.vue onMounted)
+            if (userId && chatId) {
+                const chat = chatStore.chats.find((c) => c.id === parseInt(chatId as string))
+                if (chat && chat.is_direct) {
+                    const participant = chat.participants.find(
+                        (p) => p.id === parseInt(userId as string)
+                    )
+                    if (participant) {
+                        const user: ChatUser = {
+                            id: participant.id,
+                            name: participant.name,
+                            avatar: participant.avatar_url,
+                            company: participant.company,
+                            online: participant.online,
+                        }
+                        chatStore.setSelectedUser(user)
+                    }
+                }
+            }
+        } else if (view === 'conversation' && chatId) {
+            currentMobileView.value = 'conversation'
         } else {
             currentMobileView.value = 'list'
         }
@@ -78,10 +91,8 @@ export const useChatNavigation = () => {
 
     return {
         currentMobileView: computed(() => currentMobileView.value),
-        canGoBack,
         navigateToConversation,
         navigateToProfile,
-        navigateToList,
         goBack,
         initializeFromRoute,
     }

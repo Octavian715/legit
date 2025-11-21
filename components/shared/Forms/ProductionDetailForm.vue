@@ -154,7 +154,7 @@
     import { useI18n } from 'vue-i18n'
     import { validateData } from '~/utils/validator/index'
     import { useStaticData } from '~/composables/useStaticData'
-    import { useRegistrationNavigation } from '~/useRegistrationNavigation'
+    import { useRegistrationNavigation } from '~/composables/useRegistrationNavigation'
     import { useToastNotification } from '~/composables/useToastNotification'
 
     import {

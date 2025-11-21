@@ -4,14 +4,20 @@
         <transition-group
             name="fade-list"
             tag="div"
-            class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3"
+            class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"
         >
             <NuxtLink
                 v-for="(product, index) in products"
                 :key="product.slug"
                 class="product-card group rounded-md p-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 bg-white relative overflow-hidden border border-gray-600 hover:border-blue-300 opacity-0 animate-fade-in"
                 :style="{ animationDelay: `${index * 50}ms` }"
-                :to="localePath(`/marketplace/category/${product.slug}`)"
+                :to="
+                    localePath(
+                        !!userId
+                            ? `/marketplace/category/${product.slug}?supplier_id=${userId}`
+                            : '/marketplace/category/${product.slug}'
+                    )
+                "
             >
                 <div class="flex items-center justify-between gap-3">
                     <!-- Icon with SVG -->
@@ -82,6 +88,7 @@
     interface Props {
         title?: string
         products: Product[]
+        userId: number
     }
 
     defineProps<Props>()

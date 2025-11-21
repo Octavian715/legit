@@ -2,7 +2,27 @@
     <div class="flex flex-col gap-3">
         <Breadcrumbs :items="breadcrumbs" />
 
-        <div class="bg-white rounded-sm">
+        <div v-if="error && !isRetrying" class="bg-white rounded-sm shadow p-8 text-center">
+            <div class="mx-auto w-16 h-16 text-red-500 mb-4">
+                <svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                </svg>
+            </div>
+            <h3 class="text-title1 font-bold text-gray-950 mb-2">
+                {{ t('dashboardUser.errors.generic') }}
+            </h3>
+            <p class="text-subtitle1 text-gray-700 mb-6">{{ error.message }}</p>
+            <Button color="red" variant="filled" @click="handleRetry">
+                {{ t('dashboardUser.messages.tryAgain') }}
+            </Button>
+        </div>
+
+        <div v-else class="bg-white rounded-sm">
             <div class="p-4 space-y-3">
                 <div class="flex items-center justify-between">
                     <div>
@@ -50,22 +70,23 @@
                     </div>
                 </div>
 
-                <ClientOnly>
-                    <AllSuppliersTable
-                        :suppliers="suppliers"
-                        :meta="suppliersMeta"
-                        :loading="isLoading"
-                        :actions="['show-profile']"
-                        show-pagination
-                        :current-page="currentPage"
-                        :items-per-page="itemsPerPage"
-                        :sort-by="sortBy"
-                        :sort-direction="sortDirection"
-                        @page-change="handlePageChange"
-                        @items-per-page-change="handleItemsPerPageChange"
-                        @sort-change="handleSortChange"
-                    />
-                </ClientOnly>
+                <TableSkeleton v-if="!hasLoadedOnce" :rows="10" :columns="6" />
+
+                <AllSuppliersTable
+                    v-else
+                    :suppliers="suppliers"
+                    :meta="suppliersMeta"
+                    :loading="isLoading"
+                    :actions="['show-profile']"
+                    show-pagination
+                    :current-page="currentPage"
+                    :items-per-page="itemsPerPage"
+                    :sort-by="sortBy"
+                    :sort-direction="sortDirection"
+                    @page-change="handlePageChange"
+                    @items-per-page-change="handleItemsPerPageChange"
+                    @sort-change="handleSortChange"
+                />
             </div>
         </div>
 
@@ -91,7 +112,7 @@
     import type { DashboardFilters, DashboardSortField } from '~/types/userDashboard'
     import type { SortDirection } from '~/types/ui/table'
 
-    definePageMeta({ middleware: ['buyer'], layout: 'app' })
+    definePageMeta({ middleware: ['role'], layout: 'app' })
 
     const { t } = useI18n()
     const localePath = useLocalePath()
@@ -101,6 +122,9 @@
 
     const isFilterDrawerOpen = ref(false)
     const refreshKey = ref(0)
+    const error = ref<Error | null>(null)
+    const isRetrying = ref(false)
+    const hasLoadedOnce = ref(false)
 
     const activeFilters = ref<DashboardFilters>({
         search: '',
@@ -214,6 +238,7 @@
 
         try {
             isFetching.value = true
+            error.value = null
 
             if (requestId !== currentRequestId) {
                 return false
@@ -239,6 +264,8 @@
                 return false
             }
 
+            hasLoadedOnce.value = true
+
             // if (success && suppliersMeta.value?.total !== undefined) {
             //     const newTotalPages = Math.ceil(suppliersMeta.value.total / itemsPerPage.value) || 1
             //     if (currentPage.value > newTotalPages && newTotalPages > 0) {
@@ -248,18 +275,31 @@
             // }
 
             return !!success
-        } catch (error: any) {
+        } catch (err: any) {
             if (requestId !== currentRequestId) {
                 return false
             }
 
-            console.error('Failed to fetch suppliers:', error)
-            toast.error(error.message || t('userDashboard.errors.fetchSuppliersFailed'))
+            console.error('Failed to fetch suppliers:', err)
+            error.value = err
+            toast.error(err.message || t('userDashboard.errors.fetchSuppliersFailed'))
             return false
         } finally {
             if (requestId === currentRequestId) {
                 isFetching.value = false
             }
+        }
+    }
+
+    const handleRetry = async () => {
+        isRetrying.value = true
+        error.value = null
+        hasLoadedOnce.value = false
+
+        try {
+            await fetchSuppliers()
+        } finally {
+            isRetrying.value = false
         }
     }
 

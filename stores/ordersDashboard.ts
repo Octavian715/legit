@@ -37,6 +37,7 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
 
     // Supplier state
     const supplierOrdersChart = ref<SupplierOrdersChart | null>(null)
+    const supplierOrdersTimelineChart = ref<SupplierOrdersChart | null>(null)
     const supplierOrdersStats = ref<OrderStats[]>([])
     const supplierOrdersByCountryChart = ref<SupplierOrdersByCountryChart | null>(null)
     const supplierOrdersByCountryTable = ref<CountryTableItem[]>([])
@@ -44,7 +45,22 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
     const supplierOrdersByCountryFilters = ref<CountryFilterOptions | null>(null)
     const supplierAverageCartChart = ref<SupplierAverageCartChart | null>(null)
 
-    // Loading states
+    // Individual loading states for each chart
+    const isBuyerOrdersChartLoading = ref<boolean>(false)
+    const isBuyerOrdersStatsLoading = ref<boolean>(false)
+    const isBuyerSpentCategoryChartLoading = ref<boolean>(false)
+    const isBuyerSpentCategoryTableLoading = ref<boolean>(false)
+    const isBuyerSpentSupplierChartLoading = ref<boolean>(false)
+    const isBuyerSpentSupplierTableLoading = ref<boolean>(false)
+
+    const isSupplierOrdersChartLoading = ref<boolean>(false)
+    const isSupplierOrdersTimelineChartLoading = ref<boolean>(false)
+    const isSupplierOrdersStatsLoading = ref<boolean>(false)
+    const isSupplierOrdersByCountryChartLoading = ref<boolean>(false)
+    const isSupplierOrdersByCountryTableLoading = ref<boolean>(false)
+    const isSupplierAverageCartChartLoading = ref<boolean>(false)
+
+    // Global loading states (deprecated but kept for backwards compatibility)
     const isLoading = ref<boolean>(false)
     const isBuyerLoading = ref<boolean>(false)
     const isSupplierLoading = ref<boolean>(false)
@@ -82,6 +98,13 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
     const totalSupplierOrders = computed<number>(() => {
         return supplierOrdersChart.value?.total || 0
     })
+    const totalSupplierOrdersByCountry = computed<number>(() => {
+        return supplierOrdersByCountryChart.value?.total || 0
+    })
+
+    const totalSupplierOrdersTimeline = computed<number>(() => {
+        return supplierOrdersTimelineChart.value?.total || 0
+    })
 
     const buyerSpentTotal = computed<number>(() => {
         return buyerSpentCategoryChart.value?.total || buyerSpentSupplierChart.value?.total || 0
@@ -111,9 +134,7 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
     const fetchBuyerOrdersChart = async (
         filters: OrdersChartFilters = {}
     ): Promise<BuyerOrdersChart | null> => {
-        if (isBuyerLoading.value) return buyerOrdersChart.value
-
-        isBuyerLoading.value = true
+        isBuyerOrdersChartLoading.value = true
         resetError()
 
         try {
@@ -125,14 +146,14 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
             buyerOrdersChart.value = null
             return null
         } finally {
-            isBuyerLoading.value = false
+            isBuyerOrdersChartLoading.value = false
         }
     }
 
     const fetchBuyerOrdersStats = async (): Promise<OrderStats[]> => {
-        // if (isBuyerLoading.value) return buyerOrdersStats.value
+        if (isBuyerOrdersStatsLoading.value) return buyerOrdersStats.value
 
-        isBuyerLoading.value = true
+        isBuyerOrdersStatsLoading.value = true
         resetError()
 
         try {
@@ -143,16 +164,14 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
             buyerOrdersStats.value = []
             return []
         } finally {
-            isBuyerLoading.value = false
+            isBuyerOrdersStatsLoading.value = false
         }
     }
 
     const fetchBuyerSpentCategoryChart = async (
         filters: OrdersChartFilters = {}
     ): Promise<BuyerSpentCategoryChart | null> => {
-        if (isBuyerLoading.value) return buyerSpentCategoryChart.value
-
-        isBuyerLoading.value = true
+        isBuyerSpentCategoryChartLoading.value = true
         resetError()
 
         try {
@@ -164,16 +183,16 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
             buyerSpentCategoryChart.value = null
             return null
         } finally {
-            isBuyerLoading.value = false
+            isBuyerSpentCategoryChartLoading.value = false
         }
     }
 
     const fetchBuyerSpentCategoryTable = async (
         filters: OrdersTableFilters = {}
     ): Promise<TableResponse<CategoryTableItem> | null> => {
-        if (isBuyerLoading.value) return null
+        if (isBuyerSpentCategoryTableLoading.value) return null
 
-        isBuyerLoading.value = true
+        isBuyerSpentCategoryTableLoading.value = true
         resetError()
 
         try {
@@ -188,7 +207,7 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
             buyerSpentCategoryMeta.value = null
             return null
         } finally {
-            isBuyerLoading.value = false
+            isBuyerSpentCategoryTableLoading.value = false
         }
     }
 
@@ -214,9 +233,7 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
     const fetchBuyerSpentSupplierChart = async (
         filters: OrdersChartFilters = {}
     ): Promise<BuyerSpentSupplierChart | null> => {
-        if (isBuyerLoading.value) return buyerSpentSupplierChart.value
-
-        isBuyerLoading.value = true
+        isBuyerSpentSupplierChartLoading.value = true
         resetError()
 
         try {
@@ -228,22 +245,23 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
             buyerSpentSupplierChart.value = null
             return null
         } finally {
-            isBuyerLoading.value = false
+            isBuyerSpentSupplierChartLoading.value = false
         }
     }
 
     const fetchBuyerSpentSupplierTable = async (
         filters: OrdersTableFilters = {}
     ): Promise<TableResponse<SupplierTableItem> | null> => {
-        if (isBuyerLoading.value) return null
+        if (isBuyerSpentSupplierTableLoading.value) return null
 
-        isBuyerLoading.value = true
+        isBuyerSpentSupplierTableLoading.value = true
         resetError()
 
         try {
             const response = await ordersDashboardService.fetchBuyerSpentSupplierTable(filters)
             buyerSpentSupplierTable.value = response.data
             buyerSpentSupplierMeta.value = response.meta
+            currentTableFilters.value = { ...filters }
             return response
         } catch (e) {
             handleError(e)
@@ -251,7 +269,7 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
             buyerSpentSupplierMeta.value = null
             return null
         } finally {
-            isBuyerLoading.value = false
+            isBuyerSpentSupplierTableLoading.value = false
         }
     }
 
@@ -278,9 +296,7 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
     const fetchSupplierOrdersChart = async (
         filters: OrdersChartFilters = {}
     ): Promise<SupplierOrdersChart | null> => {
-        if (isSupplierLoading.value) return supplierOrdersChart.value
-
-        isSupplierLoading.value = true
+        isSupplierOrdersChartLoading.value = true
         resetError()
 
         try {
@@ -293,14 +309,33 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
             supplierOrdersChart.value = null
             return null
         } finally {
-            isSupplierLoading.value = false
+            isSupplierOrdersChartLoading.value = false
+        }
+    }
+
+    const fetchSupplierOrdersTimelineChart = async (
+        filters: OrdersChartFilters = {}
+    ): Promise<SupplierOrdersChart | null> => {
+        isSupplierOrdersTimelineChartLoading.value = true
+        resetError()
+
+        try {
+            supplierOrdersTimelineChart.value =
+                await ordersDashboardService.fetchSupplierOrdersChart(filters)
+            return supplierOrdersTimelineChart.value
+        } catch (e) {
+            handleError(e)
+            supplierOrdersTimelineChart.value = null
+            return null
+        } finally {
+            isSupplierOrdersTimelineChartLoading.value = false
         }
     }
 
     const fetchSupplierOrdersStats = async (): Promise<OrderStats[]> => {
-        // if (isSupplierLoading.value) return supplierOrdersStats.value
+        if (isSupplierOrdersStatsLoading.value) return supplierOrdersStats.value
 
-        isSupplierLoading.value = true
+        isSupplierOrdersStatsLoading.value = true
         resetError()
 
         try {
@@ -311,16 +346,14 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
             supplierOrdersStats.value = []
             return []
         } finally {
-            isSupplierLoading.value = false
+            isSupplierOrdersStatsLoading.value = false
         }
     }
 
     const fetchSupplierOrdersByCountryChart = async (
         filters: OrdersChartFilters = {}
     ): Promise<SupplierOrdersByCountryChart | null> => {
-        if (isSupplierLoading.value) return supplierOrdersByCountryChart.value
-
-        isSupplierLoading.value = true
+        isSupplierOrdersByCountryChartLoading.value = true
         resetError()
 
         try {
@@ -332,16 +365,16 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
             supplierOrdersByCountryChart.value = null
             return null
         } finally {
-            isSupplierLoading.value = false
+            isSupplierOrdersByCountryChartLoading.value = false
         }
     }
 
     const fetchSupplierOrdersByCountryTable = async (
         filters: OrdersTableFilters = {}
     ): Promise<TableResponse<CountryTableItem> | null> => {
-        if (isSupplierLoading.value) return null
+        if (isSupplierOrdersByCountryTableLoading.value) return null
 
-        isSupplierLoading.value = true
+        isSupplierOrdersByCountryTableLoading.value = true
         resetError()
 
         try {
@@ -355,7 +388,7 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
             supplierOrdersByCountryMeta.value = null
             return null
         } finally {
-            isSupplierLoading.value = false
+            isSupplierOrdersByCountryTableLoading.value = false
         }
     }
 
@@ -381,9 +414,7 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
     const fetchSupplierAverageCartChart = async (
         filters: OrdersChartFilters = {}
     ): Promise<SupplierAverageCartChart | null> => {
-        if (isSupplierLoading.value) return supplierAverageCartChart.value
-
-        isSupplierLoading.value = true
+        isSupplierAverageCartChartLoading.value = true
         resetError()
 
         try {
@@ -395,7 +426,7 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
             supplierAverageCartChart.value = null
             return null
         } finally {
-            isSupplierLoading.value = false
+            isSupplierAverageCartChartLoading.value = false
         }
     }
 
@@ -413,6 +444,7 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
 
     const clearSupplierData = (): void => {
         supplierOrdersChart.value = null
+        supplierOrdersTimelineChart.value = null
         supplierOrdersStats.value = []
         supplierOrdersByCountryChart.value = null
         supplierOrdersByCountryTable.value = []
@@ -450,6 +482,7 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
 
         // Supplier state
         supplierOrdersChart,
+        supplierOrdersTimelineChart,
         supplierOrdersStats,
         supplierOrdersByCountryChart,
         supplierOrdersByCountryTable,
@@ -457,7 +490,21 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
         supplierOrdersByCountryFilters,
         supplierAverageCartChart,
 
-        // Loading states
+        // Individual loading states for charts
+        isBuyerOrdersChartLoading,
+        isBuyerOrdersStatsLoading,
+        isBuyerSpentCategoryChartLoading,
+        isBuyerSpentCategoryTableLoading,
+        isBuyerSpentSupplierChartLoading,
+        isBuyerSpentSupplierTableLoading,
+        isSupplierOrdersChartLoading,
+        isSupplierOrdersTimelineChartLoading,
+        isSupplierOrdersStatsLoading,
+        isSupplierOrdersByCountryChartLoading,
+        isSupplierOrdersByCountryTableLoading,
+        isSupplierAverageCartChartLoading,
+
+        // Global loading states (deprecated but kept for backwards compatibility)
         isLoading,
         isBuyerLoading,
         isSupplierLoading,
@@ -474,6 +521,8 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
         hasSupplierData,
         totalBuyerOrders,
         totalSupplierOrders,
+        totalSupplierOrdersTimeline,
+        totalSupplierOrdersByCountry,
         buyerSpentTotal,
         supplierAverageCart,
 
@@ -489,6 +538,7 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
 
         // Supplier actions
         fetchSupplierOrdersChart,
+        fetchSupplierOrdersTimelineChart,
         fetchSupplierOrdersStats,
         fetchSupplierOrdersByCountryChart,
         fetchSupplierOrdersByCountryTable,

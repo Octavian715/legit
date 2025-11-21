@@ -322,39 +322,51 @@
 
     const getLastMessagePreview = (chat: Chat): string => {
         const { t } = useI18n()
-        const lastMessage = chat.last_message
 
-        // No last message at all
-        if (!lastMessage) {
+        // No last_message_at means no messages at all
+
+        if (!chat.last_message_at) {
             return t('chat.noMessages')
         }
 
-        // Has text content
-        if (lastMessage.content) {
+        const lastMessage = chat.last_message
+
+        // Has text content - show it
+
+        if (lastMessage?.content) {
             return lastMessage.content
         }
 
-        // Has attachments but no text
-        if (lastMessage.attachments && lastMessage.attachments.length > 0) {
-            const count = lastMessage.attachments.length
-            const fileType = lastMessage.attachments[0].file_type
+        // last_message_at exists but content is null - means there are attachments
 
-            if (fileType === 'image') {
-                return count === 1
-                    ? t('chat.sentAnImage', '📷 Sent an image')
-                    : t('chat.sentImages', `📷 Sent ${count} images`)
-            } else if (fileType === 'document') {
-                return count === 1
-                    ? t('chat.sentADocument', '📄 Sent a document')
-                    : t('chat.sentDocuments', `📄 Sent ${count} documents`)
-            } else {
-                return count === 1
-                    ? t('chat.sentAFile', '📎 Sent a file')
-                    : t('chat.sentFiles', `📎 Sent ${count} files`)
+        if (chat.last_message_at && (!lastMessage || !lastMessage.content)) {
+            // If we have attachments info, use it
+
+            if (lastMessage?.attachments && lastMessage.attachments.length > 0) {
+                const count = lastMessage.attachments.length
+
+                const fileType = lastMessage.attachments[0].file_type
+
+                if (fileType === 'image') {
+                    return count === 1
+                        ? t('chat.sentAnImage', '📷 Sent an image')
+                        : t('chat.sentImages', { count }, `📷 Sent ${count} images`)
+                } else if (fileType === 'document') {
+                    return count === 1
+                        ? t('chat.sentADocument', '📄 Sent a document')
+                        : t('chat.sentDocuments', { count }, `📄 Sent ${count} documents`)
+                } else {
+                    return count === 1
+                        ? t('chat.sentAFile', '📎 Sent a file')
+                        : t('chat.sentFiles', { count }, `📎 Sent ${count} files`)
+                }
             }
+
+            // No attachments info available but last_message_at exists - assume attachment
+
+            return t('chat.sentAttachment', '📎 Sent an attachment')
         }
 
-        // Fallback
         return t('chat.noMessages')
     }
 </script>

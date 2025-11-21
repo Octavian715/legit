@@ -123,7 +123,7 @@ export type InvitationSortField =
     | 'company_name'
     | 'email'
     | 'phone_number'
-    | 'sent_at'
+    | 'created_at'
     | 'expires_at'
     | 'status'
 export type SortDirection = 'asc' | 'desc'
