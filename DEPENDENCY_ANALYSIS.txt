@@ -1,0 +1,106 @@
+DEPENDENCY ANALYSIS MATRIX
+============================
+
+OUTDATED PACKAGES (7 of 54):
+
+Priority | Package               | Current  | Latest   | Action
+---------|----------------------|----------|----------|--------
+HIGH     | @nuxt/image          | 1.11.0   | 2.0.0    | Test & Update (major)
+MEDIUM   | @nuxtjs/i18n         | 9.5.6    | 10.2.1   | Update (breaking changes)
+MEDIUM   | @nuxtjs/seo          | 2.2.0    | 3.2.2    | Update (improvements)
+MEDIUM   | @unhead/ssr          | 1.11.20  | 2.0.19   | Update (minor)
+LOW      | @pinia/nuxt          | 0.10.1   | 0.11.3   | Update (patch)
+LOW      | @vueuse/core         | 13.9.0   | 14.0.0   | Update (minor)
+LOW      | @vueuse/integrations | 13.9.0   | 14.0.0   | Update (minor)
+
+
+HIGH-RISK DEPENDENCIES:
+
+Package                      | Version  | Risk Level | Impact
+-----------------------------|----------|------------|--------
+vue                          | latest   | 🔴 HIGH   | Always auto-updates
+vue-router                   | latest   | 🔴 HIGH   | Always auto-updates
+vue-select                   | beta.6   | 🔴 CRIT   | Using beta in production
+vue-toastification           | rc.5     | 🔴 CRIT   | Using RC in production
+
+
+PACKAGE SIZE IMPACT:
+
+Store Sizes (Total ~335 KB):
+- user.ts              61 KB  (61 KB per component is excessive)
+- register.ts          48 KB
+- products.ts          31 KB
+- documents.ts         31 KB
+- chat.ts              28 KB
+- dashboard.ts         24 KB
+- product.ts           22 KB
+- others (13)          90 KB
+
+Composable Sizes (Total 19,230 LOC):
+- 78 composables total
+- Average: 247 LOC per composable
+- Largest: useRegistrationNavigation (673 LOC - root level!)
+
+
+UNUSED/REDUNDANT CHECK:
+
+Dependency       | Status | Usage Pattern
+-----------------|--------|--------------------------------------------
+axios            | USED   | plugins/axios.client.ts (interceptors)
+socket.io-client | USED   | plugins/02.socket.client.ts
+chart.js         | USED   | plugins/charts.ts
+ajv              | USED   | services/* (validation)
+lodash-es        | USED   | utils/* (array/object helpers)
+date-fns         | USED   | composables/useDate.ts
+maska            | USED   | plugins/maska.client.ts (input masking)
+vue-select       | USED   | components/* (dropdowns)
+floating-vue     | USED   | plugins/tooltip.client.ts
+All UI libs      | USED   | components/* (various)
+
+Result: NO UNUSED DEPENDENCIES DETECTED
+
+
+PEER DEPENDENCY CONFLICTS:
+
+None detected - clean resolution
+
+
+SECURITY AUDIT (npm audit equivalent):
+
+Status: No critical vulnerabilities in npm packages
+Note: However, application security configuration has critical issues
+      (see security vulnerabilities section in main report)
+
+
+BUILD SIZE IMPACT:
+
+Code Splitting Configuration (vite.config.ts):
+- vue-vendor:    ~150 KB (vue, vue-router)
+- ui-vendor:     ~80 KB  (@vueuse/core, maska)
+- validation:    ~25 KB  (ajv, ajv-formats)
+- main bundle:   ~200 KB (application code)
+Total: ~455 KB before gzip
+
+Expected Gzipped: ~120 KB (vue-vendor) + 25 KB (ui-vendor) + 8 KB (validation) + 45 KB (main) = ~198 KB
+
+
+RECOMMENDATION SUMMARY:
+
+IMMEDIATE (1 week):
+  [ ] Lock vue and vue-router to specific versions
+  [ ] Replace vue-select beta with stable or alternative
+  [ ] Replace vue-toastification RC with stable
+
+SHORT TERM (1 month):
+  [ ] Update @nuxt/image to 2.0.0 (test thoroughly)
+  [ ] Update @nuxtjs/i18n to 10.2.1
+  [ ] Update @nuxtjs/seo to 3.2.2
+
+MEDIUM TERM (ongoing):
+  [ ] Monitor for @unhead/ssr updates
+  [ ] Keep @vueuse packages updated
+  [ ] Regular npm audit checks
+
+LONG TERM:
+  [ ] Consider moving to Yarn/PNPM for better dependency resolution
+  [ ] Implement automated dependency updates (Dependabot)
