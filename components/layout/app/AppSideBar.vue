@@ -309,43 +309,18 @@
             </nav>
 
             <!-- Collapse Button -->
-            <div :class="['p-4', { 'px-4 pb-6': isCollapsed }]">
-                <button
-                    :class="[
-                        'collapse-btn group flex items-center w-full p-3 rounded-lg focus:outline-none transition-all duration-300 ease-in-out',
-                        'min-h-[44px] border border-transparent',
-                        'hover:bg-red-50 hover:border-red-200 hover:shadow-sm',
-                        isCollapsed ? 'justify-center' : 'justify-between gap-3',
-                    ]"
-                    :title="isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+            <div :class="['p-4 flex', { 'px-4 pb-6 justify-center': !isCollapsed, 'justify-start': isCollapsed }]">
+                <Icon
+                    is-button
+                    size="sm"
+                    :tooltip="isCollapsed ? $t('navigation.collapseMenu', 'Collapse Menu') : $t('navigation.expandMenu', 'Expand Menu')"
+                    color="gray"
+                    hover-color="red"
+                    container-class="p-2 transition-transform duration-300"
+                    :icon-class="{ 'rotate-180': !isCollapsed }"
+                    icon="double-caret-left"
                     @click="globalStore.toggleSideBar"
-                >
-                    <!-- Text label (shown when sidebar is wide) -->
-                    <span
-                        v-if="!isCollapsed"
-                        class="text-sm font-medium text-gray-600 group-hover:text-red-500 transition-colors duration-200 whitespace-nowrap overflow-hidden"
-                    >
-                        {{ $t('navigation.collapseMenu', 'Collapse Menu') }}
-                    </span>
-
-                    <!-- Animated chevron icon -->
-                    <div class="relative flex items-center justify-center w-6 h-6">
-                        <svg
-                            class="w-5 h-5 text-gray-500 group-hover:text-red-500 transition-all duration-300 ease-in-out"
-                            :class="{ 'rotate-180': !isCollapsed }"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
-                            />
-                        </svg>
-                    </div>
-                </button>
+                />
             </div>
         </div>
     </aside>
