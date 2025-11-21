@@ -190,11 +190,18 @@
             ]"
         >
             <div class="flex gap-5 p-4">
-                <Button variant="outline" color="gray" :label="t('cancel')" @click="handleCancel" />
+                <Button
+                    variant="outline"
+                    color="gray"
+                    :label="t('cancel')"
+                    class="flex-1"
+                    @click="handleCancel"
+                />
                 <Button
                     color="blue"
                     :label="t('saveChanges')"
                     :loading="isSaving"
+                    class="flex-1"
                     @click="handleSaveChanges"
                 />
             </div>
