@@ -659,14 +659,30 @@
             if (menuOpen.value) {
                 closeMobileMenu()
             }
+            if (dashboardMenuOpen.value) {
+                closeDashboardMobileMenu()
+            }
+        }
+    })
+
+    // Close mobile menus when viewport exceeds sm breakpoint (640px)
+    useEventListener('resize', () => {
+        if (window.innerWidth >= 640) {
+            if (menuOpen.value) {
+                closeMobileMenu()
+            }
+            if (dashboardMenuOpen.value) {
+                closeDashboardMobileMenu()
+            }
         }
     })
 
     watch(
         () => route.path,
         () => {
-            if (menuOpen.value || showMobileSearch.value) {
+            if (menuOpen.value || showMobileSearch.value || dashboardMenuOpen.value) {
                 menuOpen.value = false
+                dashboardMenuOpen.value = false
                 showMobileSearch.value = false
                 isLocked.value = false
             }
