@@ -158,7 +158,7 @@
                             <Chart
                                 ref="supplierOrdersByCountryChartRef"
                                 :title="t('ordersDashboard.supplier.ordersByCountry')"
-                                :main-value="totalSupplierOrders"
+                                :main-value="totalSupplierOrdersByCountry"
                                 chart-type="doughnut"
                                 :data="supplierOrdersByCountryChartData"
                                 :legend-items="supplierCountryLegendItems"
@@ -324,6 +324,7 @@
         totalBuyerOrders,
         totalSupplierOrders,
         totalSupplierOrdersTimeline,
+        totalSupplierOrdersByCountry,
         buyerSpentTotal,
         supplierAverageCart,
         loadBuyerOrdersChart,

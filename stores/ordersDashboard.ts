@@ -88,6 +88,10 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
         return supplierOrdersTimelineChart.value?.total || 0
     })
 
+    const totalSupplierOrdersByCountry = computed<number>(() => {
+        return supplierOrdersByCountryChart.value?.total || 0
+    })
+
     const buyerSpentTotal = computed<number>(() => {
         return buyerSpentCategoryChart.value?.total || buyerSpentSupplierChart.value?.total || 0
     })
@@ -489,6 +493,7 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
         totalBuyerOrders,
         totalSupplierOrders,
         totalSupplierOrdersTimeline,
+        totalSupplierOrdersByCountry,
         buyerSpentTotal,
         supplierAverageCart,
 
