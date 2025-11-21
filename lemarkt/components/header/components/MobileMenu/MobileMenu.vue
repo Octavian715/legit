@@ -189,8 +189,37 @@
 
                         <div class="w-full h-px bg-gray-300" />
 
-                        <!-- Dashboard Action Buttons (Add SKU, Create Order, Invite) -->
-                        <div v-if="showDashboardActions" class="space-y-2">
+                        <!-- Settings Navigation -->
+                        <div class="space-y-2">
+                            <MobileMenuButton
+                                :icon="'settings'"
+                                :label="t('navigation.settings')"
+                                :is-active="route.path.includes('/settings')"
+                                @click="navigateTo('/settings')"
+                            />
+
+                            <MobileMenuButton
+                                :icon="'help-circle'"
+                                :label="t('navigation.support')"
+                                :is-active="false"
+                                :disabled="true"
+                                @click="navigateTo('/support')"
+                            />
+
+                            <MobileMenuButton
+                                :icon="'book-saved'"
+                                :label="t('navigation.guide')"
+                                :badge="t('launch')"
+                                :is-active="false"
+                                :disabled="true"
+                                @click="handleGuide"
+                            />
+                        </div>
+
+                        <div class="w-full h-px bg-gray-300" />
+
+                        <!-- Action Buttons (Add SKU, Create Order, Invite) - Always visible -->
+                        <div class="space-y-2">
                             <Button
                                 v-if="userStore.isSupplier"
                                 color="blue"
@@ -239,35 +268,6 @@
                                     {{ t('navigation.invitePartener') }}
                                 </div>
                             </Button>
-
-                            <div class="w-full h-px bg-gray-300" />
-                        </div>
-
-                        <!-- Settings Navigation -->
-                        <div class="space-y-2">
-                            <MobileMenuButton
-                                :icon="'settings'"
-                                :label="t('navigation.settings')"
-                                :is-active="route.path.includes('/settings')"
-                                @click="navigateTo('/settings')"
-                            />
-
-                            <MobileMenuButton
-                                :icon="'help-circle'"
-                                :label="t('navigation.support')"
-                                :is-active="false"
-                                :disabled="true"
-                                @click="navigateTo('/support')"
-                            />
-
-                            <MobileMenuButton
-                                :icon="'book-saved'"
-                                :label="t('navigation.guide')"
-                                :badge="t('launch')"
-                                :is-active="false"
-                                :disabled="true"
-                                @click="handleGuide"
-                            />
                         </div>
 
                         <div class="w-full h-px bg-gray-300" />
@@ -370,10 +370,6 @@
 
     const isMarketplace = computed(() => {
         return !route.path.startsWith('/buyer') && !route.path.startsWith('/supplier')
-    })
-
-    const showDashboardActions = computed(() => {
-        return route.path.includes('/supplier') || route.path.includes('/buyer')
     })
 
     // Methods
