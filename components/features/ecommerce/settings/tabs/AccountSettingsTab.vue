@@ -52,6 +52,49 @@
                 @update:model-value="clearFieldError('logout_other_devices')"
             />
         </section>
+
+        <!-- Delete Account Section -->
+        <div class="mt-8 pt-6 border-t border-gray-300">
+            <h2 class="text-subtitle3 text-gray-800 mb-3">
+                {{ $t('deleteAccount.title') }}
+            </h2>
+
+            <div class="flex items-start justify-between gap-4 max-w-2xl">
+                <p class="text-subtitle2 text-red-500 flex-1">
+                    {{ $t('deleteAccount.warningMessagePrefix') }}
+                    <span class="font-bold">{{ $t('deleteAccount.warningMessageBold') }}</span>
+                    {{ $t('deleteAccount.warningMessageSuffix') }}
+                </p>
+                <Button
+                    color="gray"
+                    variant="ghost"
+                    size="lg"
+                    :label="$t('deleteAccount.deleteAccountButton')"
+                    @click="openDeleteAccountModal"
+                />
+            </div>
+        </div>
+
+        <!-- Delete Account Modal -->
+        <Modal
+            v-model:is-open="showDeleteModal"
+            :hide-header="true"
+            :hide-footer="true"
+            content-width="max-w-2xl"
+            :persistent="true"
+        >
+            <DeleteAccountModal
+                v-if="currentStep === 'reason'"
+                @cancel="closeDeleteModal"
+                @next="handleReasonSubmit"
+            />
+            <DeleteAccountConfirmationModal
+                v-else-if="currentStep === 'confirm'"
+                :reason="selectedReason"
+                @cancel="closeDeleteModal"
+                @success="handleDeleteSuccess"
+            />
+        </Modal>
     </div>
 </template>
 
@@ -61,7 +104,9 @@
     import { useUserStore } from '~/stores/user'
     import { useToastNotification } from '~/composables/useToastNotification'
     import { validator } from '~/utils/validator/index'
-    import { accountSettingsSchema } from '~/utils/validator/schemas/user/accountSettings'
+    import { accountSettingsSchema, type PasswordData } from '~/utils/validator/schemas/user/accountSettings'
+    import DeleteAccountModal from '~/components/modals/DeleteAccountModal.vue'
+    import DeleteAccountConfirmationModal from '~/components/modals/DeleteAccountConfirmationModal.vue'
 
     const { t } = useI18n()
     const userStore = useUserStore()
@@ -75,6 +120,35 @@
         logout_other_devices: false,
     })
     const errors = ref<Record<string, string>>({})
+
+    // Delete account state
+    const showDeleteModal = ref(false)
+    const currentStep = ref<'reason' | 'confirm'>('reason')
+    const selectedReason = ref('')
+
+    const openDeleteAccountModal = () => {
+        currentStep.value = 'reason'
+        selectedReason.value = ''
+        showDeleteModal.value = true
+    }
+
+    const closeDeleteModal = () => {
+        showDeleteModal.value = false
+        currentStep.value = 'reason'
+        selectedReason.value = ''
+    }
+
+    const handleReasonSubmit = (reason: string) => {
+        selectedReason.value = reason
+        currentStep.value = 'confirm'
+    }
+
+    const handleDeleteSuccess = async (scheduledAt: string) => {
+        closeDeleteModal()
+        // Log the user out after successful deletion request
+        await userStore.logout()
+        await navigateTo('/login')
+    }
 
     const validate = () => {
         // Clear previous errors
