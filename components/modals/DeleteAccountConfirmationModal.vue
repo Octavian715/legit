@@ -4,7 +4,6 @@
         :title="$t('deleteAccount.modalTitle')"
         content-width="max-w-2xl"
         :persistent="true"
-        :hide-footer="true"
         @close="handleCancel"
     >
         <!-- Body -->
