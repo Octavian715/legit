@@ -41,6 +41,7 @@ export const useOrdersDashboard = () => {
         hasSupplierData,
         totalBuyerOrders,
         totalSupplierOrders,
+        totalSupplierOrdersByCountry,
         buyerSpentTotal,
         supplierAverageCart,
     } = storeToRefs(store)
@@ -167,6 +168,7 @@ export const useOrdersDashboard = () => {
         hasSupplierData,
         totalBuyerOrders,
         totalSupplierOrders,
+        totalSupplierOrdersByCountry,
         buyerSpentTotal,
         supplierAverageCart,
 
