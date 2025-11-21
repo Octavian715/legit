@@ -225,7 +225,7 @@
                             <Chart
                                 ref="supplierOrdersTimelineChartRef"
                                 :title="t('ordersDashboard.supplier.ordersTimeline')"
-                                :main-value="totalSupplierOrders"
+                                :main-value="totalSupplierOrdersTimeline"
                                 chart-type="line"
                                 :data="supplierOrdersTimelineChartData"
                                 :show-info="true"
@@ -319,11 +319,13 @@
         buyerSpentCategoryChart,
         buyerSpentSupplierChart,
         supplierOrdersChart,
+        supplierOrdersTimelineChart,
         supplierOrdersStats,
         supplierOrdersByCountryChart,
         supplierAverageCartChart,
         totalBuyerOrders,
         totalSupplierOrders,
+        totalSupplierOrdersTimeline,
         buyerSpentTotal,
         supplierAverageCart,
         loadBuyerOrdersChart,
@@ -331,6 +333,7 @@
         loadBuyerSpentCategoryChart,
         loadBuyerSpentSupplierChart,
         loadSupplierOrdersChart,
+        loadSupplierOrdersTimelineChart,
         loadSupplierOrdersStats,
         loadSupplierOrdersByCountryChart,
         loadSupplierAverageCartChart,
@@ -503,16 +506,16 @@
     })
 
     const supplierOrdersTimelineChartData = computed<ChartData>(() => {
-        if (!supplierOrdersChart.value?.chart_data) {
+        if (!supplierOrdersTimelineChart.value?.chart_data) {
             return { labels: [], datasets: [] }
         }
 
         return {
-            labels: supplierOrdersChart.value.chart_data.map((item) => item.period || item.date),
+            labels: supplierOrdersTimelineChart.value.chart_data.map((item) => item.period || item.date),
             datasets: [
                 {
                     label: t('ordersDashboard.orders'),
-                    data: supplierOrdersChart.value.chart_data.map((item) => item.value || 0),
+                    data: supplierOrdersTimelineChart.value.chart_data.map((item) => item.value || 0),
                     borderColor: '#F59E0B',
                     backgroundColor: '#F59E0B20',
                     borderWidth: 2,
@@ -610,8 +613,10 @@
             await loadBuyerSpentCategoryChart(filters)
         } else if (chartType === 'buyerSpentSupplier') {
             await loadBuyerSpentSupplierChart(filters)
-        } else if (chartType === 'supplierOrders' || chartType === 'supplierOrdersTimeline') {
+        } else if (chartType === 'supplierOrders') {
             await loadSupplierOrdersChart(filters)
+        } else if (chartType === 'supplierOrdersTimeline') {
+            await loadSupplierOrdersTimelineChart(filters)
         } else if (chartType === 'supplierOrdersByCountry') {
             await loadSupplierOrdersByCountryChart(filters)
         } else if (chartType === 'supplierAverageCart') {
@@ -662,6 +667,7 @@
         } else {
             await Promise.all([
                 loadSupplierOrdersChart(),
+                loadSupplierOrdersTimelineChart(),
                 loadSupplierOrdersStats(),
                 loadSupplierOrdersByCountryChart(),
                 loadSupplierAverageCartChart(),

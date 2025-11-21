@@ -21,6 +21,7 @@ export const useOrdersDashboard = () => {
 
         // Supplier state
         supplierOrdersChart,
+        supplierOrdersTimelineChart,
         supplierOrdersStats,
         supplierOrdersByCountryChart,
         supplierOrdersByCountryTable,
@@ -41,6 +42,7 @@ export const useOrdersDashboard = () => {
         hasSupplierData,
         totalBuyerOrders,
         totalSupplierOrders,
+        totalSupplierOrdersTimeline,
         buyerSpentTotal,
         supplierAverageCart,
     } = storeToRefs(store)
@@ -124,6 +126,10 @@ export const useOrdersDashboard = () => {
         return await store.fetchSupplierOrdersChart(filters)
     }
 
+    const loadSupplierOrdersTimelineChart = async (filters: OrdersChartFilters = {}) => {
+        return await store.fetchSupplierOrdersTimelineChart(filters)
+    }
+
     const loadSupplierOrdersStats = async () => {
         return await store.fetchSupplierOrdersStats()
     }
@@ -157,6 +163,7 @@ export const useOrdersDashboard = () => {
         buyerSpentSupplierMeta,
         buyerSpentSupplierFilters,
         supplierOrdersChart,
+        supplierOrdersTimelineChart,
         supplierOrdersStats,
         supplierOrdersByCountryChart,
         supplierOrdersByCountryTable,
@@ -177,6 +184,7 @@ export const useOrdersDashboard = () => {
         hasSupplierData,
         totalBuyerOrders,
         totalSupplierOrders,
+        totalSupplierOrdersTimeline,
         buyerSpentTotal,
         supplierAverageCart,
 
@@ -192,6 +200,7 @@ export const useOrdersDashboard = () => {
 
         // Supplier load functions
         loadSupplierOrdersChart,
+        loadSupplierOrdersTimelineChart,
         loadSupplierOrdersStats,
         loadSupplierOrdersByCountryChart,
         loadSupplierOrdersByCountryTable,

@@ -225,11 +225,11 @@
                             <Chart
                                 ref="supplierOrdersTimelineChartRef"
                                 :title="t('ordersDashboard.supplier.ordersTimeline')"
-                                :main-value="totalSupplierOrders"
+                                :main-value="totalSupplierOrdersTimeline"
                                 chart-type="line"
                                 :data="supplierOrdersTimelineChartData"
                                 :show-info="true"
-                                :is-loading="supplierOrdersLoading"
+                                :is-loading="supplierOrdersTimelineLoading"
                                 :empty-message="t('ordersDashboard.messages.noData')"
                                 :default-period="chartPeriods.supplierOrdersTimeline"
                                 @period-change="
@@ -317,11 +317,13 @@
         buyerSpentCategoryChart,
         buyerSpentSupplierChart,
         supplierOrdersChart,
+        supplierOrdersTimelineChart,
         supplierOrdersStats,
         supplierOrdersByCountryChart,
         supplierAverageCartChart,
         totalBuyerOrders,
         totalSupplierOrders,
+        totalSupplierOrdersTimeline,
         buyerSpentTotal,
         supplierAverageCart,
         loadBuyerOrdersChart,
@@ -329,6 +331,7 @@
         loadBuyerSpentCategoryChart,
         loadBuyerSpentSupplierChart,
         loadSupplierOrdersChart,
+        loadSupplierOrdersTimelineChart,
         loadSupplierOrdersStats,
         loadSupplierOrdersByCountryChart,
         loadSupplierAverageCartChart,
@@ -344,6 +347,7 @@
     const buyerSpentCategoryLoading = ref(false)
     const buyerSpentSupplierLoading = ref(false)
     const supplierOrdersLoading = ref(false)
+    const supplierOrdersTimelineLoading = ref(false)
     const supplierOrdersByCountryLoading = ref(false)
     const supplierAverageCartLoading = ref(false)
 
@@ -509,16 +513,16 @@
     })
 
     const supplierOrdersTimelineChartData = computed<ChartData>(() => {
-        if (!supplierOrdersChart.value?.chart_data) {
+        if (!supplierOrdersTimelineChart.value?.chart_data) {
             return { labels: [], datasets: [] }
         }
 
         return {
-            labels: supplierOrdersChart.value.chart_data.map((item) => item.period || item.date),
+            labels: supplierOrdersTimelineChart.value.chart_data.map((item) => item.period || item.date),
             datasets: [
                 {
                     label: t('ordersDashboard.orders'),
-                    data: supplierOrdersChart.value.chart_data.map((item) => item.value || 0),
+                    data: supplierOrdersTimelineChart.value.chart_data.map((item) => item.value || 0),
                     borderColor: '#F59E0B',
                     backgroundColor: '#F59E0B20',
                     borderWidth: 2,
@@ -632,12 +636,19 @@
             } finally {
                 buyerSpentSupplierLoading.value = false
             }
-        } else if (chartType === 'supplierOrders' || chartType === 'supplierOrdersTimeline') {
+        } else if (chartType === 'supplierOrders') {
             supplierOrdersLoading.value = true
             try {
                 await loadSupplierOrdersChart(filters)
             } finally {
                 supplierOrdersLoading.value = false
+            }
+        } else if (chartType === 'supplierOrdersTimeline') {
+            supplierOrdersTimelineLoading.value = true
+            try {
+                await loadSupplierOrdersTimelineChart(filters)
+            } finally {
+                supplierOrdersTimelineLoading.value = false
             }
         } else if (chartType === 'supplierOrdersByCountry') {
             supplierOrdersByCountryLoading.value = true
@@ -703,6 +714,7 @@
         } else {
             await Promise.all([
                 loadSupplierOrdersChart(buildChartFilters(chartPeriods.value.supplierOrders)),
+                loadSupplierOrdersTimelineChart(buildChartFilters(chartPeriods.value.supplierOrdersTimeline)),
                 loadSupplierOrdersStats(),
                 loadSupplierOrdersByCountryChart(
                     buildChartFilters(chartPeriods.value.supplierOrdersByCountry)

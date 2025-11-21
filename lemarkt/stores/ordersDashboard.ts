@@ -37,6 +37,7 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
 
     // Supplier state
     const supplierOrdersChart = ref<SupplierOrdersChart | null>(null)
+    const supplierOrdersTimelineChart = ref<SupplierOrdersChart | null>(null)
     const supplierOrdersStats = ref<OrderStats[]>([])
     const supplierOrdersByCountryChart = ref<SupplierOrdersByCountryChart | null>(null)
     const supplierOrdersByCountryTable = ref<CountryTableItem[]>([])
@@ -81,6 +82,10 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
 
     const totalSupplierOrders = computed<number>(() => {
         return supplierOrdersChart.value?.total || 0
+    })
+
+    const totalSupplierOrdersTimeline = computed<number>(() => {
+        return supplierOrdersTimelineChart.value?.total || 0
     })
 
     const buyerSpentTotal = computed<number>(() => {
@@ -278,8 +283,6 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
     const fetchSupplierOrdersChart = async (
         filters: OrdersChartFilters = {}
     ): Promise<SupplierOrdersChart | null> => {
-        if (isSupplierLoading.value) return supplierOrdersChart.value
-
         isSupplierLoading.value = true
         resetError()
 
@@ -291,6 +294,25 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
         } catch (e) {
             handleError(e)
             supplierOrdersChart.value = null
+            return null
+        } finally {
+            isSupplierLoading.value = false
+        }
+    }
+
+    const fetchSupplierOrdersTimelineChart = async (
+        filters: OrdersChartFilters = {}
+    ): Promise<SupplierOrdersChart | null> => {
+        isSupplierLoading.value = true
+        resetError()
+
+        try {
+            supplierOrdersTimelineChart.value =
+                await ordersDashboardService.fetchSupplierOrdersChart(filters)
+            return supplierOrdersTimelineChart.value
+        } catch (e) {
+            handleError(e)
+            supplierOrdersTimelineChart.value = null
             return null
         } finally {
             isSupplierLoading.value = false
@@ -413,6 +435,7 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
 
     const clearSupplierData = (): void => {
         supplierOrdersChart.value = null
+        supplierOrdersTimelineChart.value = null
         supplierOrdersStats.value = []
         supplierOrdersByCountryChart.value = null
         supplierOrdersByCountryTable.value = []
@@ -450,6 +473,7 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
 
         // Supplier state
         supplierOrdersChart,
+        supplierOrdersTimelineChart,
         supplierOrdersStats,
         supplierOrdersByCountryChart,
         supplierOrdersByCountryTable,
@@ -474,6 +498,7 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
         hasSupplierData,
         totalBuyerOrders,
         totalSupplierOrders,
+        totalSupplierOrdersTimeline,
         buyerSpentTotal,
         supplierAverageCart,
 
@@ -489,6 +514,7 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
 
         // Supplier actions
         fetchSupplierOrdersChart,
+        fetchSupplierOrdersTimelineChart,
         fetchSupplierOrdersStats,
         fetchSupplierOrdersByCountryChart,
         fetchSupplierOrdersByCountryTable,
