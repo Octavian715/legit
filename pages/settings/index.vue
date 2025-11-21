@@ -182,8 +182,14 @@
             </Tabs2>
         </div>
 
-        <div class="fixed left-0 right-0 bottom-0 bg-white border-t border-gray-200 z-[1]">
-            <div class="flex gap-5 container mx-auto p-4">
+        <div
+            class="fixed bottom-0 right-0 bg-white border-t border-gray-200 z-10 transition-all duration-300"
+            :class="[
+                'left-0 sm:left-20',
+                { 'sm:left-[280px] lg:left-[15%]': !isCollapseSideBar },
+            ]"
+        >
+            <div class="flex gap-5 p-4">
                 <Button variant="outline" color="gray" :label="t('cancel')" @click="handleCancel" />
                 <Button
                     color="blue"
@@ -221,6 +227,8 @@
     import { useLocalePath } from '#imports'
     import { useToastNotification } from '~/composables/useToastNotification'
     import { useUserStore } from '~/stores/user'
+    import { useGlobalStore } from '~/stores/global'
+    import { storeToRefs } from 'pinia'
 
     const DeliveryTab = defineAsyncComponent(
         () => import('~/components/features/ecommerce/settings/tabs/DeliveryTab.vue')
@@ -274,6 +282,8 @@
     const route = useRoute()
     const { success, error: showError } = useToastNotification()
     const userStore = useUserStore()
+    const globalStore = useGlobalStore()
+    const { isCollapseSideBar } = storeToRefs(globalStore)
 
     // Access user role
     const isSupplier = computed(() => userStore.isSupplier)
