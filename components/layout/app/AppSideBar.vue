@@ -312,27 +312,39 @@
             <div :class="['p-4', { 'px-4 pb-6': isCollapsed }]">
                 <button
                     :class="[
-                        'flex items-center justify-center w-full p-3 bg-gray-100 hover:bg-gray-200 rounded-md focus:outline-none transition-colors duration-200',
-                        'min-h-[44px]',
+                        'collapse-btn group flex items-center w-full p-3 rounded-lg focus:outline-none transition-all duration-300 ease-in-out',
+                        'min-h-[44px] border border-transparent',
+                        'hover:bg-red-50 hover:border-red-200 hover:shadow-sm',
+                        isCollapsed ? 'justify-center' : 'justify-between gap-3',
                     ]"
-                    :title="isCollapsed ? 'Collapse sidebar' : 'Expand sidebar'"
+                    :title="isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
                     @click="globalStore.toggleSideBar"
                 >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-5 w-5 transition-transform duration-200"
-                        :class="{ 'rotate-180': !isCollapsed }"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
+                    <!-- Text label (shown when sidebar is wide) -->
+                    <span
+                        v-if="!isCollapsed"
+                        class="text-sm font-medium text-gray-600 group-hover:text-red-500 transition-colors duration-200 whitespace-nowrap overflow-hidden"
                     >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                        {{ $t('navigation.collapseMenu', 'Collapse Menu') }}
+                    </span>
+
+                    <!-- Animated chevron icon -->
+                    <div class="relative flex items-center justify-center w-6 h-6">
+                        <svg
+                            class="w-5 h-5 text-gray-500 group-hover:text-red-500 transition-all duration-300 ease-in-out"
+                            :class="{ 'rotate-180': !isCollapsed }"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
                             stroke-width="2"
-                            d="M4 6h16M4 12h16M4 18h16"
-                        />
-                    </svg>
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
+                            />
+                        </svg>
+                    </div>
                 </button>
             </div>
         </div>
