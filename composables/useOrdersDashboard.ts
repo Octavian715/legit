@@ -49,16 +49,19 @@ export const useOrdersDashboard = () => {
      * Build chart filters from period and date range
      */
     const buildChartFilters = (
-        period: PeriodType,
-        dateRange?: { start: string; end: string }
+        period?: PeriodType,
+        dateRange?: { start_date: string; end_date: string }
     ): OrdersChartFilters => {
-        const filters: OrdersChartFilters = {
-            period,
+        const filters: OrdersChartFilters = {}
+
+        // Only include period if it's defined and no custom date range
+        if (period && !dateRange) {
+            filters.period = period
         }
 
         if (dateRange) {
-            filters.start_date = dateRange.start
-            filters.end_date = dateRange.end
+            filters.start_date = dateRange.start_date
+            filters.end_date = dateRange.end_date
         }
 
         return filters
