@@ -290,8 +290,8 @@
             isLoading.value = true
             isInitializing.value = true // Block watch
 
-            // Get bank_accounts from user store
-            const accounts = userStore.user?.company_details?.bank_accounts || []
+            // Get bank_accounts from user store (at root level, not in company_details)
+            const accounts = userStore.user?.bank_accounts || []
 
             // Transform backend data to frontend format
             bankAccounts.value = accounts.map((account: any) => ({
