@@ -329,9 +329,13 @@
             return t('chat.noMessages')
         }
 
+        // Check if current user sent the message
+        const isOwnMessage = lastMessage.sender?.id === userStore.user?.id
+        const senderPrefix = isOwnMessage ? t('chat.you', 'You') : lastMessage.sender?.name || ''
+
         // Has text content
         if (lastMessage.content) {
-            return lastMessage.content
+            return senderPrefix ? `${senderPrefix}: ${lastMessage.content}` : lastMessage.content
         }
 
         // Has attachments but no text
@@ -339,19 +343,25 @@
             const count = lastMessage.attachments.length
             const fileType = lastMessage.attachments[0].file_type
 
+            let attachmentText = ''
             if (fileType === 'image') {
-                return count === 1
-                    ? t('chat.sentAnImage', '📷 Sent an image')
-                    : t('chat.sentImages', `📷 Sent ${count} images`)
+                attachmentText =
+                    count === 1
+                        ? t('chat.sentAnImage', '📷 Sent an image')
+                        : t('chat.sentImages', `📷 Sent ${count} images`)
             } else if (fileType === 'document') {
-                return count === 1
-                    ? t('chat.sentADocument', '📄 Sent a document')
-                    : t('chat.sentDocuments', `📄 Sent ${count} documents`)
+                attachmentText =
+                    count === 1
+                        ? t('chat.sentADocument', '📄 Sent a document')
+                        : t('chat.sentDocuments', `📄 Sent ${count} documents`)
             } else {
-                return count === 1
-                    ? t('chat.sentAFile', '📎 Sent a file')
-                    : t('chat.sentFiles', `📎 Sent ${count} files`)
+                attachmentText =
+                    count === 1
+                        ? t('chat.sentAFile', '📎 Sent a file')
+                        : t('chat.sentFiles', `📎 Sent ${count} files`)
             }
+
+            return senderPrefix ? `${senderPrefix}: ${attachmentText}` : attachmentText
         }
 
         // Fallback
