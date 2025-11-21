@@ -186,7 +186,7 @@
             class="fixed bottom-0 right-0 bg-white border-t border-gray-200 z-10 transition-all duration-300"
             :class="[
                 'left-0 sm:left-20',
-                { 'sm:left-[280px] lg:left-[15%]': !isCollapseSideBar },
+                { 'sm:left-[280px] lg:left-[15%]': isCollapseSideBar },
             ]"
         >
             <div class="flex gap-5 p-4">
