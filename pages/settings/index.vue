@@ -189,19 +189,21 @@
                 { 'sm:left-[230px] lg:left-[280px]': isCollapseSideBar },
             ]"
         >
-            <div class="flex gap-5 p-4">
+            <div class="flex gap-2 p-4">
                 <Button
                     variant="outline"
                     color="gray"
                     :label="t('cancel')"
-                    class="flex-1"
+                    container-classes="flex-1"
+                    size="md"
                     @click="handleCancel"
                 />
                 <Button
                     color="blue"
                     :label="t('saveChanges')"
                     :loading="isSaving"
-                    class="flex-1"
+                    container-classes="flex-1"
+                    size="md"
                     @click="handleSaveChanges"
                 />
             </div>
