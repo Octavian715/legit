@@ -80,11 +80,12 @@
                 <span class="label">{{ t('product.ownPrice') }}:</span>
                 <div class="own-price-input-wrapper">
                     <input
-                        v-model.number="ownPrice"
+                        :value="ownPrice"
                         type="number"
                         :min="0"
                         :max="999999"
                         :step="0.01"
+                        :placeholder="'-'"
                         class="own-price-input"
                         @input="validateOwnPrice"
                         @blur="roundOwnPrice"
@@ -421,7 +422,7 @@
     const isSyncingFromCart = ref(false)
     const displayQuantity = ref<number>(0)
     const inputPendingValue = ref<number | null>(null)
-    const ownPrice = ref(0)
+    const ownPrice = ref<number | null>(null)
     const vatValue = ref(props.vat)
     const selectedMultiplier = ref<number | null>(null)
     const pendingUpdate = ref(false)
@@ -773,6 +774,10 @@
     const cartItemId = computed(() => cartItemInfo.value.id)
 
     const marginPercentage = computed(() => {
+        // Show "-" when ownPrice is not entered
+        if (ownPrice.value === null || ownPrice.value === undefined || ownPrice.value === 0) {
+            return '-'
+        }
         const markup = calculateMarkupPercentage(ownPrice.value, currentActivePrice.value)
         return formatPercentage(markup, 1)
     })
@@ -940,11 +945,21 @@
 
     const validateOwnPrice = (event: Event) => {
         const target = event.target as HTMLInputElement
-        let value = parseFloat(target.value) || 0
 
-        if (value < 0) {
-            value = 0
-        } else if (value > 999999) {
+        // If input is empty, set to null
+        if (target.value === '' || target.value === null) {
+            ownPrice.value = null
+            return
+        }
+
+        let value = parseFloat(target.value)
+
+        if (isNaN(value) || value <= 0) {
+            ownPrice.value = null
+            return
+        }
+
+        if (value > 999999) {
             value = 999999
         }
 
@@ -952,7 +967,9 @@
     }
 
     const roundOwnPrice = () => {
-        ownPrice.value = Math.round(ownPrice.value * 100) / 100
+        if (ownPrice.value !== null && ownPrice.value !== undefined) {
+            ownPrice.value = Math.round(ownPrice.value * 100) / 100
+        }
     }
 
     const handleRemoveItem = async (productId: number) => {
