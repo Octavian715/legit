@@ -17,308 +17,387 @@
         >
             <div ref="menuRef" class="h-full flex flex-col">
                 <div class="flex-1 overflow-y-auto">
-                    <!-- Search -->
-                    <div class="p-3 border-b border-gray-200">
+                    <div class="p-2">
                         <SearchForm />
                     </div>
 
-                    <!-- User Profile Section (similar to ProfileDropdown) -->
-                    <div v-if="user" class="p-4 space-y-4">
-                        <!-- User Info + Upgrade -->
-                        <div class="flex items-center justify-between gap-3">
-                            <div class="flex items-center gap-3">
-                                <Avatar
-                                    size="md"
-                                    :initials="userInitials"
-                                    :image-url="userAvatar"
-                                    class="flex-shrink-0"
-                                />
-                                <div class="flex flex-col min-w-0">
-                                    <h3 class="text-title3 text-gray-950 font-bold truncate">
-                                        {{ userDisplayName }}
-                                    </h3>
-                                    <p class="text-body text-gray-600">{{ userEmail }}</p>
-                                </div>
-                            </div>
-                            <Button
-                                variant="outline"
-                                color="blue"
-                                size="sm"
-                                font-weight="normal"
-                                @click="handleUpgrade"
-                            >
-                                <div class="flex items-center gap-1.5">
-                                    <svg class="w-3 h-3">
-                                        <use xlink:href="/sprite.svg#duble-caret-up"></use>
+                    <div class="m-4 mt-0 space-y-3 border-b border-gray-400 pb-3">
+                        <button
+                            type="button"
+                            class="w-full flex items-center justify-between p-3 text-subtitle1 bg-white border border-gray-600 rounded hover:bg-red-50 hover:border-red-500 hover:text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-600 disabled:hover:text-current"
+                            :class="{
+                                'text-red-500 border-red-500 bg-red-50 font-bold':
+                                    route.path.match(/\/notifications/),
+                                'font-medium': !route.path.match(/\/notifications/),
+                            }"
+                            @click="handleQuickAction('notifications')"
+                        >
+                            <div class="flex items-center gap-2">
+                                <div class="flex items-center justify-center">
+                                    <svg class="flex-shrink-0 w-6 h-6">
+                                        <use :xlink:href="iconLink('bell')"></use>
                                     </svg>
-                                    {{ t('upgradePlan') }}
                                 </div>
-                            </Button>
-                        </div>
-
-                        <!-- Profile Stats -->
-                        <div class="flex gap-2">
-                            <NuxtLink
-                                :to="localePath(`/profile/${userName}?tab=products`)"
-                                class="flex-1 text-center text-subtitle4 text-gray-800 rounded border py-2 px-2 border-gray-400 hover:text-white hover:bg-gray-600 active:bg-gray-800 transition-colors"
-                                @click="emit('close')"
-                            >
-                                <strong class="block text-gray-950">{{ user.products_count || 0 }}</strong>
-                                {{ t('company.products') }}
-                            </NuxtLink>
-                            <NuxtLink
-                                :to="localePath(`/profile/${userName}/followers`)"
-                                class="flex-1 text-center text-subtitle4 text-gray-800 rounded border py-2 px-2 border-gray-400 hover:text-white hover:bg-gray-600 active:bg-gray-800 transition-colors"
-                                @click="emit('close')"
-                            >
-                                <strong class="block text-gray-950">{{ user.followers_count || 0 }}</strong>
-                                {{ t('followers') }}
-                            </NuxtLink>
-                            <NuxtLink
-                                :to="localePath(`/profile/${userName}/connections`)"
-                                class="flex-1 text-center text-subtitle4 text-gray-800 rounded border py-2 px-2 border-gray-400 hover:text-white hover:bg-gray-600 active:bg-gray-800 transition-colors"
-                                @click="emit('close')"
-                            >
-                                <strong class="block text-gray-950">{{ user.connections_count || 0 }}</strong>
-                                {{ t('connections') }}
-                            </NuxtLink>
-                        </div>
-
-                        <div class="w-full h-px bg-gray-300" />
-
-                        <!-- Quick Actions (Notifications, Cart, Chat) - Full width buttons -->
-                        <div class="space-y-2">
-                            <button
-                                type="button"
-                                class="w-full flex items-center justify-between p-3 text-subtitle1 rounded border transition-colors"
-                                :class="[
-                                    route.path.includes('/notifications')
-                                        ? 'bg-red-50 text-red-500 border-red-500 font-bold'
-                                        : 'bg-white text-gray-950 border-gray-400 font-medium hover:bg-red-50 hover:text-red-500 hover:border-red-500',
-                                ]"
-                                @click="handleQuickAction('notifications')"
-                            >
-                                <div class="flex items-center gap-3">
-                                    <div class="flex items-center justify-center w-6 h-6">
-                                        <svg class="w-5 h-5">
-                                            <use :xlink:href="iconLink('bell')"></use>
-                                        </svg>
-                                    </div>
-                                    <span class="truncate">{{ t('notification', { n: 0 }) }}</span>
-                                </div>
+                                <span class="truncate">{{ t('notification', { n: 0 }) }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
                                 <span
                                     v-if="unreadNotificationsCount > 0"
-                                    class="bg-yellow-500 text-white text-caption1 rounded-full h-6 w-6 flex items-center justify-center"
+                                    class="bg-yellow-500 text-white text-caption1 rounded-full h-6 w-6 flex items-center justify-center font-normal"
+                                    :class="{
+                                        'bg-red-500': route.path.match(/\/notifications/),
+                                    }"
                                 >
-                                    {{ unreadNotificationsCount > 9 ? '9+' : unreadNotificationsCount }}
+                                    {{
+                                        unreadNotificationsCount > 9
+                                            ? '9+'
+                                            : unreadNotificationsCount
+                                    }}
                                 </span>
-                            </button>
+                            </div>
+                        </button>
 
-                            <button
-                                type="button"
-                                class="w-full flex items-center justify-between p-3 text-subtitle1 rounded border transition-colors"
-                                :class="[
-                                    route.path.includes('/cart')
-                                        ? 'bg-red-50 text-red-500 border-red-500 font-bold'
-                                        : 'bg-white text-gray-950 border-gray-400 font-medium hover:bg-red-50 hover:text-red-500 hover:border-red-500',
-                                ]"
-                                @click="handleQuickAction('cart')"
-                            >
-                                <div class="flex items-center gap-3">
-                                    <div class="flex items-center justify-center w-6 h-6">
-                                        <svg class="w-5 h-5">
-                                            <use :xlink:href="iconLink('shopping-cart')"></use>
-                                        </svg>
-                                    </div>
-                                    <span class="truncate">{{ t('navigation.shoppingCart') }}</span>
+                        <button
+                            type="button"
+                            class="w-full flex items-center justify-between p-3 text-subtitle1 bg-white border border-gray-600 rounded hover:bg-red-50 hover:border-red-500 hover:text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-600 disabled:hover:text-current"
+                            :class="{
+                                'text-red-500 border-red-500 bg-red-50 font-bold':
+                                    route.path.match(/\/cart/),
+                                'font-medium': !route.path.match(/\/cart/),
+                            }"
+                            @click="handleQuickAction('cart')"
+                        >
+                            <div class="flex items-center gap-2">
+                                <div class="flex items-center justify-center">
+                                    <svg class="flex-shrink-0 w-6 h-6">
+                                        <use :xlink:href="iconLink('shopping-cart')"></use>
+                                    </svg>
                                 </div>
+                                <span class="truncate">{{ t('navigation.shoppingCart') }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
                                 <span
                                     v-if="cartCount > 0"
-                                    class="bg-red-500 text-white text-caption1 rounded-full h-6 w-6 flex items-center justify-center"
+                                    class="bg-red-500 text-white text-caption1 rounded-full h-6 w-6 flex items-center justify-center font-normal"
                                 >
                                     {{ cartCount > 9 ? '9+' : cartCount }}
                                 </span>
+                            </div>
+                        </button>
+
+                        <button
+                            type="button"
+                            class="w-full flex items-center justify-between p-3 text-subtitle1 bg-white border border-gray-600 rounded hover:bg-red-50 hover:border-red-500 hover:text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-600 disabled:hover:text-current"
+                            :class="{
+                                'text-green-500 border-green-500 bg-green-50 font-bold':
+                                    route.path.match(/\/chat/),
+                                'font-medium': !route.path.match(/\/chat/),
+                            }"
+                            @click="handleQuickAction('chat')"
+                        >
+                            <div class="flex items-center gap-2">
+                                <div class="flex items-center justify-center">
+                                    <svg class="flex-shrink-0 w-6 h-6">
+                                        <use :xlink:href="iconLink('chat')"></use>
+                                    </svg>
+                                </div>
+                                <span class="truncate">{{ t('navigation.messages') }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span
+                                    v-if="unreadMessagesCount > 0"
+                                    class="bg-green-500 text-white text-caption1 rounded-full h-6 w-6 flex items-center justify-center font-normal"
+                                    :class="{
+                                        'bg-blue-500': route.path.match(/\/chat/),
+                                    }"
+                                >
+                                    {{ unreadMessagesCount > 9 ? '9+' : unreadMessagesCount }}
+                                </span>
+                            </div>
+                        </button>
+
+                        <template v-if="!route.path.match(/\/supplier|buyer/)">
+                            <button
+                                type="button"
+                                class="w-full flex items-center justify-between p-3 text-subtitle1 bg-white border border-gray-600 rounded hover:bg-red-50 hover:border-red-500 hover:text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-600 disabled:hover:text-current disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-600 disabled:hover:text-current"
+                                :class="{
+                                    'text-red-500 border-red-500 bg-red-50 font-bold':
+                                        route.path.match(/\/currency/),
+                                    'font-medium': !route.path.match(/\/currency/),
+                                }"
+                                disabled
+                                @click="handleQuickAction('currency')"
+                            >
+                                <div class="flex items-center gap-2">
+                                    <div class="flex items-center justify-center">
+                                        <svg class="flex-shrink-0 w-6 h-6">
+                                            <use :xlink:href="iconLink('convert')"></use>
+                                        </svg>
+                                    </div>
+                                    <span class="truncate">{{
+                                        t('navigation.currencyConvertor')
+                                    }}</span>
+                                </div>
                             </button>
 
                             <button
                                 type="button"
-                                class="w-full flex items-center justify-between p-3 text-subtitle1 rounded border transition-colors"
-                                :class="[
-                                    route.path.includes('/chat')
-                                        ? 'bg-green-50 text-green-500 border-green-500 font-bold'
-                                        : 'bg-white text-gray-950 border-gray-400 font-medium hover:bg-green-50 hover:text-green-500 hover:border-green-500',
-                                ]"
-                                @click="handleQuickAction('chat')"
+                                class="w-full flex items-center justify-between p-3 text-subtitle1 bg-white border border-gray-600 rounded hover:bg-red-50 hover:border-red-500 hover:text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-600 disabled:hover:text-current"
+                                :class="{
+                                    'text-red-500 border-red-500 bg-red-50 font-bold':
+                                        route.path.match(/\/marketplace/),
+
+                                    'font-medium': !route.path.match(/\/marketplace/),
+                                }"
+                                @click="handleEcommerceAction"
                             >
-                                <div class="flex items-center gap-3">
-                                    <div class="flex items-center justify-center w-6 h-6">
-                                        <svg class="w-5 h-5">
-                                            <use :xlink:href="iconLink('chat')"></use>
+                                <div class="flex items-center gap-2">
+                                    <div class="flex items-center justify-center">
+                                        <svg class="flex-shrink-0 w-6 h-6">
+                                            <use :xlink:href="iconLink('logo_sm-icon')"></use>
                                         </svg>
                                     </div>
-                                    <span class="truncate">{{ t('navigation.messages') }}</span>
+                                    <span class="truncate">{{ t('navigation.eCommerce') }}</span>
                                 </div>
-                                <span
-                                    v-if="unreadMessagesCount > 0"
-                                    class="bg-green-500 text-white text-caption1 rounded-full h-6 w-6 flex items-center justify-center"
+                            </button>
+
+                            <button
+                                type="button"
+                                class="w-full flex items-center justify-between p-3 text-subtitle1 bg-white border border-gray-600 rounded hover:bg-red-50 hover:border-red-500 hover:text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-600 disabled:hover:text-current"
+                                :class="{
+                                    'text-red-500 border-red-500 bg-red-50 font-bold':
+                                        route.path.match(/\/favorites/),
+                                    'font-medium': !route.path.match(/\/favorites/),
+                                }"
+                                @click="handleQuickAction('favorites')"
+                            >
+                                <div class="flex items-center gap-2">
+                                    <div class="flex items-center justify-center">
+                                        <svg class="flex-shrink-0 w-6 h-6">
+                                            <use :xlink:href="iconLink('heart-2')"></use>
+                                        </svg>
+                                    </div>
+                                    <span class="truncate">{{ t('navigation.favorites') }}</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <!-- <span
+                                        v-if="wishlistCount > 0"
+                                        class="bg-red-500 text-white text-caption1 rounded-full h-6 w-6 flex items-center justify-center font-normal"
+                                    >
+                                        {{ wishlistCount > 9 ? '9+' : wishlistCount }}
+                                    </span> -->
+                                </div>
+                            </button>
+                        </template>
+
+                        <template v-else>
+                            <div class="flex flex-col space-y-3">
+                                <NuxtLink
+                                    v-if="!route.path.match(/\/supplier/)"
+                                    :to="localePath('/supplier/products/new')"
                                 >
-                                    {{ unreadMessagesCount > 9 ? '9+' : unreadMessagesCount }}
-                                </span>
+                                    <Button
+                                        color="blue"
+                                        variant="filled"
+                                        size="lg"
+                                        font-weight="normal"
+                                        :label="
+                                            t('addATemplate', {
+                                                n: 2,
+                                                template: t('sku', { n: 0 }),
+                                            })
+                                        "
+                                        container-classes="w-full"
+                                    />
+                                </NuxtLink>
+                                <NuxtLink :to="localePath('/supplier/order/new')">
+                                    <Button
+                                        :label="t('createOrder')"
+                                        size="lg"
+                                        variant="filled"
+                                        color="red"
+                                        container-classes="w-full"
+                                    />
+                                </NuxtLink>
+                                <Button
+                                    :label="t('navigation.invitePartener')"
+                                    size="lg"
+                                    variant="filled"
+                                    color="red"
+                                    container-classes="w-full"
+                                    @click="$emit('accountAction', 'invite')"
+                                />
+                            </div>
+                        </template>
+                    </div>
+
+                    <div v-if="user" class="mx-4 mb-4 space-y-3">
+                        <div class="flex justify-between items-center gap-2">
+                            <div class="flex flex-col">
+                                <p class="text-title3 font-bold text-gray-950">{{ user.name }}</p>
+                                <p class="text-bodybold text-gray-800">{{ user.email }}</p>
+                            </div>
+                            <Button
+                                color="gray"
+                                variant="filled"
+                                font-weight="normal"
+                                :label="t('upgradePlan')"
+                                size="sm"
+                                disabled
+                                @click="handleUpgrade"
+                            />
+                        </div>
+
+                        <div class="space-y-2">
+                            <button
+                                v-if="userStore.isSupplier"
+                                type="button"
+                                class="w-full flex items-center justify-between p-3 text-subtitle1 bg-white border border-gray-600 rounded hover:bg-red-50 hover:border-red-500 hover:text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-600 disabled:hover:text-current"
+                                :class="{
+                                    'text-red-500 border-red-500 bg-red-50 font-bold':
+                                        route.path.match(/\/supplier/),
+                                    'font-medium': !route.path.match(/\/supplier/),
+                                }"
+                                @click="handleDashboard('supplier')"
+                            >
+                                <div class="flex items-center gap-2">
+                                    <div class="flex items-center justify-center">
+                                        <svg class="flex-shrink-0 w-6 h-6">
+                                            <use :xlink:href="iconLink('add_stock')"></use>
+                                        </svg>
+                                    </div>
+                                    <span class="truncate"
+                                        >{{ t('suppliers', { n: 0 }) }}
+                                        {{ t('dashboard').toLowerCase() }}</span
+                                    >
+                                </div>
+                            </button>
+
+                            <button
+                                type="button"
+                                class="w-full flex items-center justify-between p-3 text-subtitle1 bg-white border border-gray-600 rounded hover:bg-red-50 hover:border-red-500 hover:text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-600 disabled:hover:text-current"
+                                :class="{
+                                    'text-red-500 border-red-500 bg-red-50 font-bold':
+                                        route.path.match(/\/buyer/),
+                                    'font-medium': !route.path.match(/\/buyer/),
+                                }"
+                                @click="handleDashboard('buyer')"
+                            >
+                                <div class="flex items-center gap-2">
+                                    <div class="flex items-center justify-center">
+                                        <svg class="flex-shrink-0 w-6 h-6">
+                                            <use :xlink:href="iconLink('offer')"></use>
+                                        </svg>
+                                    </div>
+                                    <span class="truncate"
+                                        >{{ t('buyers', { n: 0 }) }}
+                                        {{ t('dashboard').toLowerCase() }}</span
+                                    >
+                                </div>
+                            </button>
+
+                            <button
+                                type="button"
+                                class="w-full flex items-center justify-between p-3 text-subtitle1 bg-white border border-gray-600 rounded hover:bg-red-50 hover:border-red-500 hover:text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-600 disabled:hover:text-current"
+                                :class="{
+                                    'text-red-500 border-red-500 bg-red-50 font-bold':
+                                        !route.path.startsWith('/buyer') &&
+                                        !route.path.startsWith('/supplier'),
+                                    'font-medium':
+                                        !route.path.startsWith('/buyer') &&
+                                        !route.path.startsWith('/supplier'),
+                                }"
+                                @click="handleNavigation('marketplace')"
+                            >
+                                <div class="flex items-center gap-2">
+                                    <div class="flex items-center justify-center">
+                                        <svg class="flex-shrink-0 w-6 h-6">
+                                            <use :xlink:href="iconLink('shopping-cart')"></use>
+                                        </svg>
+                                    </div>
+                                    <span class="truncate">{{ t('navigation.marketplace') }}</span>
+                                </div>
+                            </button>
+
+                            <button
+                                type="button"
+                                class="w-full flex items-center justify-between p-3 text-subtitle1 bg-white border border-gray-600 rounded hover:bg-red-50 hover:border-red-500 hover:text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-600 disabled:hover:text-current"
+                                :class="{
+                                    'text-red-500 border-red-500 bg-red-50 font-bold':
+                                        route.path.match(/\/settings/),
+                                    'font-medium': !route.path.match(/\/settings/),
+                                }"
+                                @click="handleNavigation('settings')"
+                            >
+                                <div class="flex items-center gap-2">
+                                    <div class="flex items-center justify-center">
+                                        <svg class="flex-shrink-0 w-6 h-6">
+                                            <use :xlink:href="iconLink('settings')"></use>
+                                        </svg>
+                                    </div>
+                                    <span class="truncate">{{ t('navigation.settings') }}</span>
+                                </div>
+                            </button>
+
+                            <button
+                                type="button"
+                                class="w-full flex items-center justify-between p-3 text-subtitle1 bg-white border border-gray-600 rounded hover:bg-red-50 hover:border-red-500 hover:text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-600 disabled:hover:text-current"
+                                :class="{
+                                    'text-red-500 border-red-500 bg-red-50 font-bold':
+                                        route.path.match(/\/support/),
+                                    'font-medium': !route.path.match(/\/support/),
+                                }"
+                                disabled
+                                @click="handleNavigation('support')"
+                            >
+                                <div class="flex items-center gap-2">
+                                    <div class="flex items-center justify-center">
+                                        <svg class="flex-shrink-0 w-6 h-6">
+                                            <use :xlink:href="iconLink('help-circle')"></use>
+                                        </svg>
+                                    </div>
+                                    <span class="truncate">{{ t('navigation.support') }}</span>
+                                </div>
+                            </button>
+
+                            <button
+                                type="button"
+                                class="w-full flex items-center justify-between p-3 text-subtitle1 bg-white border border-gray-600 rounded hover:bg-red-50 hover:border-red-500 hover:text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-600 disabled:hover:text-current"
+                                :class="{
+                                    'text-red-500 border-red-500 bg-red-50 font-bold':
+                                        route.path.match(/\/guide/),
+                                    'font-medium': !route.path.match(/\/guide/),
+                                }"
+                                disabled
+                                @click="handleNavigation('guide')"
+                            >
+                                <div class="flex justify-between items-center gap-2 w-full">
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex items-center justify-center">
+                                            <svg class="flex-shrink-0 w-6 h-6">
+                                                <use :xlink:href="iconLink('book-saved')"></use>
+                                            </svg>
+                                        </div>
+                                        <span class="truncate">{{ t('navigation.guide') }}</span>
+                                    </div>
+                                    <span
+                                        class="bg-gray-400 px-2 py-1 rounded text-subtitle3 leading-4 text-white"
+                                    >
+                                        {{ t('launch') }}
+                                    </span>
+                                </div>
                             </button>
                         </div>
 
-                        <div class="w-full h-px bg-gray-300" />
-
-                        <!-- Dashboard Navigation -->
-                        <div class="space-y-2">
-                            <!-- Profile -->
-                            <MobileMenuButton
-                                :icon="'profile'"
-                                :label="t('company.profile')"
-                                :is-active="route.path.includes(`/profile/${userName}`)"
-                                @click="navigateTo(`/profile/${userName}`)"
-                            />
-
-                            <!-- Supplier Dashboard (if supplier) -->
-                            <MobileMenuButton
-                                v-if="userStore.isSupplier"
-                                :icon="'box-plus'"
-                                :label="`${t('suppliers', { n: 0 })} ${t('dashboard').toLowerCase()}`"
-                                :is-active="route.path.includes('/supplier')"
-                                @click="navigateTo('/supplier/dashboard')"
-                            />
-
-                            <!-- Buyer Dashboard -->
-                            <MobileMenuButton
-                                :icon="'plan'"
-                                :label="`${t('buyers', { n: 0 })} ${t('dashboard').toLowerCase()}`"
-                                :is-active="route.path.includes('/buyer')"
-                                @click="navigateTo('/buyer/dashboard')"
-                            />
-
-                            <!-- Marketplace -->
-                            <MobileMenuButton
-                                :icon="'shopping-cart'"
-                                :label="t('navigation.marketplace')"
-                                :is-active="isMarketplace"
-                                @click="navigateTo('/marketplace')"
-                            />
-                        </div>
-
-                        <div class="w-full h-px bg-gray-300" />
-
-                        <!-- Settings Navigation -->
-                        <div class="space-y-2">
-                            <MobileMenuButton
-                                :icon="'settings'"
-                                :label="t('navigation.settings')"
-                                :is-active="route.path.includes('/settings')"
-                                @click="navigateTo('/settings')"
-                            />
-
-                            <MobileMenuButton
-                                :icon="'help-circle'"
-                                :label="t('navigation.support')"
-                                :is-active="false"
-                                :disabled="true"
-                                @click="navigateTo('/support')"
-                            />
-
-                            <MobileMenuButton
-                                :icon="'book-saved'"
-                                :label="t('navigation.guide')"
-                                :badge="t('launch')"
-                                :is-active="false"
-                                :disabled="true"
-                                @click="handleGuide"
-                            />
-                        </div>
-
-                        <div class="w-full h-px bg-gray-300" />
-
-                        <!-- Action Buttons (Add SKU, Create Order, Invite) - Always visible -->
-                        <div class="space-y-2">
-                            <Button
-                                v-if="userStore.isSupplier"
-                                color="blue"
-                                variant="filled"
-                                size="lg"
-                                font-weight="normal"
-                                container-classes="w-full"
-                                @click="navigateTo('/supplier/products/new')"
-                            >
-                                <div class="flex items-center justify-center gap-2">
-                                    <svg class="w-5 h-5">
-                                        <use xlink:href="/sprite.svg#plus"></use>
-                                    </svg>
-                                    {{ t('addATemplate', { n: 2, template: t('sku', { n: 0 }) }) }}
-                                </div>
-                            </Button>
-
-                            <Button
-                                color="red"
-                                variant="filled"
-                                size="lg"
-                                font-weight="normal"
-                                container-classes="w-full"
-                                @click="navigateTo('/supplier/order/new')"
-                            >
-                                <div class="flex items-center justify-center gap-2">
-                                    <svg class="w-5 h-5">
-                                        <use xlink:href="/sprite.svg#document-add"></use>
-                                    </svg>
-                                    {{ t('createOrder') }}
-                                </div>
-                            </Button>
-
-                            <Button
-                                color="gray"
-                                variant="outline"
-                                size="lg"
-                                font-weight="normal"
-                                container-classes="w-full"
-                                @click="handleInvite"
-                            >
-                                <div class="flex items-center justify-center gap-2">
-                                    <svg class="w-5 h-5">
-                                        <use xlink:href="/sprite.svg#user-plus"></use>
-                                    </svg>
-                                    {{ t('navigation.invitePartener') }}
-                                </div>
-                            </Button>
-                        </div>
-
-                        <div class="w-full h-px bg-gray-300" />
-
-                        <!-- Logout -->
                         <Button
                             color="gray"
                             variant="filled"
-                            size="lg"
                             font-weight="normal"
+                            :label="t('logout')"
                             container-classes="w-full"
+                            size="lg"
                             @click="handleSignOut"
-                        >
-                            {{ t('logout') }}
-                        </Button>
-                    </div>
-
-                    <!-- Guest State -->
-                    <div v-else class="p-4 space-y-4">
-                        <div class="text-center py-8">
-                            <p class="text-subtitle1 text-gray-600 mb-4">
-                                {{ t('auth.signInToAccess') }}
-                            </p>
-                            <Button
-                                color="blue"
-                                variant="filled"
-                                size="lg"
-                                container-classes="w-full"
-                                @click="handleSignIn"
-                            >
-                                {{ t('auth.signIn') }}
-                            </Button>
-                        </div>
+                        />
                     </div>
                 </div>
             </div>
@@ -333,7 +412,6 @@
     import type { User } from '~/types/auth'
     import { useNotifications } from '~/composables/socket/useNotifications'
     import { useUserStore } from '~/stores/user'
-    import { useUpgradeModal } from '~/composables/useUpgradeModal'
 
     interface Props {
         isOpen: boolean
@@ -365,46 +443,26 @@
     const router = useRouter()
     const route = useRoute()
     const userStore = useUserStore()
-    const { openUpgradeModal } = useUpgradeModal()
     const { unreadCount: unreadNotificationsCount } = useNotifications()
 
     const menuRef = ref<HTMLElement>()
+    const searchTimeoutId = ref<NodeJS.Timeout | null>(null)
+    const actionTimeoutId = ref<NodeJS.Timeout | null>(null)
 
-    // Computed properties
-    const userDisplayName = computed(() => userStore.userDisplayName || props.user?.name || '')
-    const userEmail = computed(() => props.user?.email || '')
-    const userName = computed(() => userStore.userName || '')
-    const userInitials = computed(() => {
-        const name = userDisplayName.value
-        if (!name) return ''
-        return name
-            .split(' ')
-            .map((n) => n[0])
-            .join('')
-            .toUpperCase()
-            .slice(0, 2)
-    })
-    const userAvatar = computed(() => props.user?.avatar || '')
-
-    const isMarketplace = computed(() => {
-        return !route.path.startsWith('/buyer') && !route.path.startsWith('/supplier')
-    })
-
-    // Methods
     const lockScroll = (lock: boolean) => {
         if (process.client) {
             document.body.style.overflow = lock ? 'hidden' : ''
         }
     }
 
-    const navigateTo = (path: string) => {
-        emit('close')
-        router.push(localePath(path))
-    }
+    const throttledQuickAction = (action: string) => {
+        if (actionTimeoutId.value) return
 
-    const handleQuickAction = (action: string) => {
+        actionTimeoutId.value = setTimeout(() => {
+            actionTimeoutId.value = null
+        }, 200)
+
         emit('quickAction', action)
-        emit('close')
 
         switch (action) {
             case 'notifications':
@@ -416,30 +474,42 @@
             case 'cart':
                 router.push(localePath('/cart'))
                 break
+            case 'currency':
+                router.push(localePath('/currency'))
+                break
             case 'favorites':
                 router.push(localePath('/favorites'))
                 break
+            case 'templates':
+                router.push(localePath('/templates'))
+                break
         }
+
+        emit('close')
+    }
+
+    const handleQuickAction = (action: string) => {
+        throttledQuickAction(action)
+    }
+
+    const handleNavigation = (path: string) => {
+        emit('close')
+        router.push(localePath(`/${path}`))
+    }
+
+    const handleDashboard = (type: string) => {
+        emit('close')
+        router.push(localePath(`/${type}/dashboard`))
+    }
+
+    const handleEcommerceAction = () => {
+        emit('close')
+        router.push(localePath('/marketplace'))
     }
 
     const handleUpgrade = () => {
         emit('close')
-        openUpgradeModal(undefined, 'upgrade')
-    }
-
-    const handleInvite = () => {
-        emit('accountAction', 'invite')
-        emit('close')
-    }
-
-    const handleGuide = () => {
-        emit('close')
-        window.open('/guide', '_blank')
-    }
-
-    const handleSignIn = () => {
-        emit('close')
-        router.push(localePath('/auth/login'))
+        router.push(localePath('/settings/upgrade'))
     }
 
     const handleSignOut = async () => {
@@ -455,7 +525,6 @@
         }
     }
 
-    // Watchers
     watch(
         () => props.isOpen,
         (newValue) => {
@@ -480,7 +549,6 @@
         }
     )
 
-    // Lifecycle
     onMounted(() => {
         if (process.client) {
             document.addEventListener('keydown', handleKeydown)
@@ -491,6 +559,13 @@
         if (process.client) {
             lockScroll(false)
             document.removeEventListener('keydown', handleKeydown)
+
+            if (searchTimeoutId.value) {
+                clearTimeout(searchTimeoutId.value)
+            }
+            if (actionTimeoutId.value) {
+                clearTimeout(actionTimeoutId.value)
+            }
         }
     })
 </script>
