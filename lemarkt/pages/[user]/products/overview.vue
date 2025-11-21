@@ -50,7 +50,7 @@
                                 chart-type="bar"
                                 :data="supplierNewProductsChartData"
                                 :show-info="true"
-                                :is-loading="isSupplierLoading"
+                                :is-loading="isLoadingSupplierNewProducts"
                                 :empty-message="t('productsDashboard.messages.noData')"
                                 :default-period="chartPeriods.supplierNewProducts"
                                 @period-change="handleSupplierNewProductsPeriodChange"
@@ -66,7 +66,7 @@
                                 :data="supplierTotalProductsChartData"
                                 :legend-items="supplierCategoryLegendItems"
                                 :show-info="true"
-                                :is-loading="isSupplierLoading"
+                                :is-loading="isLoadingSupplierTotalProducts"
                                 :empty-message="t('productsDashboard.messages.noData')"
                                 :default-period="chartPeriods.supplierTotalProducts"
                                 @period-change="handleSupplierTotalProductsPeriodChange"
@@ -77,7 +77,7 @@
 
                 <CompanyProducts
                     :products="supplierProductCategories"
-                    :is-loading="isSupplierLoading"
+                    :is-loading="isLoadingSupplierCategories"
                     :empty-title="t('productsDashboard.messages.noCategories')"
                     :empty-description="t('productsDashboard.messages.noCategoriesDescription')"
                     class="py-3"
@@ -97,7 +97,7 @@
                                 :data="buyerTotalProductsChartData"
                                 :legend-items="buyerCategoryLegendItems"
                                 :show-info="true"
-                                :is-loading="isBuyerLoading"
+                                :is-loading="isLoadingBuyerTotalProducts"
                                 :empty-message="t('productsDashboard.messages.noData')"
                                 :default-period="chartPeriods.buyerTotalProducts"
                                 @period-change="handleBuyerPeriodChange"
@@ -109,7 +109,7 @@
                 <div class="py-3">
                     <CompanyProducts
                         :products="buyerProductCategories"
-                        :is-loading="isBuyerLoading"
+                        :is-loading="isLoadingBuyerCategories"
                         :empty-title="t('productsDashboard.messages.noCategories')"
                         :empty-description="t('productsDashboard.messages.noCategoriesDescription')"
                     />
@@ -135,9 +135,16 @@
 
     const isRetrying = ref(false)
     const hasLoadedOnce = ref(false)
-    const isBuyerLoading = ref(false)
-    const isSupplierLoading = ref(false)
     const error = ref<string | null>(null)
+
+    // Individual loading states for supplier
+    const isLoadingSupplierNewProducts = ref(false)
+    const isLoadingSupplierTotalProducts = ref(false)
+    const isLoadingSupplierCategories = ref(false)
+
+    // Individual loading states for buyer
+    const isLoadingBuyerTotalProducts = ref(false)
+    const isLoadingBuyerCategories = ref(false)
 
     const pathRole = computed(() => {
         const path = route.path.toLowerCase()
@@ -306,8 +313,10 @@
             : {}
 
         try {
-            isBuyerLoading.value = true
+            isLoadingBuyerTotalProducts.value = true
+            isLoadingBuyerCategories.value = true
             await dashboardProductStore.fetchBuyerTotalProducts(filters)
+            isLoadingBuyerTotalProducts.value = false
             await dashboardProductStore.fetchBuyerProductStats()
             await nextTick()
             setTimeout(() => {
@@ -317,7 +326,8 @@
             console.error('[Products All] Buyer period change error:', err)
             error.value = err.message || t('productsDashboard.errors.fetchFailed')
         } finally {
-            isBuyerLoading.value = false
+            isLoadingBuyerTotalProducts.value = false
+            isLoadingBuyerCategories.value = false
         }
     }
 
@@ -335,7 +345,7 @@
             : { period: period === 'custom' ? 'today' : (period as any) }
 
         try {
-            isSupplierLoading.value = true
+            isLoadingSupplierNewProducts.value = true
             await dashboardProductStore.fetchSupplierNewProducts(filters)
             await nextTick()
             setTimeout(() => {
@@ -345,7 +355,7 @@
             console.error('[Products All] Supplier new products period change error:', err)
             error.value = err.message || t('productsDashboard.errors.fetchFailed')
         } finally {
-            isSupplierLoading.value = false
+            isLoadingSupplierNewProducts.value = false
         }
     }
 
@@ -363,8 +373,10 @@
             : {}
 
         try {
-            isSupplierLoading.value = true
+            isLoadingSupplierTotalProducts.value = true
+            isLoadingSupplierCategories.value = true
             await dashboardProductStore.fetchSupplierTotalProducts(filters)
+            isLoadingSupplierTotalProducts.value = false
             await dashboardProductStore.fetchDashboardProductStats()
             await nextTick()
             setTimeout(() => {
@@ -374,7 +386,8 @@
             console.error('[Products All] Supplier total products period change error:', err)
             error.value = err.message || t('productsDashboard.errors.fetchFailed')
         } finally {
-            isSupplierLoading.value = false
+            isLoadingSupplierTotalProducts.value = false
+            isLoadingSupplierCategories.value = false
         }
     }
 
@@ -392,18 +405,33 @@
     const initializeData = async () => {
         try {
             if (currentRole.value === 'buyer') {
-                isBuyerLoading.value = true
-                await Promise.all([
+                isLoadingBuyerTotalProducts.value = true
+                isLoadingBuyerCategories.value = true
+
+                // Fetch in parallel but update loading states individually
+                const [totalProductsResult] = await Promise.allSettled([
                     dashboardProductStore.fetchBuyerTotalProducts(),
-                    dashboardProductStore.fetchBuyerProductStats(),
                 ])
+                isLoadingBuyerTotalProducts.value = false
+
+                await dashboardProductStore.fetchBuyerProductStats()
+                isLoadingBuyerCategories.value = false
             } else {
-                isSupplierLoading.value = true
-                await Promise.all([
-                    dashboardProductStore.fetchSupplierNewProducts({ period: 'today' }),
-                    dashboardProductStore.fetchSupplierTotalProducts(),
-                    dashboardProductStore.fetchDashboardProductStats(),
-                ])
+                isLoadingSupplierNewProducts.value = true
+                isLoadingSupplierTotalProducts.value = true
+                isLoadingSupplierCategories.value = true
+
+                // Fetch new products
+                await dashboardProductStore.fetchSupplierNewProducts({ period: 'today' })
+                isLoadingSupplierNewProducts.value = false
+
+                // Fetch total products
+                await dashboardProductStore.fetchSupplierTotalProducts()
+                isLoadingSupplierTotalProducts.value = false
+
+                // Fetch categories
+                await dashboardProductStore.fetchDashboardProductStats()
+                isLoadingSupplierCategories.value = false
             }
 
             hasLoadedOnce.value = true
@@ -419,8 +447,11 @@
             console.error('[Products All] Initialization error:', err)
             error.value = err.message || t('productsDashboard.errors.initializationFailed')
         } finally {
-            isBuyerLoading.value = false
-            isSupplierLoading.value = false
+            isLoadingBuyerTotalProducts.value = false
+            isLoadingBuyerCategories.value = false
+            isLoadingSupplierNewProducts.value = false
+            isLoadingSupplierTotalProducts.value = false
+            isLoadingSupplierCategories.value = false
         }
     }
 
