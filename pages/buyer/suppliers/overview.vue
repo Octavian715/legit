@@ -2,41 +2,74 @@
     <div class="flex flex-col gap-3">
         <Breadcrumbs :items="breadcrumbs" />
 
-        <div class="">
-            <div class="charts-grid grid grid-cols-1 gap-3">
-                <!-- Suppliers by Business Type Chart -->
-                <Chart
-                    :title="t('charts.suppliersByBT.title')"
-                    :main-value="businessTypeTotal"
-                    :chart-type="'doughnut'"
-                    :chart-height="'140px'"
-                    :data="businessTypeChartData"
-                    :legend-items="businessTypeLegendItems"
-                    :is-loading="businessTypeLoading"
-                    :empty-message="t('noData')"
-                    :default-period="'lastMonth'"
-                    :show-center-text="true"
-                    :center-label="t('charts.suppliersByBT.labelCenter')"
-                    value-type="number"
-                    @period-change="handleBusinessTypePeriodChange"
-                />
+        <!-- Error State -->
+        <div v-if="hasError && !isRetrying" class="bg-white rounded-sm shadow p-8 text-center">
+            <div class="mx-auto w-16 h-16 text-red-500 mb-4">
+                <svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                </svg>
+            </div>
+            <h3 class="text-title1 font-bold text-gray-950 mb-2">
+                {{ t('dashboardUser.errors.generic') }}
+            </h3>
+            <p class="text-subtitle1 text-gray-700 mb-6">
+                {{ errorMessage }}
+            </p>
+            <Button color="red" variant="filled" @click="handleRetry">
+                {{ t('dashboardUser.messages.tryAgain') }}
+            </Button>
+        </div>
 
-                <!-- Suppliers by Country Chart -->
-                <Chart
-                    :title="t('charts.suppliersByCountry.title')"
-                    :main-value="countryTotal"
-                    :chart-type="'doughnut'"
-                    :chart-height="'140px'"
-                    :data="countryChartData"
-                    :legend-items="countryLegendItems"
-                    :is-loading="countryLoading"
-                    :empty-message="t('noData')"
-                    :default-period="'lastMonth'"
-                    :show-center-text="true"
-                    :center-label="t('charts.suppliersByCountry.labelCenter')"
-                    value-type="number"
-                    @period-change="handleCountryPeriodChange"
-                />
+        <!-- Content -->
+        <div v-else class="">
+            <div class="charts-grid grid grid-cols-1 gap-3">
+                <!-- Initial Loading Skeleton -->
+                <template v-if="!hasLoadedOnce">
+                    <ChartSkeleton />
+                    <ChartSkeleton />
+                </template>
+
+                <!-- Charts -->
+                <template v-else>
+                    <!-- Suppliers by Business Type Chart -->
+                    <Chart
+                        :title="t('charts.suppliersByBT.title')"
+                        :main-value="businessTypeTotal"
+                        :chart-type="'doughnut'"
+                        :chart-height="'140px'"
+                        :data="businessTypeChartData"
+                        :legend-items="businessTypeLegendItems"
+                        :is-loading="businessTypeLoading"
+                        :empty-message="t('noData')"
+                        :default-period="'lastMonth'"
+                        :show-center-text="true"
+                        :center-label="t('charts.suppliersByBT.labelCenter')"
+                        value-type="number"
+                        @period-change="handleBusinessTypePeriodChange"
+                    />
+
+                    <!-- Suppliers by Country Chart -->
+                    <Chart
+                        :title="t('charts.suppliersByCountry.title')"
+                        :main-value="countryTotal"
+                        :chart-type="'doughnut'"
+                        :chart-height="'140px'"
+                        :data="countryChartData"
+                        :legend-items="countryLegendItems"
+                        :is-loading="countryLoading"
+                        :empty-message="t('noData')"
+                        :default-period="'lastMonth'"
+                        :show-center-text="true"
+                        :center-label="t('charts.suppliersByCountry.labelCenter')"
+                        value-type="number"
+                        @period-change="handleCountryPeriodChange"
+                    />
+                </template>
             </div>
         </div>
     </div>
@@ -74,13 +107,25 @@
         '#6366F1',
     ]
 
-    // Loading states - separate for parallel loading
+    // Loading and error states
     const businessTypeLoading = ref(false)
     const countryLoading = ref(false)
+    const businessTypeError = ref<Error | null>(null)
+    const countryError = ref<Error | null>(null)
+    const isRetrying = ref(false)
+    const hasLoadedOnce = ref(false)
 
     // Chart data
     const businessTypeApiData = ref<SupplierChartData | null>(null)
     const countryApiData = ref<SupplierChartData | null>(null)
+
+    // Computed
+    const hasError = computed(() => businessTypeError.value || countryError.value)
+    const errorMessage = computed(() => {
+        if (businessTypeError.value) return businessTypeError.value.message
+        if (countryError.value) return countryError.value.message
+        return t('dashboardUser.errors.generic')
+    })
 
     const breadcrumbs = computed(() => [
         { label: t('home'), to: localePath('/buyer/dashboard') },
@@ -193,14 +238,17 @@
     // Load chart data
     const loadBusinessTypeData = async (period: PeriodType, dateRange?: DateRange) => {
         businessTypeLoading.value = true
+        businessTypeError.value = null
+
         try {
             const filters = dateRange
                 ? { start_date: dateRange.start, end_date: dateRange.end }
                 : { period: convertPeriodToApiFormat(period) }
 
             businessTypeApiData.value = await loadSuppliersBusinessTypeChart(filters)
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to load suppliers business type chart:', error)
+            businessTypeError.value = error
         } finally {
             businessTypeLoading.value = false
         }
@@ -208,17 +256,29 @@
 
     const loadCountryData = async (period: PeriodType, dateRange?: DateRange) => {
         countryLoading.value = true
+        countryError.value = null
+
         try {
             const filters = dateRange
                 ? { start_date: dateRange.start, end_date: dateRange.end }
                 : { period: convertPeriodToApiFormat(period) }
 
             countryApiData.value = await loadSuppliersCountryChart(filters)
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to load suppliers country chart:', error)
+            countryError.value = error
         } finally {
             countryLoading.value = false
         }
+    }
+
+    // Load all data
+    const loadAllData = async () => {
+        await Promise.all([
+            loadBusinessTypeData('lastMonth'),
+            loadCountryData('lastMonth'),
+        ])
+        hasLoadedOnce.value = true
     }
 
     // Event handlers
@@ -230,9 +290,20 @@
         loadCountryData(period, dateRange)
     }
 
+    const handleRetry = async () => {
+        isRetrying.value = true
+        businessTypeError.value = null
+        countryError.value = null
+
+        try {
+            await loadAllData()
+        } finally {
+            isRetrying.value = false
+        }
+    }
+
     // Initial data load
     onMounted(() => {
-        loadBusinessTypeData('lastMonth')
-        loadCountryData('lastMonth')
+        loadAllData()
     })
 </script>
