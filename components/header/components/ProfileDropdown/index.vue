@@ -226,11 +226,24 @@
         return items
     })
 
+    // Compute dynamic settings path based on current route context
+    const settingsPath = computed(() => {
+        // If we're on a buyer/supplier dashboard route, link to that dashboard's settings
+        if (route.path.includes('/buyer')) {
+            return '/buyer/settings'
+        }
+        if (route.path.includes('/supplier')) {
+            return '/supplier/settings'
+        }
+        // Default to standalone settings page
+        return '/settings'
+    })
+
     const settingsNavigation = computed<SettingsNavItem[]>(() => [
         {
             icon: 'settings',
             label: t('navigation.settings'),
-            href: '/settings',
+            href: settingsPath.value,
             isActive: route.path.includes('/settings'),
         },
         {

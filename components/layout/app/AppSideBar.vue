@@ -399,7 +399,6 @@
     const isComingSoon = (item: MenuItem): boolean => {
         if (!item.path) return false
         return (
-            item.path.includes('/settings') ||
             item.path.includes('/guide') ||
             item.path.includes('/support') ||
             item.path.includes('/inventory') ||
