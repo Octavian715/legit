@@ -111,8 +111,6 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
     const fetchBuyerOrdersChart = async (
         filters: OrdersChartFilters = {}
     ): Promise<BuyerOrdersChart | null> => {
-        if (isBuyerLoading.value) return buyerOrdersChart.value
-
         isBuyerLoading.value = true
         resetError()
 
@@ -150,8 +148,6 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
     const fetchBuyerSpentCategoryChart = async (
         filters: OrdersChartFilters = {}
     ): Promise<BuyerSpentCategoryChart | null> => {
-        if (isBuyerLoading.value) return buyerSpentCategoryChart.value
-
         isBuyerLoading.value = true
         resetError()
 
@@ -214,8 +210,6 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
     const fetchBuyerSpentSupplierChart = async (
         filters: OrdersChartFilters = {}
     ): Promise<BuyerSpentSupplierChart | null> => {
-        if (isBuyerLoading.value) return buyerSpentSupplierChart.value
-
         isBuyerLoading.value = true
         resetError()
 
@@ -278,8 +272,6 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
     const fetchSupplierOrdersChart = async (
         filters: OrdersChartFilters = {}
     ): Promise<SupplierOrdersChart | null> => {
-        if (isSupplierLoading.value) return supplierOrdersChart.value
-
         isSupplierLoading.value = true
         resetError()
 
@@ -318,8 +310,6 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
     const fetchSupplierOrdersByCountryChart = async (
         filters: OrdersChartFilters = {}
     ): Promise<SupplierOrdersByCountryChart | null> => {
-        if (isSupplierLoading.value) return supplierOrdersByCountryChart.value
-
         isSupplierLoading.value = true
         resetError()
 
@@ -381,8 +371,6 @@ export const useOrdersDashboardStore = defineStore('ordersDashboard', () => {
     const fetchSupplierAverageCartChart = async (
         filters: OrdersChartFilters = {}
     ): Promise<SupplierAverageCartChart | null> => {
-        if (isSupplierLoading.value) return supplierAverageCartChart.value
-
         isSupplierLoading.value = true
         resetError()
 
