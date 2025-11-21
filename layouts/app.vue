@@ -1,6 +1,6 @@
 <template>
     <div :class="['layout', { 'layout--extend': !isCollapseSideBar }]">
-        <div class="layout__sidebar hidden sm:block">
+        <div class="layout__sidebar">
             <AppSideBar @open-invite="handleInvitation" />
         </div>
 
@@ -240,10 +240,10 @@
         }
 
         &__sidebar {
-            @apply transition-all duration-300;
+            @apply transition-all duration-300 hidden;
 
             @screen sm {
-                @apply row-span-2 overflow-y-auto;
+                @apply block row-span-2 overflow-y-auto;
             }
         }
 
