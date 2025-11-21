@@ -23,7 +23,7 @@
 <script setup lang="ts">
     import type { ChartData as ChartJSData, LegendItem } from '~/types/chart'
     import type { PeriodType, DateRange } from '~/types/chart'
-    import type { BuyerChartData } from '~/types/userDashboard'
+    import type { BuyerChartData, DashboardPeriod } from '~/types/userDashboard'
 
     interface Props {
         period?: PeriodType
@@ -40,6 +40,24 @@
 
     const { t } = useI18n()
     const { loadBuyersBusinessTypeChart, formatChartBusinessTypeName } = useUserDashboard()
+
+    // Convert PeriodType (camelCase) to DashboardPeriod (snake_case) for API
+    const convertPeriodToApiFormat = (period: PeriodType): DashboardPeriod => {
+        const periodMap: Record<PeriodType, DashboardPeriod> = {
+            today: 'today',
+            yesterday: 'today',
+            thisWeek: 'last_month',
+            lastWeek: 'last_month',
+            thisMonth: 'last_month',
+            lastMonth: 'last_month',
+            last30Days: 'last_month',
+            last90Days: 'last_year',
+            thisYear: 'last_year',
+            lastYear: 'last_year',
+            custom: 'last_month', // custom uses date range instead
+        }
+        return periodMap[period] || 'last_month'
+    }
 
     const isLoading = ref(false)
     const chartApiData = ref<BuyerChartData | null>(null)
@@ -116,7 +134,7 @@
                       end_date: dateRange.end,
                   }
                 : {
-                      period,
+                      period: convertPeriodToApiFormat(period),
                   }
 
             chartApiData.value = await loadBuyersBusinessTypeChart(filters)

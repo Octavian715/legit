@@ -23,7 +23,7 @@
 <script setup lang="ts">
     import type { ChartData as ChartJSData, LegendItem } from '~/types/chart'
     import type { PeriodType, DateRange } from '~/types/chart'
-    import type { SupplierChartData } from '~/types/userDashboard'
+    import type { SupplierChartData, DashboardPeriod } from '~/types/userDashboard'
 
     interface Props {
         period?: PeriodType
@@ -40,6 +40,24 @@
 
     const { t } = useI18n()
     const { loadSuppliersBusinessTypeChart, formatChartBusinessTypeName } = useUserDashboard()
+
+    // Convert PeriodType (camelCase) to DashboardPeriod (snake_case) for API
+    const convertPeriodToApiFormat = (period: PeriodType): DashboardPeriod => {
+        const periodMap: Record<PeriodType, DashboardPeriod> = {
+            today: 'today',
+            yesterday: 'today',
+            thisWeek: 'last_month',
+            lastWeek: 'last_month',
+            thisMonth: 'last_month',
+            lastMonth: 'last_month',
+            last30Days: 'last_month',
+            last90Days: 'last_year',
+            thisYear: 'last_year',
+            lastYear: 'last_year',
+            custom: 'last_month',
+        }
+        return periodMap[period] || 'last_month'
+    }
 
     const isLoading = ref(false)
     const chartApiData = ref<SupplierChartData | null>(null)
@@ -115,7 +133,7 @@
                       end_date: dateRange.end,
                   }
                 : {
-                      period,
+                      period: convertPeriodToApiFormat(period),
                   }
 
             chartApiData.value = await loadSuppliersBusinessTypeChart(filters)
@@ -142,10 +160,9 @@
                 loadChartData(newPeriod, newDateRange)
             }
         },
-        { immediate: false }
+        { immediate: true }
     )
 
-    onMounted(() => {
-        loadChartData(props.period || defaultPeriod, props.dateRange)
-    })
+    // Initial data is now loaded by the watcher with immediate: true
+    // onMounted hook removed to avoid double loading
 </script>
