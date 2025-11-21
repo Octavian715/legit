@@ -1008,6 +1008,9 @@
 
     // Watch for 100% completion to trigger celebration
     watch(isMaxDiscountReached, (newVal, oldVal) => {
+        // Skip celebration during initial sync or if already showing
+        if (isSyncingFromCart.value || showCelebration.value) return
+
         if (newVal && !oldVal) {
             // Trigger celebration
             showCelebration.value = true
