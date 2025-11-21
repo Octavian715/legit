@@ -24,7 +24,14 @@
         </div>
 
         <!-- Loading State -->
-        <div v-else-if="!hasLoadedOnce" class="space-y-3">
+        <div
+            v-else-if="!hasLoadedOnce"
+            class="grid gap-3"
+            :class="{
+                'grid-cols-2': currentRole === 'supplier',
+                'grid-cols-1': currentRole !== 'supplier',
+            }"
+        >
             <ChartSkeleton />
             <ChartSkeleton v-if="currentRole === 'supplier'" />
         </div>
@@ -34,7 +41,7 @@
             <!-- Supplier View -->
             <template v-if="currentRole === 'supplier'">
                 <div class="mb-3">
-                    <div class="grid grid-cols-1 gap-3">
+                    <div class="grid grid-cols-2 gap-3">
                         <div class="chart-container">
                             <Chart
                                 ref="supplierNewProductsChartRef"
@@ -73,7 +80,7 @@
                     :is-loading="isLoadingSupplierCategories"
                     :empty-title="t('productsDashboard.messages.noCategories')"
                     :empty-description="t('productsDashboard.messages.noCategoriesDescription')"
-                    class="p-3"
+                    class="py-3"
                 />
             </template>
 
@@ -99,7 +106,7 @@
                     </div>
                 </div>
 
-                <div class="p-3">
+                <div class="py-3">
                     <CompanyProducts
                         :products="buyerProductCategories"
                         :is-loading="isLoadingBuyerCategories"
@@ -401,10 +408,7 @@
                 isLoadingBuyerTotalProducts.value = true
                 isLoadingBuyerCategories.value = true
 
-                // Fetch in parallel but update loading states individually
-                const [totalProductsResult] = await Promise.allSettled([
-                    dashboardProductStore.fetchBuyerTotalProducts(),
-                ])
+                await dashboardProductStore.fetchBuyerTotalProducts()
                 isLoadingBuyerTotalProducts.value = false
 
                 await dashboardProductStore.fetchBuyerProductStats()
@@ -414,15 +418,12 @@
                 isLoadingSupplierTotalProducts.value = true
                 isLoadingSupplierCategories.value = true
 
-                // Fetch new products
                 await dashboardProductStore.fetchSupplierNewProducts({ period: 'today' })
                 isLoadingSupplierNewProducts.value = false
 
-                // Fetch total products
                 await dashboardProductStore.fetchSupplierTotalProducts()
                 isLoadingSupplierTotalProducts.value = false
 
-                // Fetch categories
                 await dashboardProductStore.fetchDashboardProductStats()
                 isLoadingSupplierCategories.value = false
             }
