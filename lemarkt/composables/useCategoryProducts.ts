@@ -68,6 +68,8 @@ export const useCatalogProducts = (options: UseCatalogProductsOptions) => {
                 'weight',
                 'brand',
                 'shelf_life',
+                'discount',
+                'most_ordered',
             ]
             if (validSortFields.includes(query.sort_by)) {
                 filters.sort_by = query.sort_by as any
@@ -147,6 +149,24 @@ export const useCatalogProducts = (options: UseCatalogProductsOptions) => {
             filters.allergens = parseIntArrayParam(query.allergens)
         }
 
+        if (query.availability_countries) {
+            filters.availability_countries = parseIntArrayParam(query.availability_countries)
+        }
+
+        if (query.weight_type && typeof query.weight_type === 'string') {
+            const weightType = parseInt(query.weight_type, 10)
+            if (!isNaN(weightType)) {
+                filters.weight_type = weightType
+            }
+        }
+
+        if (query.supplier_id && typeof query.supplier_id === 'string') {
+            const supplierId = parseInt(query.supplier_id, 10)
+            if (!isNaN(supplierId)) {
+                filters.supplier_id = supplierId
+            }
+        }
+
         if (query.has_discount === 'true') {
             filters.has_discount = true
         }
@@ -157,6 +177,10 @@ export const useCatalogProducts = (options: UseCatalogProductsOptions) => {
 
         if (query.my_products === 'true') {
             filters.my_products = true
+        }
+
+        if (query.only_favorites === 'true') {
+            filters.only_favorites = true
         }
 
         return filters
