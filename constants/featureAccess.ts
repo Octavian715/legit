@@ -32,6 +32,11 @@ export type FeatureName =
     | 'invite_partner'
 
     // ============================================
+    // COMING SOON / DISABLED FEATURES
+    // ============================================
+    | 'feature_coming_soon' // Feature that no plan has access to - for locking menu items
+
+    // ============================================
     // MARKETPLACE & ECOMMERCE
     // ============================================
     | 'marketplace_access'
@@ -283,6 +288,9 @@ export const menuKeyToFeature: Record<string, FeatureName> = {
     // Sales
     sales: 'sales_dashboard',
 
+    // Inventory - Coming Soon
+    inventory: 'feature_coming_soon',
+
     // Documents
     documents: 'documents_all',
     documents_all: 'documents_all',
@@ -292,10 +300,12 @@ export const menuKeyToFeature: Record<string, FeatureName> = {
     // messenger: 'chat',
     // chat: 'chat',
 
-    // Settings - REMOVED (accessible for all plans)
-    // settings: 'settings_all',
-    // support: 'support',
-    // guide: 'guide',
+    // Settings - settings is accessible for all plans
+    // settings: 'settings_all', // REMOVED - accessible for all
+
+    // Support & Guide - Coming Soon (locked for all users)
+    support: 'feature_coming_soon',
+    guide: 'feature_coming_soon',
 }
 
 /**
