@@ -8,10 +8,35 @@ import type {
     DashboardFilters,
     DashboardChartData,
     DashboardChartFilters,
+    DashboardPeriod,
     SupplierChartData,
     BuyerChartData,
     ApiError,
 } from '~/types/userDashboard'
+
+// Chart period state type - similar to dashboard store pattern
+type ChartType = 'buyersBusinessType' | 'buyersCountry' | 'suppliersBusinessType' | 'suppliersCountry'
+
+interface ChartPeriodState {
+    buyersBusinessType: DashboardPeriod
+    buyersCountry: DashboardPeriod
+    suppliersBusinessType: DashboardPeriod
+    suppliersCountry: DashboardPeriod
+}
+
+interface ChartDateRangeState {
+    buyersBusinessType?: { start_date: string; end_date: string }
+    buyersCountry?: { start_date: string; end_date: string }
+    suppliersBusinessType?: { start_date: string; end_date: string }
+    suppliersCountry?: { start_date: string; end_date: string }
+}
+
+const DEFAULT_CHART_PERIODS: ChartPeriodState = {
+    buyersBusinessType: 'last_month',
+    buyersCountry: 'last_month',
+    suppliersBusinessType: 'last_month',
+    suppliersCountry: 'last_month',
+}
 
 export const useUserDashboardStore = defineStore('userDashboard', () => {
     const userDashboardService = new UserDashboardService()
@@ -33,6 +58,10 @@ export const useUserDashboardStore = defineStore('userDashboard', () => {
     const buyersCountryChart = ref<BuyerChartData | null>(null)
     const suppliersBusinessTypeChart = ref<SupplierChartData | null>(null)
     const suppliersCountryChart = ref<SupplierChartData | null>(null)
+
+    // Chart period state - following dashboard store pattern
+    const chartPeriods = ref<ChartPeriodState>({ ...DEFAULT_CHART_PERIODS })
+    const chartDateRanges = ref<ChartDateRangeState>({})
 
     const isLoading = ref<boolean>(false)
     const error = ref<ApiError | null>(null)
@@ -93,6 +122,55 @@ export const useUserDashboardStore = defineStore('userDashboard', () => {
         error.value = apiError
         console.error('Buyer dashboard error:', apiError)
         throw apiError
+    }
+
+    // Helper to build chart params - similar to dashboard store pattern
+    const buildChartParams = (chartType: ChartType): DashboardChartFilters => {
+        try {
+            const periods = chartPeriods.value || { ...DEFAULT_CHART_PERIODS }
+            const period = periods[chartType] || 'last_month'
+            const customRange = chartDateRanges.value?.[chartType]
+
+            if (period === 'custom' && customRange) {
+                return {
+                    start_date: customRange.start_date,
+                    end_date: customRange.end_date,
+                }
+            }
+
+            return { period }
+        } catch (error) {
+            console.warn(`Error building chart params for ${chartType}:`, error)
+            return { period: 'last_month' }
+        }
+    }
+
+    // Update chart period - similar to dashboard store pattern
+    const updateChartPeriod = (
+        chartType: ChartType,
+        period: DashboardPeriod,
+        customRange?: { start_date: string; end_date: string }
+    ): void => {
+        if (!chartPeriods.value) {
+            chartPeriods.value = { ...DEFAULT_CHART_PERIODS }
+        }
+
+        chartPeriods.value = {
+            ...chartPeriods.value,
+            [chartType]: period,
+        }
+
+        if (period === 'custom' && customRange) {
+            chartDateRanges.value = {
+                ...chartDateRanges.value,
+                [chartType]: customRange,
+            }
+        } else {
+            // Clear custom range when not using custom period
+            const newRanges = { ...chartDateRanges.value }
+            delete newRanges[chartType]
+            chartDateRanges.value = newRanges
+        }
     }
 
     const fetchAllBuyers = async (
@@ -236,87 +314,60 @@ export const useUserDashboardStore = defineStore('userDashboard', () => {
         }
     }
 
-    // NEW: Chart data actions
+    // Chart data actions - no isLoading check to allow parallel loading
+    // Each chart component manages its own loading state
     const fetchBuyersBusinessTypeChart = async (
         filters: DashboardChartFilters = {}
     ): Promise<BuyerChartData | null> => {
-        if (isLoading.value) return buyersBusinessTypeChart.value
-
-        isLoading.value = true
-        resetError()
-
         try {
             buyersBusinessTypeChart.value =
                 await userDashboardService.fetchBuyersBusinessTypeChart(filters)
             return buyersBusinessTypeChart.value
         } catch (e) {
-            handleError(e)
+            console.error('Error fetching buyers business type chart:', e)
             buyersBusinessTypeChart.value = null
             return null
-        } finally {
-            isLoading.value = false
         }
     }
 
     const fetchBuyersCountryChart = async (
         filters: DashboardChartFilters = {}
     ): Promise<BuyerChartData | null> => {
-        if (isLoading.value) return buyersCountryChart.value
-
-        isLoading.value = true
-        resetError()
-
         try {
             buyersCountryChart.value = await userDashboardService.fetchBuyersCountryChart(filters)
             return buyersCountryChart.value
         } catch (e) {
-            handleError(e)
+            console.error('Error fetching buyers country chart:', e)
             buyersCountryChart.value = null
             return null
-        } finally {
-            isLoading.value = false
         }
     }
 
     const fetchSuppliersBusinessTypeChart = async (
         filters: DashboardChartFilters = {}
     ): Promise<SupplierChartData | null> => {
-        if (isLoading.value) return suppliersBusinessTypeChart.value
-
-        isLoading.value = true
-        resetError()
-
         try {
             suppliersBusinessTypeChart.value =
                 await userDashboardService.fetchSuppliersByBusinessType(filters)
             return suppliersBusinessTypeChart.value
         } catch (e) {
-            handleError(e)
+            console.error('Error fetching suppliers business type chart:', e)
             suppliersBusinessTypeChart.value = null
             return null
-        } finally {
-            isLoading.value = false
         }
     }
 
     const fetchSuppliersCountryChart = async (
         filters: DashboardChartFilters = {}
     ): Promise<SupplierChartData | null> => {
-        if (isLoading.value) return suppliersCountryChart.value
-
-        isLoading.value = true
-        resetError()
-
         try {
             suppliersCountryChart.value =
                 await userDashboardService.fetchSuppliersByCountry(filters)
             return suppliersCountryChart.value
         } catch (e) {
-            handleError(e)
+            console.error('Error fetching suppliers country chart:', e)
             suppliersCountryChart.value = null
             return null
-        } finally {
-            isLoading.value = false
         }
     }
 
@@ -378,11 +429,15 @@ export const useUserDashboardStore = defineStore('userDashboard', () => {
         buyersChartData,
         suppliersChartData,
 
-        // NEW: Chart data state
+        // Chart data state
         buyersBusinessTypeChart,
         buyersCountryChart,
         suppliersBusinessTypeChart,
         suppliersCountryChart,
+
+        // Chart period state - following dashboard store pattern
+        chartPeriods,
+        chartDateRanges,
 
         isLoading,
         error,
@@ -397,7 +452,7 @@ export const useUserDashboardStore = defineStore('userDashboard', () => {
         getSupplierById,
         getActiveFilters,
 
-        // NEW: Chart data computed
+        // Chart data computed
         hasBuyerChartData,
         hasSupplierChartData,
 
@@ -408,11 +463,15 @@ export const useUserDashboardStore = defineStore('userDashboard', () => {
         fetchAllSuppliers,
         fetchAllSuppliersFilters,
 
-        // NEW: Chart data actions
+        // Chart data actions
         fetchBuyersBusinessTypeChart,
         fetchBuyersCountryChart,
         fetchSuppliersBusinessTypeChart,
         fetchSuppliersCountryChart,
+
+        // Chart period helpers - following dashboard store pattern
+        buildChartParams,
+        updateChartPeriod,
 
         clearBuyers,
         clearSuppliers,
