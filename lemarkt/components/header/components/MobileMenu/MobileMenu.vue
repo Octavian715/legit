@@ -348,47 +348,6 @@
                                 </div>
                             </button>
 
-                            <!-- Sales -->
-                            <button
-                                type="button"
-                                class="w-full flex items-center justify-between p-3 text-subtitle1 bg-white border border-gray-600 rounded hover:bg-red-50 hover:border-red-500 hover:text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-600 disabled:hover:text-current"
-                                :class="{
-                                    'text-red-500 border-red-500 bg-red-50 font-bold':
-                                        route.path.match(/\/sales/),
-                                    'font-medium': !route.path.match(/\/sales/),
-                                }"
-                                disabled
-                            >
-                                <div class="flex items-center gap-2">
-                                    <div class="flex items-center justify-center">
-                                        <svg class="flex-shrink-0 w-6 h-6">
-                                            <use :xlink:href="iconLink('chart')"></use>
-                                        </svg>
-                                    </div>
-                                    <span class="truncate">{{ t('navigation.sales', 'Sales') }}</span>
-                                </div>
-                            </button>
-
-                            <!-- Inventory -->
-                            <button
-                                type="button"
-                                class="w-full flex items-center justify-between p-3 text-subtitle1 bg-white border border-gray-600 rounded hover:bg-red-50 hover:border-red-500 hover:text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-600 disabled:hover:text-current"
-                                :class="{
-                                    'text-red-500 border-red-500 bg-red-50 font-bold':
-                                        route.path.match(/\/inventory/),
-                                    'font-medium': !route.path.match(/\/inventory/),
-                                }"
-                                disabled
-                            >
-                                <div class="flex items-center gap-2">
-                                    <div class="flex items-center justify-center">
-                                        <svg class="flex-shrink-0 w-6 h-6">
-                                            <use :xlink:href="iconLink('box')"></use>
-                                        </svg>
-                                    </div>
-                                    <span class="truncate">{{ t('navigation.inventory', 'Inventory') }}</span>
-                                </div>
-                            </button>
                         </div>
 
                         <div class="w-full h-px bg-gray-400" />

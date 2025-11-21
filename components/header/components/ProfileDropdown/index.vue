@@ -250,20 +250,6 @@
             isActive: false,
             disabled: true,
         },
-        {
-            icon: 'chart',
-            label: t('navigation.sales', 'Sales'),
-            href: '/sales',
-            isActive: false,
-            disabled: true,
-        },
-        {
-            icon: 'box',
-            label: t('navigation.inventory', 'Inventory'),
-            href: '/inventory',
-            isActive: false,
-            disabled: true,
-        },
     ])
 </script>
 
