@@ -86,66 +86,84 @@
 
                         <div class="w-full h-px bg-gray-300" />
 
-                        <!-- Quick Actions (Notifications, Cart, Chat) -->
-                        <div class="flex gap-2">
+                        <!-- Quick Actions (Notifications, Cart, Chat) - Full width buttons -->
+                        <div class="space-y-2">
                             <button
                                 type="button"
-                                class="flex-1 flex flex-col items-center gap-1 p-3 rounded border border-gray-400 hover:border-red-500 hover:bg-red-50 hover:text-red-500 transition-colors"
-                                :class="{ 'border-red-500 bg-red-50 text-red-500': route.path.includes('/notifications') }"
+                                class="w-full flex items-center justify-between p-3 text-subtitle1 rounded border transition-colors"
+                                :class="[
+                                    route.path.includes('/notifications')
+                                        ? 'bg-red-50 text-red-500 border-red-500 font-bold'
+                                        : 'bg-white text-gray-950 border-gray-400 font-medium hover:bg-red-50 hover:text-red-500 hover:border-red-500',
+                                ]"
                                 @click="handleQuickAction('notifications')"
                             >
-                                <div class="relative">
-                                    <svg class="w-6 h-6">
-                                        <use :xlink:href="iconLink('bell')"></use>
-                                    </svg>
-                                    <span
-                                        v-if="unreadNotificationsCount > 0"
-                                        class="absolute -top-1 -right-1 bg-yellow-500 text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center"
-                                    >
-                                        {{ unreadNotificationsCount > 9 ? '9+' : unreadNotificationsCount }}
-                                    </span>
+                                <div class="flex items-center gap-3">
+                                    <div class="flex items-center justify-center w-6 h-6">
+                                        <svg class="w-5 h-5">
+                                            <use :xlink:href="iconLink('bell')"></use>
+                                        </svg>
+                                    </div>
+                                    <span class="truncate">{{ t('notification', { n: 0 }) }}</span>
                                 </div>
-                                <span class="text-caption1">{{ t('notification', { n: 0 }) }}</span>
+                                <span
+                                    v-if="unreadNotificationsCount > 0"
+                                    class="bg-yellow-500 text-white text-caption1 rounded-full h-6 w-6 flex items-center justify-center"
+                                >
+                                    {{ unreadNotificationsCount > 9 ? '9+' : unreadNotificationsCount }}
+                                </span>
                             </button>
 
                             <button
                                 type="button"
-                                class="flex-1 flex flex-col items-center gap-1 p-3 rounded border border-gray-400 hover:border-red-500 hover:bg-red-50 hover:text-red-500 transition-colors"
-                                :class="{ 'border-red-500 bg-red-50 text-red-500': route.path.includes('/cart') }"
+                                class="w-full flex items-center justify-between p-3 text-subtitle1 rounded border transition-colors"
+                                :class="[
+                                    route.path.includes('/cart')
+                                        ? 'bg-red-50 text-red-500 border-red-500 font-bold'
+                                        : 'bg-white text-gray-950 border-gray-400 font-medium hover:bg-red-50 hover:text-red-500 hover:border-red-500',
+                                ]"
                                 @click="handleQuickAction('cart')"
                             >
-                                <div class="relative">
-                                    <svg class="w-6 h-6">
-                                        <use :xlink:href="iconLink('shopping-cart')"></use>
-                                    </svg>
-                                    <span
-                                        v-if="cartCount > 0"
-                                        class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center"
-                                    >
-                                        {{ cartCount > 9 ? '9+' : cartCount }}
-                                    </span>
+                                <div class="flex items-center gap-3">
+                                    <div class="flex items-center justify-center w-6 h-6">
+                                        <svg class="w-5 h-5">
+                                            <use :xlink:href="iconLink('shopping-cart')"></use>
+                                        </svg>
+                                    </div>
+                                    <span class="truncate">{{ t('navigation.shoppingCart') }}</span>
                                 </div>
-                                <span class="text-caption1">{{ t('cart') }}</span>
+                                <span
+                                    v-if="cartCount > 0"
+                                    class="bg-red-500 text-white text-caption1 rounded-full h-6 w-6 flex items-center justify-center"
+                                >
+                                    {{ cartCount > 9 ? '9+' : cartCount }}
+                                </span>
                             </button>
 
                             <button
                                 type="button"
-                                class="flex-1 flex flex-col items-center gap-1 p-3 rounded border border-gray-400 hover:border-green-500 hover:bg-green-50 hover:text-green-500 transition-colors"
-                                :class="{ 'border-green-500 bg-green-50 text-green-500': route.path.includes('/chat') }"
+                                class="w-full flex items-center justify-between p-3 text-subtitle1 rounded border transition-colors"
+                                :class="[
+                                    route.path.includes('/chat')
+                                        ? 'bg-green-50 text-green-500 border-green-500 font-bold'
+                                        : 'bg-white text-gray-950 border-gray-400 font-medium hover:bg-green-50 hover:text-green-500 hover:border-green-500',
+                                ]"
                                 @click="handleQuickAction('chat')"
                             >
-                                <div class="relative">
-                                    <svg class="w-6 h-6">
-                                        <use :xlink:href="iconLink('chat')"></use>
-                                    </svg>
-                                    <span
-                                        v-if="unreadMessagesCount > 0"
-                                        class="absolute -top-1 -right-1 bg-green-500 text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center"
-                                    >
-                                        {{ unreadMessagesCount > 9 ? '9+' : unreadMessagesCount }}
-                                    </span>
+                                <div class="flex items-center gap-3">
+                                    <div class="flex items-center justify-center w-6 h-6">
+                                        <svg class="w-5 h-5">
+                                            <use :xlink:href="iconLink('chat')"></use>
+                                        </svg>
+                                    </div>
+                                    <span class="truncate">{{ t('navigation.messages') }}</span>
                                 </div>
-                                <span class="text-caption1">{{ t('navigation.messages') }}</span>
+                                <span
+                                    v-if="unreadMessagesCount > 0"
+                                    class="bg-green-500 text-white text-caption1 rounded-full h-6 w-6 flex items-center justify-center"
+                                >
+                                    {{ unreadMessagesCount > 9 ? '9+' : unreadMessagesCount }}
+                                </span>
                             </button>
                         </div>
 
