@@ -359,7 +359,7 @@
                 // Update form with user data if not already set
                 form.countryId =
                     companyData?.address?.countryId || userCompanyDetails?.country?.id || 0
-                form.stateName = companyData?.address?.stateName || userCompanyDetails?.stateName
+                form.stateName = companyData?.address?.stateName || userCompanyDetails?.state_name
                 form.cityName = companyData?.address?.cityName || userCompanyDetails.city_name || ''
                 form.streetName =
                     companyData?.address?.streetName || userCompanyDetails.street_name || ''

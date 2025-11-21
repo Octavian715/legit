@@ -524,7 +524,7 @@
                     name: factory.name,
                     userFactorySizeId: factory?.size?.id || null,
                     countryId: factory?.country?.id || null,
-                    stateName: factory?.stateName || null,
+                    stateName: factory?.state_name || null,
                     cityName: factory?.city_name,
                     streetName: factory?.street_name,
                     postalCode: factory?.postal_code,

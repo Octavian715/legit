@@ -512,7 +512,7 @@
                         swiftCode: account.swift_code,
                         currencyId: account.currency?.id || null,
                         countryId: account.country?.id || null,
-                        stateName: account.stateName || null,
+                        stateName: account.state_name || null,
                         cityName: account.city_name,
                         streetName: account.street_name,
                         streetNumber: account.street_number,
