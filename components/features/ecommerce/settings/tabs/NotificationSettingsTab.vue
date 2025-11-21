@@ -70,6 +70,8 @@
                         v-model:in-app="preferences[index].platform_enabled"
                         :label="pref.display_name"
                         :name="pref.type"
+                        :email-disabled="!pref.email_editable"
+                        :platform-disabled="!pref.platform_editable"
                         @change="handlePreferenceChange"
                     />
                 </div>
@@ -96,6 +98,8 @@
         display_name: string
         email_enabled: boolean
         platform_enabled: boolean
+        email_editable: boolean
+        platform_editable: boolean
         default_channels: string[]
     }
 
@@ -227,9 +231,11 @@
      * Handle global email toggle
      */
     const handleGlobalEmailToggle = (enabled: boolean) => {
-        // Enable/disable all email notifications
+        // Enable/disable only editable email notifications
         preferences.value.forEach((pref) => {
-            pref.email_enabled = enabled
+            if (pref.email_editable) {
+                pref.email_enabled = enabled
+            }
         })
         savePreferencesToSession()
     }
@@ -238,9 +244,11 @@
      * Handle global in-app toggle
      */
     const handleGlobalInAppToggle = (enabled: boolean) => {
-        // Enable/disable all in-app notifications
+        // Enable/disable only editable in-app notifications
         preferences.value.forEach((pref) => {
-            pref.platform_enabled = enabled
+            if (pref.platform_editable) {
+                pref.platform_enabled = enabled
+            }
         })
         savePreferencesToSession()
     }
@@ -255,11 +263,16 @@
     }
 
     /**
-     * Update global toggles based on current preferences
+     * Update global toggles based on current preferences (only editable ones)
      */
     const updateGlobalToggles = () => {
-        const allEmailEnabled = preferences.value.every((p) => p.email_enabled)
-        const allInAppEnabled = preferences.value.every((p) => p.platform_enabled)
+        const editableEmailPrefs = preferences.value.filter((p) => p.email_editable)
+        const editablePlatformPrefs = preferences.value.filter((p) => p.platform_editable)
+
+        const allEmailEnabled =
+            editableEmailPrefs.length > 0 && editableEmailPrefs.every((p) => p.email_enabled)
+        const allInAppEnabled =
+            editablePlatformPrefs.length > 0 && editablePlatformPrefs.every((p) => p.platform_enabled)
 
         globalEmailEnabled.value = allEmailEnabled
         globalInAppEnabled.value = allInAppEnabled

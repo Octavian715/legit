@@ -12,6 +12,7 @@
                 :model-value="email"
                 :label="$t('settings.notifications.email', 'E-Mail')"
                 :name="`${name}_email`"
+                :disabled="emailDisabled"
                 @update:model-value="handleEmailChange"
             />
 
@@ -20,6 +21,7 @@
                 :model-value="inApp"
                 :label="$t('settings.notifications.inApp', 'In-app')"
                 :name="`${name}_inapp`"
+                :disabled="platformDisabled"
                 @update:model-value="handleInAppChange"
             />
         </div>
@@ -32,6 +34,8 @@
         email?: boolean
         inApp?: boolean
         name?: string
+        emailDisabled?: boolean
+        platformDisabled?: boolean
     }
 
     const props = withDefaults(defineProps<Props>(), {
@@ -39,6 +43,8 @@
         email: false,
         inApp: false,
         name: 'notification',
+        emailDisabled: false,
+        platformDisabled: false,
     })
 
     const emit = defineEmits<{
