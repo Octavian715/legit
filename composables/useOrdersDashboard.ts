@@ -46,6 +46,13 @@ export const useOrdersDashboard = () => {
     } = storeToRefs(store)
 
     /**
+     * Convert camelCase period to snake_case for API
+     */
+    const convertPeriodToSnakeCase = (period: string): string => {
+        return period.replace(/([A-Z])/g, '_$1').toLowerCase()
+    }
+
+    /**
      * Build chart filters from period and date range
      */
     const buildChartFilters = (
@@ -56,7 +63,7 @@ export const useOrdersDashboard = () => {
 
         // Only include period if it's defined and no custom date range
         if (period && !dateRange) {
-            filters.period = period
+            filters.period = convertPeriodToSnakeCase(period) as OrdersChartFilters['period']
         }
 
         if (dateRange) {
