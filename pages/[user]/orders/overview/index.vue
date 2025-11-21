@@ -390,11 +390,11 @@
         }
 
         return {
-            labels: buyerOrdersChart.value.chart_data.map((item) => item.date),
+            labels: buyerOrdersChart.value.chart_data.map((item) => item.period || item.date),
             datasets: [
                 {
                     label: t('ordersDashboard.orders'),
-                    data: buyerOrdersChart.value.chart_data.map((item) => item.count),
+                    data: buyerOrdersChart.value.chart_data.map((item) => item.count ?? item.value ?? 0),
                     backgroundColor: '#3B82F680',
                     borderColor: '#3B82F6',
                     borderWidth: 1,
