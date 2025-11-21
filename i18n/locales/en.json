@@ -3766,5 +3766,88 @@
         "suppliersError": "Failed to load suppliers data",
         "buyersError": "Failed to load buyers data",
         "filtersError": "Failed to load filters"
+    },
+
+    "common": {
+        "cancel": "Cancel",
+        "ok": "OK",
+        "next": "Next",
+        "save": "Save",
+        "delete": "Delete",
+        "confirm": "Confirm"
+    },
+
+    "deleteAccount": {
+        "title": "Delete Account",
+        "modalTitle": "Delete Account",
+        "closeModal": "Close modal",
+        "warningMessagePrefix": "Your account will be ",
+        "warningMessageBold": "permanently deleted in 6 months",
+        "warningMessageSuffix": ". During this period, it will remain deactivated and inaccessible.",
+        "deleteAccountButton": "Delete Account",
+        "deleteAccountButtonLoading": "Deleting...",
+
+        "sorryMessage": "We're sorry to see you go.",
+        "feedbackMessage": "Before you delete your account, please let us know the reason - it helps us improve the platform.",
+        "reasonQuestion": "Why are you deleting your account?",
+
+        "reasons": {
+            "noLongerNeeded": "No longer need the account",
+            "unsatisfiedService": "Unsatisfied with the service",
+            "privacyConcerns": "Privacy or data security concerns",
+            "tooManyNotifications": "Too many notifications or emails",
+            "negativeExperience": "Negative experience with other users",
+            "highFees": "High fees or unfavorable terms",
+            "switchingPlatform": "Switching to another platform",
+            "moderationIssues": "Issues with moderation",
+            "removePersonalData": "Want to remove personal data",
+            "dataBreachConcerns": "Concerned about potential data breaches",
+            "otherReason": "Other reason"
+        },
+
+        "otherReasonPlaceholder": "Please describe your reason",
+        "otherReasonLabel": "Other reason description",
+
+        "confirmInstruction": "To confirm the deletion of your LeMarkt account, please enter your company name in the field below.",
+        "deletionTimelinePrefix": "Once you start the deletion process, your account will be ",
+        "deletionTimelineBold": "scheduled for permanent deletion in 6 months.",
+        "deactivationNotice": "During this period, it will remain deactivated and will not be visible or accessible on LeMarkt.",
+        "reactivationInfo": "If you change your mind, you can reactivate your account at any time before the deletion date by logging back in.",
+        "permanentDeletionWarningPrefix": "After 6 months, your account and all associated data will be ",
+        "permanentDeletionWarningBold": "permanently deleted and cannot be restored.",
+
+        "companyNameLabel": "Enter your company name",
+        "passwordLabel": "Confirm password",
+        "confirmationCodeLabel": "Enter confirmation code from E-Mail",
+
+        "didntReceiveCode": "Didn't receive the code?",
+        "resendCode": "Resend code",
+        "resendCodeIn": "Resend in {seconds}s",
+        "codeSent": "Confirmation code sent to your email",
+
+        "successMessage": "Your account has been scheduled for deletion. You will be logged out now.",
+
+        "validation": {
+            "reasonRequired": "Please provide a reason",
+            "reasonTooShort": "Please provide at least 10 characters",
+            "reasonTooLong": "Reason cannot exceed 500 characters",
+            "companyNameRequired": "Company name is required",
+            "companyNameMismatch": "The company name does not match your account details",
+            "passwordRequired": "Password is required",
+            "passwordTooShort": "Password must be at least 8 characters",
+            "passwordIncorrect": "The provided password is incorrect",
+            "confirmationCodeRequired": "Confirmation code is required",
+            "confirmationCodeInvalid": "Please enter a valid confirmation code (4-6 digits)",
+            "confirmationCodeTooShort": "Confirmation code is too short",
+            "confirmationCodeIncorrect": "The verification code is invalid or has already been used",
+            "confirmationCodeExpired": "The verification code has expired. Please request a new one"
+        },
+
+        "errors": {
+            "requestFailed": "Failed to request deletion code. Please try again.",
+            "resendFailed": "Failed to resend code. Please try again.",
+            "confirmFailed": "Failed to confirm deletion. Please try again.",
+            "tooManyAttempts": "Too many attempts. Please try again later."
+        }
     }
 }
