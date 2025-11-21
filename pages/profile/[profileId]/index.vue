@@ -1038,8 +1038,13 @@
                     }, 500)
                 }
             } else {
-                // ✅ Check if already connected
-                if (socialState.value.connection?.exists) {
+                // Send new connection request
+                // Only block if already pending or connected, NOT if rejected
+                const currentStatus = socialState.value.connection?.status
+                if (
+                    socialState.value.connection?.exists &&
+                    (currentStatus === 'pending' || currentStatus === 'accepted')
+                ) {
                     toast.warning(t('connections.alreadyConnected'))
                     return
                 }
