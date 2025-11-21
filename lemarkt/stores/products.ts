@@ -379,14 +379,16 @@ export const useProductsStore = defineStore('products', () => {
                     categories: filterData.categories || [],
                     subcategories: filterData.subcategories || [],
                     brands: filterData.brands || [],
-                    conditions: filterData.conditions || [],
+                    conditions: filterData.conditions || filterData.storage_conditions || [],
+                    storage_conditions: filterData.storage_conditions || [],
                     features: filterData.features || [],
                     additional_features: filterData.additional_features || [],
                     allergens: filterData.allergens || [],
-                    supplier_countries: filterData.supplier_countries || [],
+                    countries: filterData.countries || [],
+                    weight_types: filterData.weight_types || [],
                     statuses: filterData.statuses || [],
+                    business_types: filterData.business_types || [],
                     price_range: filterData.price_range || { min: 0, max: 0 },
-                    weight_range: filterData.weight_range || { min: 0, max: 0 },
                 })
             } catch (err: any) {
                 console.error('Error fetching filter options:', err)
@@ -395,13 +397,15 @@ export const useProductsStore = defineStore('products', () => {
                     subcategories: [],
                     brands: [],
                     conditions: [],
+                    storage_conditions: [],
                     features: [],
                     additional_features: [],
                     allergens: [],
-                    supplier_countries: [],
+                    countries: [],
+                    weight_types: [],
                     statuses: [],
+                    business_types: [],
                     price_range: { min: 0, max: 0 },
-                    weight_range: { min: 0, max: 0 },
                 })
             } finally {
                 setLoadingState('filterOptions', false)
@@ -429,17 +433,19 @@ export const useProductsStore = defineStore('products', () => {
 
                 setSummary({
                     total_products: summaryData.total_products || state.value.meta?.total || 0,
+                    total_suppliers: summaryData.total_suppliers || 0,
+                    price_range: summaryData.price_range || { min: 0, max: 0 },
                     average_price: summaryData.average_price || 0,
-                    categories_count: summaryData.categories_count || 0,
-                    suppliers_count: summaryData.suppliers_count || 0,
+                    filters_count: summaryData.filters_count || 0,
                 })
             } catch (err: any) {
                 console.error('Error fetching products summary:', err)
                 setSummary({
                     total_products: state.value.meta?.total || 0,
+                    total_suppliers: 0,
+                    price_range: { min: 0, max: 0 },
                     average_price: 0,
-                    categories_count: 0,
-                    suppliers_count: 0,
+                    filters_count: 0,
                 })
             } finally {
                 setLoadingState('summary', false)
